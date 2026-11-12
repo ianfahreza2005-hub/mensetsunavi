@@ -1,0 +1,22 @@
+# Sistem operasi
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+
+# Node (bila nanti memakai tooling)
+node_modules/
+npm-debug.log*
+
+# Berkas kerja / sumber besar (simpan di drive tim, bukan di repo)
+*.psd
+*.ai
+*.aup3
+*.story
+_raw/
+_export/

@@ -304,7 +304,7 @@
   }
 
   MN.defineScene({
-    id: 'S03', title: 'Menu Utama', bare: true, home: false,
+    id: 'S03', title: 'Menu Utama', bare: true, home: false, prev: 'S02',
     onEnter: function () { UI.showTrust(S.data.trustShown); MN.Bg.photo(null); },
     steps: [{ id: 'menu', enter: enter }]
   });

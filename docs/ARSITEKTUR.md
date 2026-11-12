@@ -34,7 +34,8 @@ MN.defineScene({
   id: 'S02',            // ID scene, juga bisa dipakai sebagai hash URL (#S02)
   title: 'Onboarding',
   home: false,          // tampilkan tombol Menu (rumah) di HUD
-  bare: false,          // true = sembunyikan bilah bawah Kembali/Lanjut
+  bare: false,          // true = sembunyikan tombol Lanjut (Kembali tetap tampil)
+  prev: 'S01',          // opsional: tujuan Kembali bila riwayat kosong (bawaan 'S03')
   steps: [
     { id: 'mindset',
       gated: true,       // tombol Lanjut nonaktif sampai ctx.enableNext()
@@ -60,6 +61,16 @@ MN.defineScene({
 | `ctx.enableNext(on, label)` | Aktifkan tombol Lanjut |
 | `ctx.next()`, `ctx.back()`, `ctx.goStep(i)`, `ctx.goScene(id)` | Navigasi |
 | `ctx.sfx(nama)` | Efek suara (`click`, `swoosh`, dll.) |
+
+### Tombol Kembali (Previous)
+
+Tombol **‹ Kembali** tampil di setiap layar yang punya layar sebelumnya. Tujuannya ditentukan `App.prevTarget()`:
+
+1. step sebelumnya dalam scene yang sama;
+2. bila di step pertama: layar terakhir di riwayat scene (`App.hist`);
+3. bila riwayat kosong (mis. dibuka lewat `#S04`): scene `prev`, bawaan `S03`.
+
+Tombol disembunyikan di S01 dan pada step `back: false`. Menuju scene yang sudah ada di riwayat (mis. "Kembali ke Menu") memotong riwayat sampai scene itu, jadi Kembali tidak berputar-putar.
 
 ### Transisi
 

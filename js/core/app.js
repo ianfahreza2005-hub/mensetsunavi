@@ -6,14 +6,30 @@
    dan memudar sambil bergeser ke kiri, lapisan scene baru masuk bertahap dari kanan.
 
    Cara mendefinisikan scene:
-     MN.defineScene({ id:'S02', home:false, bare:false, steps:[
+     MN.defineScene({ id:'S02', home:false, bare:false, prev:'S01', steps:[
         { id:'x', gated:true, back:true, next:true, nextLabel:'Lanjut', nextScene:'S03',
           enter(ctx){ ... ctx.enableNext(); } } ] })
    ========================================================================== */
 (function () {
   'use strict';
   var MN = window.MN, UI = MN.UI, S = MN.State, A = MN.Audio;
-  var App = (MN.App = { cur: null, idx: 0, stepEl: null, token: 0, ctx: null, scenes: {} });
+  var App = (MN.App = { cur: null, idx: 0, stepEl: null, token: 0, ctx: null, scenes: {}, hist: [] });
+
+  /* Tujuan tombol Kembali dari layar sekarang:
+     1) step sebelumnya dalam scene yang sama;
+     2) layar terakhir di riwayat (scene yang benar-benar dikunjungi sebelumnya);
+     3) bila riwayat kosong (mis. dibuka lewat #S04): scene `prev` milik scene ini,
+        bawaan 'S03' (Menu Utama) untuk semua scene selain S01.
+     Mengembalikan null bila tidak ada (S01, atau step bernilai dengan back:false). */
+  App.prevTarget = function () {
+    var sc = App.cur; if (!sc) return null;
+    if (sc.steps[App.idx].back === false) return null;
+    if (App.idx > 0) return { step: App.idx - 1 };
+    if (App.hist.length) { var t = App.hist[App.hist.length - 1]; return { id: t.id, step: t.idx, fromHist: true }; }
+    var p = sc.prev !== undefined ? sc.prev : (sc.id === 'S01' ? null : 'S03');
+    if (!p || !App.scenes[p]) return null;
+    return { id: p, step: App.scenes[p].steps.length - 1 };
+  };
 
   MN.defineScene = function (def) { App.scenes[def.id] = def; };
 
@@ -62,7 +78,7 @@
 
     UI.configureNav({
       bare: !!sc.bare,
-      showBack: !sc.bare && App.idx > 0 && step.back !== false,
+      showBack: !!App.prevTarget(),
       showNext: !sc.bare && step.next !== false,
       nextLabel: step.nextLabel,
       nextEnabled: step.gated ? false : true,
@@ -92,6 +108,15 @@
     var sc = App.scenes[id];
     if (!sc) { console.warn('Scene tidak ditemukan:', id); return; }
     if (App.cur && App.cur.onExit) App.cur.onExit(App);
+    /* Riwayat scene: kembali ke S01 = mulai baru; menuju scene yang sudah ada di riwayat
+       (mis. "Kembali ke Menu") = potong riwayat sampai sebelum scene itu agar tidak berputar. */
+    if (id === 'S01') App.hist = [];
+    else if (!opts.fromBack && App.cur && App.cur.id !== id) {
+      var at = -1;
+      App.hist.forEach(function (e, i) { if (e.id === id) at = i; });
+      if (at >= 0) App.hist.length = at;
+      else App.hist.push({ id: App.cur.id, idx: App.idx });
+    }
     var first = !App.stepEl;
     App.cur = sc; App.idx = opts.step || 0;
     document.body.setAttribute('data-scene', id);
@@ -111,7 +136,12 @@
     if (App.idx < sc.steps.length - 1) App.goStep(App.idx + 1);
   };
   App.back = function () {
-    if (App.idx > 0) { A.sfx('swoosh'); App.goStep(App.idx - 1); }
+    var t = App.prevTarget();
+    if (!t) return;
+    A.sfx('swoosh');
+    if (t.id === undefined) { App.goStep(t.step); return; }
+    if (t.fromHist) App.hist.pop();
+    App.go(t.id, { step: t.step, dir: -1, fromBack: true });
   };
   App.refresh = function () { if (App.cur) App.mount(0); };
 
@@ -134,7 +164,7 @@
       if (!$('#help').hidden) { if (e.key === 'Escape') UI.closeHelp(); return; }
       var nx = $('#btnNext'), bk = $('#btnBack');
       if ((e.key === 'ArrowRight' || e.key === 'Enter') && nx.style.visibility !== 'hidden' && !nx.disabled && !$('#bottom').classList.contains('bare') && document.activeElement.tagName !== 'BUTTON') { A.init(); App.next(); }
-      if (e.key === 'ArrowLeft' && bk.style.visibility !== 'hidden' && !$('#bottom').classList.contains('bare')) { A.init(); App.back(); }
+      if (e.key === 'ArrowLeft' && bk.style.visibility !== 'hidden') { A.init(); App.back(); }
     });
 
     var hash = (location.hash || '').replace('#', '');

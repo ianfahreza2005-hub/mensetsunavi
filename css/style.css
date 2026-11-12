@@ -155,7 +155,7 @@ body[data-bgmode="soft"] .l-light { background-color: rgba(255, 253, 244, .34); 
 
 /* ---------- Bilah bawah ---------- */
 #bottom { position: absolute; left: 26px; right: 26px; bottom: 20px; display: flex; align-items: flex-end; gap: 16px; z-index: 60; }
-#bottom.bare #btnBack, #bottom.bare #btnNext { display: none; }
+#bottom.bare #btnNext { display: none; }
 .caption { flex: 1 1 auto; max-width: 900px; margin: 0 auto; background: rgba(11, 60, 65, .9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, .14); color: #fff; border-radius: 18px; padding: 12px 18px 12px 16px; display: flex; align-items: center; gap: 14px; box-shadow: inset 4px 0 0 var(--cream), var(--shadow); transition: opacity .35s, transform .35s; min-height: 62px; }
 .caption.off { opacity: 0; transform: translateY(10px); pointer-events: none; }
 .caption.finished { background: rgba(11, 60, 65, .84); }

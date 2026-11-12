@@ -276,7 +276,7 @@
   }
 
   MN.defineScene({
-    id: 'S02', title: 'Onboarding', home: false,
+    id: 'S02', title: 'Onboarding', home: false, prev: 'S01',
     steps: [
       { id: 'mindset', gated: true, enter: layer1 },
       { id: 'penilaian', gated: true, enter: layer2 },

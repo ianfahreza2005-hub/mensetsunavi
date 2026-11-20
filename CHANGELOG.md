@@ -7,6 +7,10 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 ### Ditambahkan
 - Tombol **‹ Kembali** di setiap halaman (kecuali halaman pembuka dan aktivitas bernilai), termasuk S03 Menu Utama dan layar modul.
 - Riwayat scene: Kembali di step pertama sebuah scene membuka layar terakhir dari scene sebelumnya.
+- Ikon tab (favicon) `assets/favicon.svg`.
+
+### Diperbaiki
+- Error 404 `favicon.ico` di Console peramban.
 
 ## [0.1.0] — Prototipe
 

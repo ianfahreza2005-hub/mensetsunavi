@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Ikon tab Mensetsu Navi: cap hanko merah dengan huruf 面 (mensetsu) -->
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="#BA1502"/>
+  <rect x="8" y="8" width="48" height="48" rx="10" fill="none" stroke="#FEE893" stroke-width="3"/>
+  <text x="32" y="45" text-anchor="middle" font-family="'Noto Sans JP','Yu Gothic','Meiryo',sans-serif" font-size="36" font-weight="700" fill="#FEE893">面</text>
+</svg>

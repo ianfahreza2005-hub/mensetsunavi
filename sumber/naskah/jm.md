@@ -1,0 +1,79 @@
+# T2 · Jabaran Materi (JM) — Mensetsu Navi
+@date 2026-11-22
+
+Jabaran Materi menguraikan isi setiap pokok bahasan di GBIM. Satu baris = satu pelajaran (kelompok slide) di produk, sehingga JM ini langsung menjadi dasar flowchart dan storyboard. Naskah lengkap per slide (teks layar, narasi, interaksi, soal) ada di dokumen Bab 1–6 dan Evaluasi Sumatif. Semua teks Jepang ditulis dengan pola 「日本語」 (romaji, “arti”).
+
+**Tujuan umum:** Diberikan simulasi wawancara kerja berbahasa Jepang dalam multimedia, peserta pelatihan LPK tingkat N4 mampu menerapkan tahapan mensetsu, mulai dari masuk ruangan, jikoshoukai, menjawab pertanyaan pewawancara, hingga menutup wawancara, sesuai etika dan budaya komunikasi kerja Jepang dengan capaian skor minimal 75.
+
+## TIK 1 · Bab 1 Mengenal Mensetsu
+
+TIK: Peserta mampu menjelaskan ciri khas mensetsu di perusahaan Jepang dan menyiapkan diri sebelum hari wawancara.
+
+| No | Pokok bahasan | Judul (slide) | Uraian materi | Latihan / evaluasi |
+|---|---|---|---|---|
+| 1.1 | Karakteristik mensetsu | P1 Apa Itu Mensetsu? (B1-02 s.d. 04) | 面接 (mensetsu, “wawancara kerja”) dan 面接官 (mensetsukan, “pewawancara”). Selain kemampuan, perusahaan Jepang cenderung memperhatikan sikap dan kepribadian, jawaban yang jujur, detail etika, kerja sama tim dan kepatuhan pada aturan, serta komitmen bekerja jangka panjang. Prinsip “hire for attitude, train for skill”: calon pekerja asing tidak dituntut sempurna berbahasa Jepang. Alur lima tahap: 入室 (nyuushitsu, “masuk ruangan”) → 自己紹介 (jikoshoukai, “perkenalan diri”) → 質疑応答 (shitsugi outou, “tanya jawab”) → 逆質問 (gyaku shitsumon, “bertanya balik”) → 退室 (taishitsu, “keluar ruangan”), dengan Hou-Ren-Sou sebagai dasar sepanjang alur. | Pemantik dua kandidat (tidak dinilai); peta alur interaktif |
+| 1.2 | Aspek yang dinilai | P2 Yang Dinilai Pewawancara (B1-05, 06) | Tiga aspek: (1) komunikasi: memahami pertanyaan sederhana dan menjawab dengan jelas; (2) sikap dan etika (マナー, manaa): salam, ojigi, postur, kerapian, ketepatan waktu; (3) kejujuran dan kemauan beradaptasi. Kesan pertama (第一印象, daiichi inshou, “kesan pertama”) terbentuk sejak tiba: di pintu gedung, meja resepsionis (「おはようございます。〇〇と申します。十時の面接に来ました。」, Ohayou gozaimasu. … to moushimasu. Juuji no mensetsu ni kimashita, “Selamat pagi. Nama saya …. Saya datang untuk wawancara pukul 10.”), ruang tunggu, dan saat dipanggil. | Kartu balik tiga aspek; hotspot lobi kantor |
+| 1.3 | Persiapan wawancara | P3 Persiapan Sebelum Wawancara (B1-07 s.d. 10) | Dokumen dan pengetahuan: 履歴書 (rirekisho, “riwayat hidup format Jepang”), info perusahaan, jikoshoukai, jawaban pertanyaan umum, jadwal dan kontak perusahaan. 身だしなみ (midashinami, “kerapian penampilan”): rambut, setelan gelap dan kemeja putih atau seragam LPK, kuku, aksesori, sepatu, tas. Waktu: tiba ±10 menit sebelum jadwal; jika akan terlambat, kabari sebelum jadwal. HP mati atau senyap. Wawancara online: cek perangkat 15 menit sebelumnya, masuk 5 menit sebelum jadwal, latar rapi, kamera sejajar mata, pakaian lengkap. Mental: gugup itu wajar; latihan berulang, napas pelan, 「少し考えてもいいですか。」 (Sukoshi kangaete mo ii desu ka, “Bolehkah saya berpikir sebentar?”), fokus pada maksud. | Aktivitas kelompokkan “Siap/Belum siap” (8 kartu) · Kuis Bab 1 (B1-12): 5 dari bank 10 soal, lulus ≥ 80 |
+
+## TIK 2 · Bab 2 Hou-Ren-Sou
+
+TIK: Peserta mampu menerapkan prinsip Hou-Ren-Sou dalam situasi kerja dan wawancara.
+
+| No | Pokok bahasan | Judul (slide) | Uraian materi | Latihan / evaluasi |
+|---|---|---|---|---|
+| 2.1 | Konsep Hou-Ren-Sou | P1 Mengenal Hou-Ren-Sou (B2-02 s.d. 06) | ほうれん草 (hourensou, “bayam”) berbunyi sama dengan 報連相 (hourensou), singkatan yang dicetuskan Yamazaki Tomio. Penting karena kerja tim, atasan butuh informasi, masalah tetap kecil, dan bagi pekerja asing bertanya lebih aman daripada menebak. 報告 (houkoku, “melapor”): hasil dan perkembangan kerja kepada atasan; 結論から (ketsuron kara, “kesimpulan dulu”), kabar buruk secepatnya, atas inisiatif sendiri. 連絡 (renraku, “mengabari”): fakta kepada semua pihak terkait, sebelum kejadian, misalnya 「すみません。電車が遅れていて、10分ほど遅れます。」 (Sumimasen. Densha ga okurete ite, juppun hodo okuremasu, “Maaf, kereta terlambat, saya akan terlambat sekitar 10 menit.”). 相談 (soudan, “berkonsultasi”): meminta saran atasan atau 先輩 (senpai, “senior”) sebelum memutuskan. | Pemantik “bayam”; kartu ungkapan dengan audio |
+| 2.2 | Membedakan Hou, Ren, Sou | P2 Membedakan Ketiganya (B2-07, 08) | Perbandingan kepada siapa, kapan, isi, dan arah komunikasi. Cara mudah mengingat: houkoku = hasil kerja · renraku = kabar · soudan = minta saran. | Kelompokkan 9 situasi kerja ke kotak 報告/連絡/相談 |
+| 2.3 | Hou-Ren-Sou dalam wawancara | P3 Hou-Ren-Sou di Wawancara (B2-09 s.d. 11) | Renraku sebelum wawancara: akan terlambat, berhalangan, atau koneksi online putus, dengan contoh telepon kepada perusahaan. Pertanyaan situasional: 「仕事でミスをしたら、どうしますか。」 (Shigoto de misu o shitara, dou shimasu ka, “Jika membuat kesalahan dalam pekerjaan, apa yang kamu lakukan?”), pertanyaan saat tidak tahu cara kerja, dan saat akan terlambat; pola jawaban = tindakan Hou-Ren-Sou + komitmen. | Komik bercabang 4 kasus (label salah, hal yang tidak dipahami, kereta terlambat, kosakata pewawancara) dengan indikator Kepercayaan · Kuis Bab 2 (B2-13) |
+
+## TIK 3 · Bab 3 Nyuushitsu & Ojigi
+
+TIK: Peserta mampu menerapkan etika masuk ruangan, ojigi, dan sikap duduk sesuai urutan yang benar.
+
+| No | Pokok bahasan | Judul (slide) | Uraian materi | Latihan / evaluasi |
+|---|---|---|---|---|
+| 3.1–3.2 | Etika masuk ruangan | P1 Langkah Masuk Ruangan (B3-02 s.d. 07) | Tujuh langkah: (1) ketuk tiga kali; (2) tunggu 「どうぞ」 (douzo, “silakan”) atau 「お入りください」 (ohairi kudasai, “silakan masuk”); (3) buka pintu, ucapkan 「失礼します」 (shitsurei shimasu, “permisi”), masuk; (4) tutup pintu dengan tenang tanpa membelakangi pewawancara sepenuhnya, lalu hadap pewawancara dan ojigi; (5) berjalan ke samping kursi; (6) perkenalan singkat 「〇〇と申します。本日はよろしくお願いいたします。」 (… to moushimasu. Honjitsu wa yoroshiku onegai itashimasu, “Nama saya …. Mohon kerja samanya hari ini.”) + ojigi; (7) setelah 「どうぞおかけください」 (douzo okake kudasai, “silakan duduk”), ucapkan 「失礼します」 lalu duduk. Versi wawancara online. | Video “Temukan 3 kesalahan”; video benar–salah menutup pintu; dengar & tirukan dengan rekam suara (tidak dinilai) |
+| 3.3 | Ojigi | P2 Ojigi (B3-08 s.d. 10) | お辞儀 (ojigi, “membungkuk memberi hormat”): 会釈 (eshaku) ±15° salam ringan, 敬礼 (keirei) ±30° hormat dan paling sering dipakai, 最敬礼 (saikeirei) ±45° sangat hormat. 語先後礼 (gosen gorei, “kata dulu, baru membungkuk”); badan dibungkukkan dari pinggang dengan punggung dan leher lurus, berhenti ±1 detik, kembali tegak perlahan; posisi tangan pria dan wanita. | Slider sudut ojigi; video benar–salah; pilih ojigi untuk 5 situasi |
+| 3.4 | Sikap duduk | P3 Duduk dan Latihan Gabungan (B3-11, 12) | Duduk tegak di dua pertiga depan kursi tanpa bersandar; tangan di atas paha; kaki rapat atau selebar pinggul; pandangan natural; tas di lantai samping kursi. Hindari bersandar, menyilangkan kaki atau tangan, menggoyangkan kaki, memainkan rambut atau pulpen. | Hotspot figur duduk; urutkan 7 langkah dan lengkapi ucapan · Kuis Bab 3 (B3-14) |
+
+## TIK 4 · Bab 4 Jikoshoukai
+
+TIK: Peserta mampu menyusun dan mengucapkan jikoshoukai lima blok selama 30–60 detik.
+
+| No | Pokok bahasan | Judul (slide) | Uraian materi | Latihan / evaluasi |
+|---|---|---|---|---|
+| 4.1 | Fungsi jikoshoukai | P1 Fungsi Jikoshoukai (B4-02 s.d. 04) | Diminta dengan 「自己紹介をお願いします。」 (Jikoshoukai o onegai shimasu, “Silakan perkenalkan diri.”). Empat fungsi: kesan pertama, “daftar isi” diri yang menjadi bahan pertanyaan, bukti kemampuan bahasa, dan mencairkan suasana. Durasi ideal 30–60 detik. Beda dengan 自己PR (jiko PR, “promosi diri”): tujuan, durasi 1–3 menit, isi, dan cara diminta. | Pemantik: bandingkan dua audio jikoshoukai |
+| 4.2–4.3 | Struktur dan ungkapan | P2 Lima Blok (B4-05 s.d. 11) | Lima blok: Siapa → Dari mana → Pernah apa → Bisa apa → Mau apa. Blok 1–2: 「はじめまして。」 (hajimemashite, “salam kenal”), 「〇〇と申します。」 (… to moushimasu, “nama saya …”), 「インドネシアの〇〇から参りました。」 (Indoneshia no … kara mairimashita, “saya berasal dari …, Indonesia”), usia (二十歳 dibaca hatachi). Blok 3: lulus sekolah, lama belajar bahasa Jepang, N4, pengalaman kerja. Blok 4: 「私の長所は、〜ことです。」 (Watashi no chousho wa, … koto desu, “Kelebihan saya adalah …”) + satu bukti. Blok 5: motivasi (「日本の会社で一生懸命働きたいです。」, Nihon no kaisha de isshoukenmei hatarakitai desu, “Saya ingin bekerja dengan sungguh-sungguh di perusahaan Jepang.”) dan penutup 「どうぞよろしくお願いいたします。」 (Douzo yoroshiku onegai itashimasu, “Mohon bimbingan dan kerja samanya.”) + keirei; hindari motivasi yang hanya soal uang. Contoh utuh jikoshoukai Rani ±40 detik. | Memory match 10 pasang kosakata |
+| 4.5–4.6 | Pelafalan dan kesalahan umum | P3 Pelafalan dan Kesalahan Umum (B4-12, 13) | Enam tips hatsuon: tempo sedang, jeda ±1 detik di akhir blok, vokal panjang (高校 koukou ≠ ここ koko), konsonan ganda っ, desu/masu dengan intonasi turun, suara jelas dan pandangan ke depan. Enam kesalahan umum: terlalu singkat, terlalu panjang (menjadi jiko PR), bahasa santai, tanpa jeda karena menghafal, tidak menyebut kelebihan atau motivasi, menunduk dan suara pelan. | Audio benar–salah per tips; dengar 4 rekaman dan temukan kesalahannya |
+| 4.4, 4.6 | Jikoshoukai pribadi | P4 Jikoshoukai-ku (B4-14, 15) | Menyusun jikoshoukai sendiri lewat lima langkah isian/pilihan (kalimat sudah dicek SME, lengkap dengan romaji dan arti) dan perkiraan durasi. Merekam dan menilai diri: Lapis 1 analisis otomatis (durasi 30–60 detik, jeda ≥ 0,5 detik, volume), Lapis 2 checklist 7 butir, Lapis 3 rubrik instruktur 5 aspek dari rekaman yang diunduh. | Penyusun jikoshoukai; latihan lisan 3 lapis (tidak masuk kelulusan) · Kuis Bab 4 (B4-17) |
+
+## TIK 5 · Bab 5 Menjawab Pertanyaan
+
+TIK: Peserta mampu menjawab pertanyaan pewawancara, termasuk yang tidak terduga, dengan jujur dan sopan.
+
+| No | Pokok bahasan | Judul (slide) | Uraian materi | Latihan / evaluasi |
+|---|---|---|---|---|
+| 5.2 | Pola menjawab | P1 Pola Menjawab (B5-02, 03) | Jawaban cukup 2–3 kalimat (±15–30 detik) dengan pola Jawab (結論, ketsuron) → Alasan (理由, riyuu) → Semangat (意欲, iyoku). Contoh untuk 「なぜ日本で働きたいですか。」 (Naze Nihon de hatarakitai desu ka, “Mengapa kamu ingin bekerja di Jepang?”). Hindari hanya menjawab satu kata atau bercerita lebih dari satu menit. | Pemantik: pertanyaan diucapkan terlalu cepat |
+| 5.1–5.2 | Pertanyaan umum dan tak terduga | P2 Pertanyaan Umum dan Tak Terduga (B5-04 s.d. 08) | Empat kelompok pertanyaan dengan contoh jawaban Rani dan tips: motivasi (alasan ke Jepang, 志望動機 shibou douki, “alasan melamar”), diri (kelebihan dan kekurangan, stamina), kemampuan dan pengalaman (tingkat bahasa Jepang, yang dikuasai dan masih sulit, pekerjaan sebelumnya), kesiapan bekerja (lama ingin bekerja, tujuan masa depan, 定着意欲 teichaku iyoku, “kemauan bertahan bekerja”). Pertanyaan berisiko diskriminatif (keluarga, agama, asal keluarga). Pertanyaan sehari-hari yang tak terduga (hobi, hari libur, makanan Jepang, sarapan, hal baik tentang Indonesia): jawab singkat, jujur, ditambah satu detail. | Kartu tanya-jawab dengan audio; latihan acak 5 audio (tebak topik) |
+| 5.3, 5.2 | Saat tidak paham; kejujuran | P3 Tidak Paham dan Jujur (B5-09, 10) | Ungkapan penyelamat: 「すみません、もう一度お願いします。」 (Sumimasen, mou ichido onegai shimasu, “Maaf, mohon diulang sekali lagi.”), meminta bicara lebih pelan, menanyakan arti satu kata, memastikan maksud, meminta waktu berpikir; jujur dengan sopan bila tetap tidak paham. Hindari pura-pura paham, diam lama, menjawab topik lain. Mengatasi gugup di tengah wawancara. Jawaban jujur tentang kemampuan lebih bernilai daripada jawaban “menyelamatkan diri”. | Simulasi mini meminta diulang; pilih jawaban jujur dan lihat akibatnya |
+| 5.4 | Bertanya balik | P4 Bertanya Balik (B5-11, 12) | 「何か質問はありますか。」 (Nanika shitsumon wa arimasu ka, “Apakah ada pertanyaan?”). Contoh pertanyaan baik: pekerjaan pertama setelah diterima, hal yang sebaiknya dipelajari sebelum berangkat, ada tidaknya senior dari luar negeri. Hindari langsung menanyakan gaji dan libur (tanyakan lewat LPK), hal dasar tentang perusahaan, atau hanya menjawab 「ありません。」 (arimasen, “tidak ada”); kalimat alternatif bila semua sudah terjawab. | Pilih jawaban terbaik untuk 4 pertanyaan dengan reaksi pewawancara |
+| 5.2 | Latihan lisan | P5 Latihan Lisan (B5-13) | Menjawab tiga pertanyaan acak dari B5-04 s.d. 07 dengan suara sendiri memakai pola Jawab → Alasan → Semangat; analisis Lapis 1 dan checklist Lapis 2. | Latihan lisan 3 lapis · Kuis Bab 5 (B5-15) |
+
+## TIK 6 · Bab 6 Taishitsu
+
+TIK: Peserta mampu menutup wawancara dan keluar ruangan sesuai etika, lalu menindaklanjutinya.
+
+| No | Pokok bahasan | Judul (slide) | Uraian materi | Latihan / evaluasi |
+|---|---|---|---|---|
+| 6.1–6.2 | Etika keluar ruangan | P1 Langkah Keluar Ruangan (B6-02 s.d. 06) | Penilaian berlangsung sampai keluar gedung. Lima langkah: (1) pewawancara menutup dengan 「以上で面接を終わります。」 (Ijou de mensetsu o owarimasu, “Dengan ini wawancara selesai.”); (2) ucapkan 「本日はありがとうございました。」 (Honjitsu wa arigatou gozaimashita, “Terima kasih banyak untuk hari ini.”) sambil duduk + ojigi, lalu berdiri dan ambil tas; (3) di samping kursi 「ありがとうございました。」 + 最敬礼 (saikeirei, 45°); (4) di depan pintu berbalik, 「失礼します。」 (shitsurei shimasu, “permisi”) + 敬礼 (keirei, 30°); (5) keluar dan tutup pintu pelan. Hindari membelakangi lalu pergi, membanting pintu, memakai mantel di dalam kantor. | Video “apakah penilaian sudah selesai?”; video benar–salah |
+| 6.3 | Setelah keluar ruangan | P2 Setelah Keluar Ruangan (B6-07, 08) | Tetap tenang di dalam gedung; berterima kasih kepada resepsionis + eshaku; setelah keluar gedung lakukan houkoku ke LPK: 「先生、面接が終わりました。」 (Sensei, mensetsu ga owarimashita, “Pak/Bu, wawancara sudah selesai.”) dan catat pertanyaan yang muncul sebagai bahan latihan. Wawancara online: tatap kamera saat berterima kasih, ojigi dari kursi, tunggu perusahaan memutus sambungan. | Formulir refleksi setelah wawancara (bisa diunduh) |
+| 6.1–6.2 | Latihan penutup | P3 Latihan (B6-09, rangkuman B6-10) | Menyusun lima langkah penutup dan memilih ucapan serta ojigi yang tepat; peta alur lengkap dari persiapan sampai houkoku ke LPK. | Urutkan & lengkapi langkah penutup · Kuis Bab 6 (B6-11) |
+
+## TIK 7 · Evaluasi Sumatif
+
+TIK: Peserta mampu menerapkan seluruh tahapan mensetsu dalam satu wawancara utuh dan menilai kesiapan dirinya.
+
+| No | Pokok bahasan | Judul | Uraian materi | Latihan / evaluasi |
+|---|---|---|---|---|
+| 7.0 | Kemampuan awal | Pre-test | 20 soal pilihan ganda berbentuk situasi yang mencakup Bab 1–6 (Bab 1: no. 1–2, Bab 2: 3–5, Bab 3: 6–9, Bab 4: 10–13, Bab 5: 14–17, Bab 6: 18–20), tanpa umpan balik per soal. | Skor pre-test (dasar N-gain) |
+| 7.1 | Wawancara utuh | Simulasi Mensetsu (SIM-01 s.d. 13) | Wawancara di さくら食品 (Sakura Shokuhin, “Sakura Foods”, fiktif) bersama 田中さん (Tanaka-san) dalam lima fase: sebelum masuk ruangan, masuk ruangan, jikoshoukai, tanya jawab (termasuk pertanyaan tak terduga dan bertanya balik), dan penutup. Setiap momen punya tiga pilihan (tepat 10, kurang tepat 5, salah 0) dan waktu 20 detik; arti ucapan pewawancara disembunyikan; Trust Meter sebagai umpan balik visual; Mode Latihan tanpa timer tersedia sebelum simulasi resmi. | Skor Simulasi (maks 130 → 0–100), Skor Komunikasi, Skor Etika & Budaya Kerja |
+| 7.2 | Kesiapan diri | Post-test dan Rapor (RAP-01 s.d. 03) | Post-test 20 soal yang sama dengan pre-test (urutan diacak). Rapor menampilkan Nilai Sumatif = 50% Skor Simulasi + 50% Skor Post-test (lulus ≥ 75; ≥ 85 Siap Wawancara, 75–84 Lulus Perlu Penguatan, < 75 Belum Lulus), N-gain, rincian per bab dan per momen, Profil Kesiapan Lisan, umpan balik dan rekomendasi otomatis, serta unduhan untuk instruktur. | Nilai Sumatif dan kategori; rekomendasi remedial |

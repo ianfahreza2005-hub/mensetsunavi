@@ -1,5 +1,5 @@
 """Membuat js/data/kursus.js dari ekspor naskah (tools/xml.json: XML dok Bab 1-6, Evaluasi, Fitur Global; tools/sb.json: data storyboard).
-Kedua file sumber tidak disimpan di repo; minta ke penyusun naskah bila perlu membuat ulang. Jalankan dari akar repo: python tools/gen_data.py"""
+Kedua file sumber ada di folder tools/ (ekspor dari doc Claude). Bila naskah berubah, ekspor ulang lalu jalankan skrip ini. Jalankan dari akar repo: python tools/gen_data.py"""
 import json, re, xml.etree.ElementTree as ET
 x = json.load(open('tools/xml.json'))
 sb = json.load(open('tools/sb.json'))

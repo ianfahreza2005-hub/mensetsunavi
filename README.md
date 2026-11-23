@@ -73,4 +73,4 @@ agar HP peserta mengunduh versi baru. Push ke `main` otomatis menerbitkan situs 
 
 ## Lisensi dan kredit
 
-Maskot Navi dan ilustrasi milik tim pengembang Mensetsu Navi. Three.js © Three.js Authors (MIT). Gerak rak bab diadaptasi dari komponen "Ashen Press" ThreeUI (Meng To). Prototipe lama (Modul 1–5, layar lanskap) tersimpan di tag git `arsip/prototipe-lama`.
+Maskot Navi dan ilustrasi milik tim pengembang Mensetsu Navi. Three.js © Three.js Authors (MIT). Gerak rak bab diadaptasi dari komponen "Ashen Press" ThreeUI (Meng To). Prototipe lama (Modul 1–5, layar lanskap) tersimpan di branch git `arsip/prototipe-lama`.

@@ -445,6 +445,8 @@
         return parts.push(staticTable(t));
       }
       if (g.li) {
+        /* B4-15, B5-13: daftar langkah storyboard (Persiapan, Lapis 1–3) tidak ditampilkan; widget lisan menggantikannya */
+        if (tpl === 'T15' && window.MN_LISAN && window.MN_LISAN.KONF[code]) return;
         var lab = tpl === 'T02' && labeledCards(g.li);
         if (lab) { parts.push(staticLi(g.li)); choiceAt = parts.length; choiceLabels = lab.map(function (c) { return c.label.replace(/\s*\(.*\)$/, ''); }); return; }
         if (tpl === 'T02' && g.li.length >= 2 && g.li.length <= 5 && g.li.every(function (b) { return (b.lvl || 0) === 0; })) {
@@ -470,7 +472,10 @@
       var w = W.choice(cand); var id = ws.length; ws.push(w);
       parts.push('<div class="ix" data-w="' + id + '">' + w.html + '</div>');
     }
-    if (tpl === 'T15') add(W.record());
+    if (tpl === 'T15') {
+      var lw = window.MN_LISAN && window.MN_LISAN.KONF[code] ? window.MN_LISAN.widget(code, { sayJa: sayJa, spk: SPK, esc: esc, toast: function (m) { if (window.MN_APP && window.MN_APP.toast) window.MN_APP.toast(m); } }) : null;
+      add(lw || W.record());
+    }
     if (tpl === 'T09' && !ws.length) return null;
     if (/Kepercayaan/.test((s.screen[0] || {}).p || '')) parts.unshift('<div class="ix-trust" aria-label="Indikator kepercayaan"><span>信頼 Kepercayaan</span><b><i style="width:50%"></i></b></div>');
     if (!ws.length) return null;

@@ -15,7 +15,8 @@
 - [x] T09 Slider ojigi, T12 Cocokkan Kartu, T13 Pilihan Situasi
 - [ ] T14 Dengar & Tebak, gambar panel komik T13
 - [x] T15 Rekam Suara + daftar periksa (Lapis 2)
-- [ ] T15 analisis otomatis Lapis 1: modul siap (`js/suara.js`, dipakai GLB-04), belum dipasang di B4-15/B5-13
+- [x] T15 latihan lisan 3 lapis di B4-15 dan B5-13 (analisis Lapis 1, daftar periksa, profil, unduh rekaman dan rubrik)
+- [ ] Rekaman jikoshoukai opsional setelah SIM-06 (masuk Profil Kesiapan Lisan)
 - [x] T16 Penyusun Jikoshoukai berisian (B4-14)
 
 ## Tahap 3 · Aset

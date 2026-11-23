@@ -507,3 +507,18 @@ b, strong { font-weight: 800; }
 .lt-list { margin: 8px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
 @media (prefers-reduced-motion: reduce) { .lt-dot { animation: none; } .lt-meter i { transition: none; } }
 @media (min-width: 700px) { .lt-modes { grid-template-columns: 1fr 1fr; } .lt-grid { grid-template-columns: repeat(3, 1fr); } .lt-kart { grid-template-columns: repeat(3, 1fr); } }
+
+/* latihan lisan 3 lapis (T15: B4-15, B5-13) */
+.ix-ls { display: flex; flex-direction: column; gap: 12px; }
+.ls-pola { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-weight: 800; color: var(--ink2); }
+.ls-pola span { background: var(--cl); color: var(--c); border-radius: 999px; padding: 4px 12px; font-size: 13px; }
+.ls-teks p { margin: 6px 0; }
+.ls-blok { padding: 8px 0; border-top: 1px solid var(--line); }
+.ls-bn { font-size: 12px; font-weight: 800; color: var(--c); }
+.ls-zone { position: relative; height: 16px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.ls-zone .z { position: absolute; top: 0; bottom: 0; background: var(--goodL); box-shadow: inset 0 0 0 2px var(--good); border-radius: 999px; }
+.ls-zone i { position: absolute; left: 0; top: 5px; height: 6px; background: var(--c); border-radius: 999px; width: 0; transition: width .2s linear; }
+.ls-l1 audio, .ix-ls audio { width: 100%; }
+.ls-l1, .ls-l2, .ls-l3 { display: flex; flex-direction: column; gap: 10px; }
+.ls-l2 .ix-chk label { align-items: flex-start; min-height: 40px; }
+@media (prefers-reduced-motion: reduce) { .ls-zone i { transition: none; } }

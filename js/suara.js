@@ -7,9 +7,9 @@
    API:
      MN_SUARA.bisa()                       → boleh merekam di perangkat ini?
      MN_SUARA.buka(ok, gagal)              → minta izin mikrofon; ok(stream)
-     MN_SUARA.rekam(stream, opsi)          → { stop() } ; opsi: { maks: detik, onLevel(0..1), onDetik(n), onSelesai(hasil) }
+     MN_SUARA.rekam(stream, opsi)          → { stop() } ; opsi: { maks: detik, target:[min,maks] dtk, onLevel(0..1), onDetik(n), onSelesai(hasil) }
      hasil = { url, blob, durasi, level:[...tiap 0,1 dtk], analisis }
-     MN_SUARA.analisis(level)              → { durasi, mulai, jeda:[{dari,ke}], volume:'pelan'|'cukup'|'keras', kartu:[...] }
+     MN_SUARA.analisis(level, [min,maks]?) → { durasi, mulai, jeda:[{dari,ke}], volume:'pelan'|'cukup'|'keras', kartu:[...] }
      MN_SUARA.gelombang(level, jeda)       → string SVG                                   */
 (function () {
   var LANGKAH = 0.1;            /* detik per cuplikan level */
@@ -26,10 +26,13 @@
 
   function persen(a, p) { var s = a.slice().sort(function (x, y) { return x - y; }); return s.length ? s[Math.min(s.length - 1, Math.floor(p * s.length))] : 0; }
 
-  function analisis(level) {
+  function analisis(level, target) {
+    var TG = target || TARGET;
     var n = level.length, dur = n * LANGKAH;
     var lantai = persen(level, 0.1), puncak = persen(level, 0.9);
-    var ambang = Math.max(0.015, lantai * 2, puncak * 0.2);
+    /* ambang relatif terhadap puncak suara; lantai kebisingan hanya dipakai bila memang jauh di bawah puncak
+       (bila peserta bicara terus tanpa diam, persentil-10 sudah setara suara bicara dan harus diabaikan) */
+    var dasar = puncak * 0.15, ambang = Math.max(0.015, dasar, lantai < dasar ? lantai * 2.5 : 0);
     var bicara = level.map(function (v) { return v > ambang; });
     var a = bicara.indexOf(true), b = bicara.lastIndexOf(true);
     if (a < 0) return { durasi: 0, mulai: dur, jeda: [], volume: 'pelan', kosong: true, level: level, ambang: ambang, kartu: [{ k: 'Durasi', v: '0 dtk', t: 'mid', s: 'Suaramu tidak terdeteksi. Cek mikrofon dan dekatkan perangkat, lalu coba lagi.' }] };
@@ -43,9 +46,10 @@
     var panjang = jeda.filter(function (z) { return z.ke - z.dari >= JEDA_PANJANG; }).length;
     var kartu = [];
     var dd = Math.round(durBicara);
-    kartu.push(dd < TARGET[0] ? { k: 'Durasi', v: dd + ' dtk', t: 'mid', s: 'Agak singkat. Target ' + TARGET[0] + '–' + TARGET[1] + ' dtk: tambahkan satu alasan setelah jawabanmu.' }
-      : dd > TARGET[1] ? { k: 'Durasi', v: dd + ' dtk', t: 'mid', s: 'Agak panjang. Target ' + TARGET[0] + '–' + TARGET[1] + ' dtk: jawab, satu alasan, lalu semangat.' }
-      : { k: 'Durasi', v: dd + ' dtk', t: 'good', s: 'Pas. Target ' + TARGET[0] + '–' + TARGET[1] + ' dtk.' });
+    var tg = TG[0] + '–' + TG[1] + ' dtk';
+    kartu.push(dd < TG[0] ? { k: 'Durasi', v: dd + ' dtk', t: 'mid', s: 'Agak singkat. Target ' + tg + (TG[0] >= 30 ? ': tambahkan satu hal di blok latar belakang atau satu bukti.' : ': tambahkan satu alasan setelah jawabanmu.') }
+      : dd > TG[1] ? { k: 'Durasi', v: dd + ' dtk', t: 'mid', s: 'Agak panjang. Target ' + tg + (TG[0] >= 30 ? ': ringkas satu hal di blok latar belakang atau lewati bukti.' : ': jawab, satu alasan, lalu semangat.') }
+      : { k: 'Durasi', v: dd + ' dtk', t: 'good', s: 'Pas. Target ' + tg + '.' });
     kartu.push(jeda.length === 0 ? { k: 'Jeda', v: 'lancar', t: 'good', s: 'Tidak ada jeda panjang. Jawabanmu mengalir.' }
       : panjang > 0 ? { k: 'Jeda', v: jeda.length + ' jeda', t: 'mid', s: 'Ada ' + panjang + ' jeda panjang (≥ ' + JEDA_PANJANG + ' dtk). Boleh berpikir sebentar, lalu lanjut; 「ええと」 (eeto) mengisi jeda dengan sopan.' }
       : { k: 'Jeda', v: jeda.length + ' jeda', t: 'good', s: 'Ada jeda pendek. Wajar untuk mengambil napas.' });
@@ -81,7 +85,7 @@
     mr.onstop = function () {
       clearInterval(tick); try { ctx && ctx.close(); } catch (e) { /* sudah tertutup */ }
       var blob = new Blob(chunks, { type: mr.mimeType || 'audio/webm' });
-      o.onSelesai && o.onSelesai({ blob: blob, url: URL.createObjectURL(blob), durasi: level.length * LANGKAH, level: level, analisis: an ? analisis(level) : null });
+      o.onSelesai && o.onSelesai({ blob: blob, url: URL.createObjectURL(blob), durasi: level.length * LANGKAH, level: level, analisis: an ? analisis(level, o.target) : null });
     };
     mr.start();
     tick = setInterval(function () {

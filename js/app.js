@@ -345,6 +345,15 @@
   }
 
   /* ------------------------------------------------------------ rapor */
+  /* Profil Kesiapan Lisan di rapor (formatif, tidak masuk kelulusan): angka dari rekaman terakhir B4-15 dan B5-13 */
+  function profilLisan(S) {
+    var L = S.lisan; if (!L || (!L.jiko && !(L.jawab && L.jawab.length))) return '';
+    var baris = function (r) { return (r.durasi != null ? 'durasi ' + r.durasi + ' dtk · ' + r.jeda + ' jeda · volume ' + r.volume + ' · ' : '') + 'daftar periksa ' + r.cek + '/' + r.total; };
+    var out = [];
+    if (L.jiko) out.push('<div><b>Jikoshoukai (B4-15)</b><br>' + esc(baris(L.jiko)) + '</div>');
+    (L.jawab || []).forEach(function (r, i) { out.push('<div><b>Jawaban ' + (i + 1) + ' (B5-13)</b><br>' + esc(baris(r)) + '</div>'); });
+    return '<div class="card"><b>Profil Kesiapan Lisan</b><p class="mini">Formatif, tidak masuk batas lulus. Analisis otomatis berupa perkiraan.</p><div class="row-list" style="margin-top:8px">' + out.join('') + '</div></div>';
+  }
   function scrRapor() {
     var S = ST.get();
     if (!S.post || !S.sim) { toast('Rapor terbuka setelah Simulasi dan Post-test.'); return go('#/rak'); }
@@ -359,6 +368,7 @@
       '<div class="mini" style="color:#DCE5F6">50% Simulasi (' + S.sim.score + ') + 50% Post-test (' + S.post.score + ')</div><p><span class="tag ' + kat[1] + '">' + kat[0] + '</span></p></div></div>' +
       '<div class="grid2">' + g('Komunikasi', S.sim.kom, 'var(--pri)') + g('Etika & Budaya Kerja', S.sim.etika, 'var(--good)') + '</div>' +
       '<div class="card"><b>Stempel bab</b><div class="stamps" style="margin-top:10px">' + [1, 2, 3, 4, 5, 6].map(function (n) { return '<span class="' + (S.bab[n] && S.bab[n].stamp ? 'on' : '') + '">済</span>'; }).join('') + '</div></div>' +
+      profilLisan(S) +
       '<div class="card"><b>Peningkatan</b><p>Pre-test ' + pre + ' → Post-test ' + S.post.score + ' · N-gain ' + ng + '</p></div>' +
       '<div class="card"><b>Rekomendasi</b><div class="row-list" style="margin-top:8px">' + (rek.length ? rek.map(function (r) { return '<div>' + esc(r) + '</div>'; }).join('') : '<div>Semua momen simulasi sudah tepat. Lanjutkan dengan praktik bersama instruktur LPK.</div>') + '</div></div>' +
       naviSay('RAP-03', 'Mensetsu Navi adalah persiapan. Lanjutkan dengan latihan wawancara langsung bersama instruktur LPK-mu. Ganbatte!', 'pose_semangat') +
@@ -422,6 +432,7 @@
     if (window.MN_RAK) window.MN_RAK.show();
   }
   window.MN_APP = {
+    toast: function (m) { toast(m); },
     status: function (no) { return ST.status(no); },
     progress: function (no) { return ST.progress(no); },
     stamps: function () { return ST.stamps(); },

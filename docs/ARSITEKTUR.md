@@ -65,7 +65,8 @@ yang cocok dengan widget. Pemilihan widget berdasarkan kode template dan judul k
 | T03/T06/T07/T08 tabel, atau daftar berlabel `**Judul:**` | kartu buka |
 | T11 + paragraf "urutkan … (Bx-xx)" | urutkan langkah dari slide rujukan |
 | T02 | pilih dulu, penjelasan terbuka setelahnya |
-| T15 | perekam suara + daftar periksa |
+| T15 + kode B4-15 / B5-13 | latihan lisan 3 lapis (`js/lisan.js`): rekam + analisis Lapis 1 + daftar periksa Lapis 2 + profil/unduh Lapis 3 |
+| T15 (slide lain, mis. B3-07) | perekam suara + daftar periksa |
 
 Jadi, **mengubah isi naskah cukup lewat `tools/gen_data.py`**; widget ikut menyesuaikan selama judul kolom tetap.
 Slide dengan widget baru tercatat selesai setelah semua widget-nya tuntas.
@@ -102,3 +103,14 @@ dibuat `tools/gen_data.py` dari empat tabel bank di dokumen Fitur Global. Contoh
 
 `js/suara.js` (`MN_SUARA`) = perekam (MediaRecorder + AnalyserNode, cuplikan level tiap 0,1 dtk) dan **analisis Lapis 1** (durasi bicara, jeda ≥ 1 dtk, volume, gelombang SVG).
 Dibuat terpisah agar T15 (B4-15, B5-13) bisa memakainya. `MN_IX.sayJa(teks, rate, onend)` kini menerima kecepatan dan callback selesai.
+
+## Latihan lisan 3 lapis (T15: B4-15, B5-13)
+
+`js/lisan.js` (`MN_LISAN.widget(kode, env)`) dipanggil dari `interaktif.js` untuk B4-15 dan B5-13; slide T15 lain (B3-07) tetap memakai perekam sederhana `W.record`.
+Daftar langkah storyboard di dua slide itu (Persiapan, Lapis 1–3) disembunyikan; widget menggantikannya.
+
+- **B4-15** (jikoshoukai): mode panduan "Teks penuh" (jikoshoukai dari B4-14 bila ada, jika tidak contoh Rani B4-10) atau "Hanya nama blok"; target 30–60 dtk, berhenti otomatis di 90 dtk; Lapis 2 = contoh Rani per blok + daftar periksa 7 butir.
+- **B5-13**: tiga pertanyaan acak dari `D.lisan5` (tabel B5-04..B5-07, dibuat `gen_data.py`); target 10–30 dtk, maks. 60 dtk; Lapis 2 = contoh jawaban Rani + 4 butir daftar periksa.
+- **Lapis 1** memakai `MN_SUARA.analisis(level, target)`. **Lapis 3**: ringkasan profil, "Unduh rekaman" (tiap rekaman satu berkas) dan "Unduh lembar rubrik" (.txt: hasil Lapis 1, centang peserta, kolom skor instruktur).
+- Yang tersimpan hanya angka di `MN_STORE.get().lisan` (`jiko` dan `jawab[]`: durasi, jeda, volume, jumlah centang). Rekaman hanya ada selama slide dibuka. Rapor menampilkan "Profil Kesiapan Lisan" (formatif).
+- Tanpa mikrofon: Lapis 1 dilewati; peserta berlatih dengar-tirukan lalu menekan "Selesai berlatih". Lanjut aktif setelah minimal satu rekaman (atau setelah "Selesai berlatih" tanpa mikrofon).

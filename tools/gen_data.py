@@ -194,7 +194,16 @@ for gi, tb in enumerate([v for t, v in G[g0:g1] if t == 'table' and v[0][:2] == 
                       'a': ans, 'dari': code, 'mirip': (sq['jp'] if sq else '') if (sq and norm(sq['jp']) != norm(q['jp'])) else ''})
 assert [q['no'] for q in latih] == list(range(1, 26)), len(latih)
 assert all(q['a']['jp'] and q['a']['ro'] and q['a']['ar'] for q in latih), [q['no'] for q in latih if not (q['a']['jp'] and q['a']['ro'] and q['a']['ar'])]
-data = {'bab': BAB, 'latih': latih, 'eval': EVAL, 'pre': pre, 'sim': sim, 'slides': slides, 'order': order}
+# soal latihan lisan B5-13: pertanyaan + contoh jawaban Rani dari tabel B5-04..B5-07
+lisan5 = []
+for code in ['B5-04', 'B5-05', 'B5-06', 'B5-07']:
+    for bl in slides[code]['screen']:
+        if 'table' in bl and bl['table'][0][0].lower().startswith('pertanyaan'):
+            for r in bl['table'][1:]:
+                a = pola_b503()[1] if r[1].strip().startswith('Jawaban di') else pecah(r[1])
+                lisan5.append({'q': pecah(r[0]), 'a': a, 'tip': r[2].strip() if len(r) > 2 else '', 'dari': code})
+assert len(lisan5) >= 3 and all(z['q']['jp'] and z['a']['jp'] and z['a']['ro'] and z['a']['ar'] for z in lisan5), len(lisan5)
+data = {'bab': BAB, 'latih': latih, 'lisan5': lisan5, 'eval': EVAL, 'pre': pre, 'sim': sim, 'slides': slides, 'order': order}
 js = '/* Dibuat otomatis dari naskah materi dan storyboard (gen_data.py). Jangan diedit manual. */\nwindow.MN_DATA = ' + json.dumps(data, ensure_ascii=False) + ';\n'
 open('js/data/kursus.js', 'w').write(js)
 print('ok', len(js), {n: len(b['slides']) for n, b in enumerate(BAB, 1)}, len(sim), len(pre))

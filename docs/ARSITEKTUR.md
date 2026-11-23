@@ -1,108 +1,46 @@
 # Arsitektur
 
-Mensetsu Navi adalah *single-page application* tanpa framework. Semua modul menempel pada satu objek global `window.MN`.
+Aplikasi satu halaman tanpa framework dan tanpa *build step*: HTML, CSS, dan JavaScript biasa.
 
-## Urutan pemuatan skrip
+## Rute (hash)
 
-Urutan di `index.html` penting karena setiap file memakai modul yang dimuat sebelumnya:
-
-```
-art.js → bg.js → mascot.js → fx.js → state.js → audio.js → ui.js → app.js
-→ data/content.js → scenes/s01.js … placeholder.js → MN.App.start()
-```
-
-## Namespace `MN`
-
-| Modul | File | Tanggung jawab |
+| Rute | Layar | Kode storyboard |
 |---|---|---|
-| `MN.Art` | `js/core/art.js` | Markup maskot (`Art.mascot(pose, cls, alt)`), ikon, ilustrasi panel SVG |
-| `MN.Bg` | `js/core/bg.js` | Latar beranimasi; `MN.Bg.photo('lobi')` mengganti ilustrasi lokasi |
-| `MN.Mascot` | `js/core/mascot.js` | `MN.Mascot.create({ pose, cls, alt })` → elemen maskot hidup |
-| `MN.Fx` | `js/core/fx.js` | `sakuraWipe(onMid)`, `bgKick(dir, soft)` |
-| `MN.State` | `js/core/state.js` | Progres, Trust Meter, status modul |
-| `MN.Audio`, `MN.Config` | `js/core/audio.js` | Narasi, SFX, musik; konfigurasi audio |
-| `MN.UI` | `js/core/ui.js` | Helper DOM `h()`, HUD, caption, toast, panel bantuan |
-| `MN.App`, `MN.defineScene` | `js/core/app.js` | Mesin navigasi scene/step |
-| `MN.Text` | `data/content.js` | Semua teks yang tampil |
+| `#/mulai` | Layar pembuka, isi nama | GLB-00 |
+| `#/pre/0` … `#/pre/21` | Petunjuk, 20 soal, hasil pre-test | PRE-00–21 |
+| `#/rak` | Rak bab 3D (beranda) | GLB-01 |
+| `#/bab/N/K` | Slide ke-K Bab N (0 = sampul) | B1-01 … B6-11 |
+| `#/kuis/N` | Kuis formatif Bab N | Bx-akhir |
+| `#/sim/0` … `#/sim/15` | Simulasi Mensetsu | SIM-00–15 |
+| `#/post/0` … | Post-test | POST-00–20 |
+| `#/rapor` | Rapor Kesiapan | RAP-01–03 |
+| `#/hal/GLB-0x` | Fitur global | GLB-03–05 |
+| `#/atur` | Pengaturan, mode uji, hapus progres | GLB-06 |
 
-## Scene dan Step
+## Data
 
-Satu **scene** (S01, S02, …) berisi satu atau beberapa **step** (setara *layer* di Articulate Storyline). Berpindah step/scene tidak memuat ulang halaman; elemen `<section class="step">` baru dipasang dan yang lama dianimasikan keluar.
+`js/data/kursus.js` berisi `window.MN_DATA`:
 
-```js
-MN.defineScene({
-  id: 'S02',            // ID scene, juga bisa dipakai sebagai hash URL (#S02)
-  title: 'Onboarding',
-  home: false,          // tampilkan tombol Menu (rumah) di HUD
-  bare: false,          // true = sembunyikan tombol Lanjut (Kembali tetap tampil)
-  prev: 'S01',          // opsional: tujuan Kembali bila riwayat kosong (bawaan 'S03')
-  steps: [
-    { id: 'mindset',
-      gated: true,       // tombol Lanjut nonaktif sampai ctx.enableNext()
-      back: true,        // izinkan tombol Kembali (false untuk aktivitas bernilai)
-      next: true,        // tampilkan tombol Lanjut
-      nextLabel: 'Lanjut',
-      nextScene: 'S03',  // opsional: Lanjut pindah ke scene lain
-      onNext(ctx) { },   // opsional: kembalikan false untuk membatalkan
-      enter(ctx) { /* bangun isi ctx.el */ } }
-  ],
-  onEnter(App) { }, onExit(App) { }
-});
-```
+- `bab[]`: identitas bab (judul, kanji, warna, pelajaran, daftar kode slide) dan `kuis` (10 soal: stem, 4 pilihan, kunci, umpan balik, slide remedial).
+- `slides{kode}`: judul, template (T01–T21), pelajaran, teks layar (`screen`), narasi, rencana visual.
+- `pre[]`: 20 soal pre/post-test. `sim[]`: 13 momen simulasi (situasi, 3 pilihan 10/5/0, jenis skor, acuan).
 
-### Objek `ctx` di dalam `enter(ctx)`
+File ini dibuat otomatis oleh `tools/gen_data.py` dari naskah Bab 1–6, Evaluasi Sumatif, dan storyboard. Ubah isi di dokumen naskah, lalu jalankan ulang skripnya; jangan mengedit `kursus.js` secara manual.
 
-| Properti | Kegunaan |
-|---|---|
-| `ctx.el` | Elemen `<section>` milik step ini |
-| `ctx.alive()` | `false` bila pengguna sudah pindah layar (hindari callback basi) |
-| `ctx.after(ms, fn)` | `setTimeout` yang otomatis batal bila layar sudah berganti |
-| `ctx.narrate(text, opts)` | Putar narasi / tampilkan teks bawah layar |
-| `ctx.enableNext(on, label)` | Aktifkan tombol Lanjut |
-| `ctx.next()`, `ctx.back()`, `ctx.goStep(i)`, `ctx.goScene(id)` | Navigasi |
-| `ctx.sfx(nama)` | Efek suara (`click`, `swoosh`, dll.) |
+## Progres
 
-### Tombol Kembali (Previous)
+`js/store.js` menyimpan nama, hasil pre/post-test, slide yang sudah dilihat, skor kuis terbaik, stempel, dan hasil simulasi di `localStorage` (kunci `mensetsu-navi-v2`). Data tidak pernah dikirim ke server.
 
-Tombol **‹ Kembali** tampil di setiap layar yang punya layar sebelumnya. Tujuannya ditentukan `App.prevTarget()`:
+Aturan kunci: Bab 1–6 terbuka setelah pre-test; Simulasi setelah 6 stempel; Post-test setelah Simulasi; Rapor setelah Post-test. *Mode uji tim* di Pengaturan membuka semuanya.
 
-1. step sebelumnya dalam scene yang sama;
-2. bila di step pertama: layar terakhir di riwayat scene (`App.hist`);
-3. bila riwayat kosong (mis. dibuka lewat `#S04`): scene `prev`, bawaan `S03`.
+## Rak bab 3D
 
-Tombol disembunyikan di S01 dan pada step `back: false`. Menuju scene yang sudah ada di riwayat (mis. "Kembali ke Menu") memotong riwayat sampai scene itu, jadi Kembali tidak berputar-putar.
+`rak.html` dimuat di dalam iframe agar gaya dan *render loop*-nya terpisah. Rak membaca data dan status dari aplikasi induk (`window.parent.MN_DATA`, `MN_APP`) dan memanggil `MN_APP.open(no)` setelah animasi buku terbuka. Saat kembali ke rak, induk memanggil `MN_RAK_RESET()` (buku kembali ke rak, sampul diperbarui) dan `MN_RAK_PAUSE()` saat rak disembunyikan. Tanpa WebGL, rak menampilkan daftar bab biasa.
 
-### Transisi
+## Offline
 
-`App.mount()` menandai hingga 8 blok utama layar dengan kelas `.tx` dan variabel CSS `--k` (indeks kedalaman). CSS memakai nilai ini untuk menunda/menggeser tiap lapisan sehingga tercipta efek parallax. Arah: Lanjut masuk dari kanan, Kembali dari kiri.
+`sw.js` menyimpan semua file aplikasi saat pertama dibuka; font dan rekaman disimpan saat pertama dipakai. Versi cache dihitung dari isi file oleh `tools/build_sw.py`.
 
-## State
+## Suara
 
-Disimpan di `localStorage` dengan kunci `mensetsuNavi.progress.v1`:
-
-```js
-{
-  trust: 50,              // Trust Meter 0–100
-  trustShown: false,
-  done: { M1, M2, M3, M4 },   // = variabel M1Done–M4Done pada storyboard
-  stampSeen: {}, unlockSeen: false, menuIntroSeen: false,
-  onboardingDecision: null,
-  muted: false,
-  scores: {}              // diisi oleh S05–S17
-}
-```
-
-API: `State.addTrust(delta)`, `State.markDone('M1')`, `State.coreDone()`, `State.doneCount()`, `State.reset()`.
-
-Bila struktur data berubah secara tidak kompatibel, naikkan versi kunci (`…v2`) agar progres lama tidak merusak tampilan.
-
-## Audio
-
-- `MN.Config.useRealAudio = false` → narasi tampil sebagai teks bawah layar, durasi diperkirakan dari panjang teks.
-- Ubah ke `true` setelah file rekaman tersedia di `assets/audio/narator/<file>.mp3` (nama `file` diambil dari `data/content.js`).
-- Musik latar sintetis bisa diganti file `assets/audio/musik/bgm.mp3`.
-- Peramban memblokir suara sebelum interaksi pertama; `App.start()` mengaktifkan audio pada `pointerdown` pertama.
-
-## Penempatan latar per scene
-
-`App.go()` menulis `data-scene` pada `<body>`. Posisi dan skala lapisan latar per scene diatur di `css/style.css` lewat selektor `body[data-scene="S0x"]`.
+Tombol **Dengarkan** memutar `assets/audio/narasi/<KODE>.mp3` bila ada; jika belum ada, memakai suara bawaan peramban (bahasa Indonesia).

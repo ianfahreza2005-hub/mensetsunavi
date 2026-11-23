@@ -2,44 +2,34 @@
 
 ## Aturan kerja
 
-1. **Satu scene, satu file** di `js/scenes/` (`s04.js`, `s05.js`, …).
-2. **Teks tidak ditulis di file scene.** Semua teks masuk ke `data/content.js` (lihat [docs/PANDUAN-KONTEN.md](docs/PANDUAN-KONTEN.md)).
-3. **Jangan ubah `js/core/`** tanpa memberi tahu tim; perubahan di sana memengaruhi semua scene.
-4. Gunakan `ctx.after()` alih-alih `setTimeout` di dalam scene agar timer otomatis batal saat layar berganti.
-5. Animasi hanya memakai `transform` dan `opacity`, dan hormati `prefers-reduced-motion`.
-
-## Gaya kode
-
-- JavaScript ES5 di dalam IIFE dengan `'use strict'` (tanpa *build step*, harus jalan dari `file://`).
-- Indentasi 2 spasi, kutip tunggal, titik koma.
-- Komentar dalam Bahasa Indonesia; awali file dengan blok komentar yang menjelaskan isi scene.
-- Nama kelas CSS untuk scene diawali ID scene (mis. `.s04-blok`).
+1. **Isi materi tidak ditulis di kode.** Teks, soal, dan momen simulasi ada di `js/data/kursus.js`, yang dibuat dari naskah dengan `tools/gen_data.py`.
+2. Layar baru atau template slide baru ditambahkan di `js/app.js` (fungsi `scr…`); gaya di `css/app.css`.
+3. Rak bab 3D ada di `rak.html`; jangan ubah tanpa mencoba ulang di HP.
+4. Animasi hanya memakai `transform` dan `opacity`, dan hormati `prefers-reduced-motion`.
+5. Setelah mengubah file apa pun yang dipakai aplikasi, jalankan `python tools/build_sw.py`.
 
 ## Alur Git
 
 ```bash
-git checkout -b scene/s04-jikoshoukai
-# … kerjakan …
-git add .
-git commit -m "feat(s04): lima blok jikoshoukai"
-git push -u origin scene/s04-jikoshoukai
+git checkout -b fitur/t05-kartu-ungkapan
+git commit -m "feat(t05): kartu ungkapan audio"
+git push -u origin fitur/t05-kartu-ungkapan
 ```
 
-Lalu buka Pull Request ke `main`. Format pesan commit:
+Buka Pull Request ke `main`; setelah digabung, situs terbit otomatis.
 
 | Awalan | Untuk |
 |---|---|
-| `feat(sXX):` | Scene/fitur baru |
-| `fix(sXX):` | Perbaikan bug |
-| `content:` | Perubahan teks di `data/content.js` |
+| `feat:` | Layar/fitur baru |
+| `fix:` | Perbaikan bug |
+| `content:` | Perubahan isi (kursus.js) |
 | `asset:` | Menambah/mengganti aset |
 | `style:` | CSS saja |
 | `docs:` | Dokumentasi |
 
 ## Sebelum Pull Request
 
-- [ ] Scene bisa dibuka langsung lewat `index.html#SXX`
-- [ ] Tombol Kembali/Lanjut dan keyboard (← / → / Enter) bekerja
 - [ ] Tidak ada error di Console peramban
-- [ ] Dicoba di layar desktop dan ponsel lanskap
+- [ ] Dicoba di HP (tegak dan landscape) dan laptop
+- [ ] Dicoba offline (setelah dibuka sekali)
 - [ ] `CHANGELOG.md` diperbarui

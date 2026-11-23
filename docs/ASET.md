@@ -1,57 +1,27 @@
 # Aset
 
-## Maskot Navi — `assets/mascot/`
+## Maskot Navi
 
-PNG transparan, dipotong dari character sheet resmi (satu pose/ekspresi per file). Bagian tubuh tidak dipisah agar anatomi tetap utuh; gerakan dibuat oleh `js/core/mascot.js`.
+- `assets/mascot/*.png`: file asli resolusi penuh dari character sheet (±0,5 MB per file).
+- `assets/navi/*.webp`: versi ringan untuk web (tinggi 480 px), dipakai aplikasi.
 
-| Awalan | Jenis | File |
-|---|---|---|
-| `exp_` | Ekspresi wajah (setengah badan) | `berpikir`, `bingung`, `gugup`, `menangis`, `netral`, `percaya_diri`, `sedih`, `senang` |
-| `pose_` | Pose & gestur (seluruh badan) | `berdiri`, `berlari`, `dagu`, `duduk`, `jempol`, `melambai`, `melompat`, `menunduk`, `menunjuk`, `menyilang`, `semangat` |
-| `act_` | Aktivitas | `berbicara`, `memberi_salam`, `presentasi`, `smartphone` |
-| `turn_` | Turnaround resolusi tinggi | (belum ada) |
-
-Pemakaian: `MN.Art.mascot('pose_jempol', 'kelas-css', 'Navi mengacungkan jempol')`.
-
-> Ukuran tiap PNG ±0,4–0,8 MB. Pertimbangkan konversi ke WebP sebelum rilis agar pemuatan di ponsel lebih cepat.
+Awalan nama: `exp_` ekspresi, `pose_` pose seluruh badan, `act_` aktivitas. Bila menambah pose baru, simpan PNG di `assets/mascot/` lalu buat WebP-nya (tinggi 480 px) di `assets/navi/` dengan nama yang sama.
 
 ## Latar lokasi — `assets/bg/`
 
-| File | Dipakai di |
-|---|---|
-| `kantor_eksterior.webp` | S01 Halaman Pembuka, S02 layer Tiga Penilaian (mode `soft`) |
-| `stasiun.webp` | S02 layer Mindset |
-| `lobi.webp` | S02 layer Keputusan, layer Misi (mode `soft`) |
-| `peta.webp` | S03 Menu Utama — gambar peta di panel (area 1010 × 720 px), bukan lewat `Bg.photo` |
-| `koridor.webp` | Modul 2 / Modul 4 (rencana) |
-| `ruang_wawancara.webp` | Modul 4 (rencana) |
+`kantor_eksterior`, `stasiun`, `lobi`, `koridor`, `ruang_wawancara`, `peta` (WebP 1672 × 941). Simulasi memakai eksterior (momen 1–2), koridor (3–5), dan ruang wawancara (6–13).
 
-Pemakaian: `MN.Bg.photo('lobi')`, `MN.Bg.photo('lobi', 'soft')` (diredupkan agar kartu terbaca), `MN.Bg.photo(null)` (tanpa ilustrasi).
+## Rekaman — nama file mengikuti kode slide
 
-## Audio — `assets/audio/`
+| Jenis | Lokasi | Contoh |
+|---|---|---|
+| Narasi narator (ID) | `assets/audio/narasi/` | `B3-08.mp3` |
+| Ungkapan Jepang penutur asli | `assets/audio/jp/` | `B3-08_01.mp3` (kode + nomor urut) |
+| Ucapan pewawancara simulasi | `assets/audio/sim/` | `SIM-04.mp3` |
+| Video peragaan | `assets/video/` | `B3-05_benar.mp4`, `B3-05_salah1.mp4` |
 
-Belum diisi. Struktur yang diharapkan `js/core/audio.js`:
+Format disarankan: MP3 mono 64–96 kbps, video MP4 H.264 720p. Setelah menambah file, jalankan `python tools/build_sw.py`.
 
-```
-assets/audio/
-├── narator/   s01_01.mp3, s02_01.mp3, …   (nama dari field `file` di data/content.js)
-└── musik/     bgm.mp3
-```
+## Ikon
 
-Setelah file tersedia, ubah `MN.Config.useRealAudio` menjadi `true` di `js/core/audio.js`.
-
-## Palet warna resmi
-
-| Nama | Hex |
-|---|---|
-| Japanese Red | `#BA1502` |
-| Vermilion | `#FF482C` |
-| Cream | `#FEE893` |
-| Teal | `#1D9999` |
-| Teal gelap | `#0E6B6D` |
-| Sky | `#9CCCD6` |
-| Ink | `#0B3C41` |
-
-## Font
-
-Poppins (Latin) dan Noto Sans JP (Jepang) dari Google Fonts, dengan cadangan font sistem.
+`assets/icon-192.png`, `assets/icon-512.png` (dari wajah Navi), `assets/favicon.svg`.

@@ -1,95 +1,44 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Mensetsu Navi 面接ナビ</title>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <link rel="apple-touch-icon" href="assets/mascot/exp_senang.png">
-  <!-- Font (butuh internet; bila offline, otomatis memakai font bawaan perangkat) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+<meta charset="utf-8">
+<title>Mensetsu Navi 面接ナビ</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Pelatihan mandiri wawancara kerja bahasa Jepang untuk peserta LPK tingkat N4.">
+<meta name="theme-color" content="#2A4B8D">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@500;700;900&family=Shippori+Mincho:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-
-<!-- PANGGUNG 16:9: semua layar ditampilkan di dalam sini, diskalakan mengikuti ukuran jendela -->
-<div id="stage">
-  <!-- Latar "Japanese Workplace" beranimasi (dibuat oleh js/core/bg.js) -->
-  <div id="bg" aria-hidden="true"></div>
-  <div id="scenes"></div>
-
-  <!-- Bilah atas: Trust Meter di kiri; Menu, Suara, Bantuan di kanan -->
-  <div id="hud">
-    <div id="trust" class="trust hidden" aria-live="polite"></div>
-    <div class="hud-right">
-      <button id="btnHome" class="ibtn" aria-label="Kembali ke Menu Utama" title="Menu Utama" hidden></button>
-      <button id="btnSound" class="ibtn" aria-label="Bisukan suara" title="Suara"></button>
-      <button id="btnHelp" class="ibtn" aria-label="Bantuan" title="Bantuan"></button>
-    </div>
-  </div>
-
-  <!-- Bilah bawah: Kembali | teks narasi | Lanjut -->
-  <div id="bottom">
-    <button id="btnBack" class="btn secondary"><b>‹</b> <span>Kembali</span></button>
-    <div id="caption" class="caption off" role="status">
-      <span class="cap-av"><img id="capAv" src="assets/mascot/exp_senang.png" alt=""></span>
-      <span id="capWho" class="who">Narator</span>
-      <p id="capText"></p>
-      <button id="capSkip" class="skip" type="button">Lewati narasi ▸</button>
-    </div>
-    <button id="btnNext" class="btn" disabled><span>Lanjut</span> <b>›</b></button>
-  </div>
-
-  <!-- Panel bantuan -->
-  <div id="help" class="overlay" hidden>
-    <div class="help-card" role="dialog" aria-modal="true" aria-label="Bantuan navigasi">
-      <img class="mascot help-mascot" src="assets/mascot/pose_melambai.png" alt="">
-      <h2>Petunjuk Navigasi</h2>
-      <ul class="help-list">
-        <li><kbd>‹ Kembali</kbd> kembali ke layar sebelumnya, termasuk ke scene sebelumnya (tidak tersedia di halaman pembuka dan pada aktivitas bernilai).</li>
-        <li><kbd>Lanjut ›</kbd> aktif setelah narasi atau aktivitas pada layar selesai.</li>
-        <li><kbd>Menu</kbd> ikon rumah di kanan atas: kembali ke Menu Utama.</li>
-        <li><kbd>Suara</kbd> ikon speaker: bisukan atau aktifkan musik dan suara.</li>
-        <li><kbd>Trust Meter</kbd> poin kepercayaan pewawancara. Pilihan tepat menambah, pilihan kurang tepat atau salah mengurangi.</li>
-        <li>Di komputer, tombol panah kiri dan kanan juga bisa dipakai.</li>
-      </ul>
-      <details class="dev">
-        <summary>Alat uji prototipe (akan dihapus pada versi akhir)</summary>
-        <div class="dev-row">
-          <button id="devM1" class="btn small secondary">Modul 1 selesai</button>
-          <button id="devM2" class="btn small secondary">Modul 2 selesai</button>
-          <button id="devM3" class="btn small secondary">Modul 3 selesai</button>
-          <button id="devM4" class="btn small secondary">Modul 4 selesai</button>
-          <button id="devReset" class="btn small danger">Hapus progres</button>
-        </div>
-      </details>
-      <button id="helpClose" class="btn">Mengerti</button>
-    </div>
-  </div>
-
-  <div id="toast" role="status"></div>
-</div>
-
-<div id="rotate"><div><b>↻</b><p>Putar perangkat ke mode <strong>lanskap</strong> agar tampilan layar penuh.</p></div></div>
-
-<!-- Inti -->
-<script src="js/core/art.js"></script>
-<script src="js/core/bg.js"></script>
-<script src="js/core/mascot.js"></script>
-<script src="js/core/fx.js"></script>
-<script src="js/core/state.js"></script>
-<script src="js/core/audio.js"></script>
-<script src="js/core/ui.js"></script>
-<script src="js/core/app.js"></script>
-<!-- Konten (teks, soal, nama file audio) -->
-<script src="data/content.js"></script>
-<!-- Scene -->
-<script src="js/scenes/s01.js"></script>
-<script src="js/scenes/s02.js"></script>
-<script src="js/scenes/s03.js"></script>
-<script src="js/scenes/placeholder.js"></script>
-<script>MN.App.start();</script>
+<div id="rak" hidden><iframe id="rakf" title="Rak bab Mensetsu Navi" style="border:0;width:100%;height:100%;display:block"></iframe></div>
+<main id="view" aria-live="polite"></main>
+<div class="toast" id="toast" role="status"></div>
+<noscript><p style="padding:24px">Mensetsu Navi membutuhkan JavaScript. Aktifkan JavaScript di peramban.</p></noscript>
+<script src="js/data/kursus.js"></script>
+<script src="js/store.js"></script>
+<script>
+  /* rak 3D tinggal di iframe agar gaya dan render-nya terpisah dari aplikasi */
+  (function () {
+    var f = document.getElementById('rakf'), ready = false, want = null;
+    f.addEventListener('load', function () { ready = true; if (want) window.MN_RAK[want](); });
+    window.MN_RAK = {
+      show: function () {
+        if (!f.src) f.src = 'rak.html';
+        if (!ready) { want = 'show'; return; }
+        try { f.contentWindow.MN_RAK_PAUSE && f.contentWindow.MN_RAK_PAUSE(false); f.contentWindow.MN_RAK_RESET && f.contentWindow.MN_RAK_RESET(); f.focus(); } catch (e) {}
+      },
+      hide: function () {
+        if (!ready) { want = null; return; }
+        try { f.contentWindow.MN_RAK_PAUSE && f.contentWindow.MN_RAK_PAUSE(true); } catch (e) {}
+      }
+    };
+  })();
+</script>
+<script src="js/app.js"></script>
 </body>
 </html>

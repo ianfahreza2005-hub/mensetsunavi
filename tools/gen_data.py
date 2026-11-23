@@ -113,6 +113,34 @@ BAB = [
 for b in BAB:
     b['slides'] = [c for c in order if c.startswith('B%d-' % b['no'])]
     b['kuis'] = quiz[b['no']]
+# glosarium tiap bab -> Bank Kosakata (GLB-03). Kategori tidak ada di naskah; ditetapkan di sini
+# (bawaan: istilah wawancara). k = indeks slide di bab yang memuat istilah (-1 bila tidak ada).
+KAT_SOPAN = {'失礼します', '失礼いたします', '失礼しました', '申し訳ありません', 'どうぞ', 'お入りください', 'どうぞおかけください', 'と申します', '本日',
+             'はじめまして', '参りました', '御社', 'どうぞよろしくお願いいたします', 'もう一度お願いします', 'ゆっくり話していただけませんか',
+             'どういう意味ですか', '以上で面接を終わります', '本日はありがとうございました', 'お忙しい中', 'お疲れさまでした', '結論から'}
+KAT_KERJA = {'報連相', 'ほうれん草', '報告', '連絡', '相談', '上司', '先輩', '作業', 'ミス', '遅刻', '工場', '技術', '残業', '給料', '契約', '経験', '体力', '先生'}
+KAT_ANGKA = {'歳'}
+def kategori(jp):
+    return 'sopan' if jp in KAT_SOPAN else 'kerja' if jp in KAT_KERJA else 'angka' if jp in KAT_ANGKA else 'wawancara'
+def slide_text(sl):
+    out = [sl['title']]
+    for bl in sl['screen']:
+        if 'p' in bl: out.append(bl['p'])
+        elif 'li' in bl: out.append(bl['li'])
+        elif 'table' in bl: out += [c for r in bl['table'] for c in r]
+    return '\n'.join(out)
+def cari_slide(b, jp):
+    for idx, code in enumerate(b['slides']):
+        sl = slides[code]
+        if sl['tpl'] in ('T01', 'T17', 'T18'): continue
+        txt = slide_text(sl)
+        if any(part in txt for part in jp.split(' / ')): return idx
+    return -1
+for b in BAB:
+    L = flat(x['bab%d' % b['no']])
+    i = [k for k, (t, sx) in enumerate(L) if t.startswith('h') and sx.startswith('Glosarium')][0]
+    rows = [v for t, v in L[i:i + 4] if t == 'table'][0][1:]
+    b['glos'] = [{'jp': r[0].strip(), 'ro': r[1].strip(), 'ar': r[2].strip(), 'kat': kategori(r[0].strip()), 'k': cari_slide(b, r[0].strip())} for r in rows]
 EVAL = [
  dict(no=7, id='sim', label='Evaluasi', title='Simulasi Mensetsu', kj='模擬面接', kjr='mogi mensetsu · simulasi', col='#1E2A47', colL='#E4E7EF', dur='±15 menit',
       lessons=['Fase A–E · 13 momen'], blurb='Wawancara utuh dengan Tanaka-san dari さくら食品: 13 momen, dari tiba di depan gedung sampai menutup wawancara.'),

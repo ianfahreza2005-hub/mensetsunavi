@@ -24,6 +24,8 @@
 - [ ] Ilustrasi komik kasus Bab 2 dan figur peragaan
 
 ## Tahap 4 · Penyempurnaan
-- [ ] Fitur global lengkap: kartu hafalan Leitner, latihan pertanyaan acak dengan rekam suara
+- [x] GLB-03 Bank Kosakata + kartu hafalan Leitner (3 kotak, sesi 10 kartu)
+- [ ] GLB-04 latihan pertanyaan acak dengan rekam suara; petunjuk Navi (GLB-07)
+- [ ] GLB-03: contoh kalimat per istilah dan rekaman audio istilah (menunggu naskah/SME)
 - [ ] Audio pewawancara simulasi, Mode Latihan tanpa timer
 - [ ] Uji di HP Android kelas bawah, uji offline, uji coba ke peserta LPK

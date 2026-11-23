@@ -14,7 +14,7 @@ Aplikasi satu halaman tanpa framework dan tanpa *build step*: HTML, CSS, dan Jav
 | `#/sim/0` … `#/sim/15` | Simulasi Mensetsu | SIM-00–15 |
 | `#/post/0` … | Post-test | POST-00–20 |
 | `#/rapor` | Rapor Kesiapan | RAP-01–03 |
-| `#/hal/GLB-0x` | Fitur global | GLB-03–05 |
+| `#/hal/GLB-0x` | Fitur global (GLB-03 Bank Kosakata sudah jadi; GLB-04/05 masih placeholder) | GLB-03–05 |
 | `#/atur` | Pengaturan, mode uji, hapus progres | GLB-06 |
 
 ## Data
@@ -77,3 +77,14 @@ blok 4 dari B4-08 (kelebihan + dua contoh bukti), blok 5 dari B4-09, daftar kota
 Mengubah naskah lalu `gen_data.py` otomatis mengubah pilihan. Yang tetap di kode: kerangka kalimat blok 1, 2, 4; cara baca usia 18–25 dan 1–5 tahun;
 nama kota berbahasa Indonesia (kolom arti); konverter katakana → romaji (gaya naskah: koukou, juu); rumus durasi 0,27 dtk/karakter (patokan contoh Rani ±40 dtk).
 Isian dan hasil disimpan di `MN_STORE.get().jiko` (`f` = isian, `hasil` = teks akhir) supaya bisa dipakai B4-15.
+
+## Bank Kosakata dan Kartu Hafalan (GLB-03)
+
+`js/kosakata.js` (`MN_KOSA.mount`) dipasang oleh `scrHal('GLB-03')` di `app.js`. Data: `D.bab[i].glos[]` = `{jp, ro, ar, kat, k}` yang dibuat
+`tools/gen_data.py` dari tabel "Glosarium" di akhir naskah tiap bab (`k` = indeks slide pertama di bab itu yang memuat istilah, -1 bila tidak ada;
+`kat` = kategori dari daftar `KAT_*` di gen_data.py, bawaan `wawancara`). Istilah yang sama di beberapa bab digabung (68 unik dari 77 baris).
+
+Kartu hafalan memakai Leitner tiga kotak: kotak 1 tiap sesi, kotak 2 tiap 2 sesi, kotak 3 tiap 4 sesi; satu sesi 10 kartu; paling banyak 4 slot
+dicadangkan untuk kartu kotak 2/3 yang waktunya tiba (kotak 3 didahulukan) supaya tidak tersisih oleh kotak 1 yang banyak di awal; berbintang didahulukan.
+"Sudah tahu" naik satu kotak, "Belum tahu" kembali ke kotak 1. Progres di `MN_STORE.get().kosa = { box:{istilah:1|2|3}, star:{istilah:1}, sesi:n }`
+(hanya di perangkat; ikut terhapus oleh "Hapus semua data"). Suara memakai `MN_IX.sayJa` (suara ja-JP perangkat) sampai ada rekaman.

@@ -60,7 +60,7 @@ Catatan keputusan yang sudah dikunci. Semua dokumen T1/T2 harus mengikuti ini.
 - Template interaktif (v0.3, 54 slide): kartu buka T03/T06/T08/T16; kartu ungkapan + suara Jepang + tombol Romaji/Arti T05/T15; tabel bertahap T04; pemantik pilih-dulu T02; kelompokkan T10; kasus bercabang + indikator Kepercayaan dan pilih jawaban terbaik T13; urutkan + lengkapi ungkapan T11; penggeser ojigi T09; cocokkan kartu T12; rekam suara + daftar periksa T15. Syarat selesai per slide: Lanjut aktif setelah aktivitas tuntas (mode uji melewati).
 - Tampilan v0.4: arahan storyboard disembunyikan/ditulis ulang (js/data/tampilan.js); kotak Tahukah kamu/Hindari/Tips/Kalimat kunci bergaya; kode slide & treatment hanya di Mode uji; sampul bab berisi capaian + jalur pelajaran; pembuka dua kolom di laptop; pengantar Simulasi baru.
 - Suara: tombol Dengarkan memutar assets/audio/narasi/<KODE>.mp3 bila ada, jika belum pakai suara bawaan peramban; ungkapan Jepang memakai suara ja-JP perangkat sampai rekaman ada.
-- Berikutnya: video T07/T08, T14 Dengar & Tebak, gambar panel komik T13, analisis otomatis Lapis 1 T15; fitur global (kartu hafalan, latihan pertanyaan acak); aset audio/video.
+- Berikutnya: video T07/T08, T14 Dengar & Tebak, gambar panel komik T13, analisis otomatis Lapis 1 T15; fitur global (latihan pertanyaan acak GLB-04); aset audio/video.
 
 ## Pola penyajian LMS
 - Kursus → Modul → Pelajaran (3–5 per bab) → Slide berkode → Layer/kartu; prasyarat, syarat selesai, progres, remedial, stempel/Kata Mutiara/rapor.
@@ -107,7 +107,8 @@ Catatan keputusan yang sudah dikunci. Semua dokumen T1/T2 harus mengikuti ini.
 - Web: uji coba internal tim di HP, kumpulkan temuan.
 - Rak bab: masukan tim atas gerak; Beranda di canvas (03 & D1) diganti rak, storyboard GLB-01 disesuaikan.
 - Interface: ganti maskot sementara di canvas dengan Navi; masukan tim atas v2; lalu ekspor gambar ke dokumen T2.
-- Konfirmasi SME tambahan (T16): cara baca usia (二十歳 = hatachi; 十八歳 juuhassai, 十九歳 juukyuusai) dan lama tahun (yonen) di penyusun B4-14.
+- Konfirmasi SME tambahan (T16): cara baca 十八歳 juuhassai, 十九歳 juukyuusai, dan 四年 yonen di penyusun B4-14 (二十歳 hatachi sudah ada di glosarium Bab 4).
+- Bank Kosakata (GLB-03): glosarium naskah = 77 baris / **68 istilah unik** (spesifikasi menyebut ±75). Naskah belum punya kategori (ditetapkan di `tools/gen_data.py`; kategori "angka dan usia" baru berisi 歳) dan contoh kalimat per istilah (belum tampil). Rekaman audio istilah belum ada (memakai suara bawaan perangkat).
 - Konfirmasi SME (13 butir di doc storyboard): sudut ojigi, 参りました vs 来ました, ucapan keluar ruangan, ungkapan simulasi, bank 25 pertanyaan GLB-04; dosen: bobot 50:50.
 - Default Claude: Bab 1–6 bebas setelah pre-test; slide dalam bab berurutan.
 - Diisi tim: pembagian tugas anggota di T1; di storyboard: tanggal terbit, SME, klien, PM, DI, nota validasi.

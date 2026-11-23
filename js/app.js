@@ -368,6 +368,14 @@
   /* ------------------------------------------------------------ fitur global & pengaturan */
   function scrHal(code) {
     var s = D.slides[code]; if (!s) return go('#/rak');
+    if (code === 'GLB-03' && window.MN_KOSA) {
+      show('<div class="screen" style="--c:#B0436A;--cl:#FBE6EE">' + topbar('Sumber belajar', 'Bank Kosakata', 1, '#B0436A') + '<div class="body"><h2 class="slide-h">' + esc(s.title) + '</h2><div id="kosa"></div></div>' + bottombar('#/rak', '', null) + '</div>');
+      var kv = document.getElementById('kosa');
+      window.MN_KOSA.mount(kv, { esc: esc, ic: ic, naviSay: naviSay, bindSpeak: bindSpeak, toast: toast, status: function (n) { return ST.status(n); },
+        sayJa: function (t) { return window.MN_IX ? MN_IX.sayJa(t) : false; } });
+      bindSpeak(view);
+      return;
+    }
     show('<div class="screen">' + topbar('Fitur', s.title, 1) + '<div class="body"><span class="chip soon">Sedang disiapkan</span><h2 class="slide-h">' + esc(s.title) + '</h2>' +
       (ST.get().unlockAll ? '<div class="card">' + blocks(s.screen, code) + '</div>' : '') + naviSay(code, s.narasi, 'pose_dagu') + devNote(s) + '</div>' + bottombar('#/rak', '', null) + '</div>');
   }

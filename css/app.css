@@ -378,3 +378,40 @@ b, strong { font-weight: 800; }
 .ix-steps li[hidden] { display: none; }
 .ix-sbar .btn { white-space: nowrap; }
 .ix-sbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+
+/* penyusun jikoshoukai (T16) */
+.ix-jk { display: flex; flex-direction: column; gap: 12px; }
+.ix-jb { border-radius: 18px; background: var(--ground); padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: inset 0 0 0 1.5px transparent; transition: box-shadow .25s, background .25s; }
+.ix-jb.ok { background: #fff; box-shadow: inset 0 0 0 1.5px var(--good), var(--sh2); }
+.ix-jh { display: flex; align-items: center; gap: 10px; }
+.ix-jh b { flex: 1; }
+.ix-jb.ok .ix-ck { background: var(--good); border-color: var(--good); box-shadow: inset 0 0 0 4px #fff; }
+.ix-jk select, .ix-jk .field input { min-height: 48px; border-radius: 14px; border: 2px solid var(--line); padding: 0 12px; font-size: 16px; background: #fff; width: 100%; }
+.ix-jk .field input { padding: 0 16px; }
+.ix-jk select:focus, .ix-jk .field input:focus { border-color: var(--c); outline: none; }
+.ix-live { margin: 0 !important; font-size: 13px; font-weight: 700; min-height: 0; }
+.ix-live.ok { color: var(--good); }
+.ix-live.err { color: var(--bad); }
+.ix-jc { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 10px; border-radius: 12px; background: #fff; box-shadow: inset 0 0 0 1.5px var(--line); }
+.ix-jc input { width: 22px; height: 22px; flex: none; accent-color: var(--c); }
+.ix-jc.dis { opacity: .5; }
+.ix-jc3 { display: flex; flex-direction: column; gap: 6px; }
+.ix-sub { display: flex; flex-wrap: wrap; gap: 8px; padding-left: 8px; }
+.ix-sub select { flex: 1 1 140px; width: auto; }
+.ix-jf { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.ix-jf legend { font-size: 13px; font-weight: 800; padding: 0; margin-bottom: 6px; }
+.ix-kana { border-radius: 14px; background: var(--cl); padding: 10px 14px; }
+.ix-kana summary { font-weight: 800; color: var(--c); cursor: pointer; min-height: 32px; display: flex; align-items: center; }
+.ix-kg { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.ix-kb { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 48px; border-radius: 10px; border: 0; background: #fff; box-shadow: var(--sh2); line-height: 1.1; padding: 4px 0; }
+.ix-kb b { font-size: 20px; }
+.ix-kb small { font-size: 10px; color: var(--ink2); }
+.ix-kb:active { transform: scale(.95); }
+.ix-jbar { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+.ix-jbar .btn[disabled] { opacity: .45; cursor: not-allowed; }
+.ix-jres { display: flex; flex-direction: column; gap: 10px; scroll-margin-top: 70px; }
+.ix-jres[hidden] { display: none; }
+.ix-jt { margin: 0; font-size: 18px; }
+.ix-jact { display: flex; flex-wrap: wrap; gap: 8px; }
+.ix-jact .btn { min-height: 44px; padding: 8px 16px; font-size: 14px; }
+@media (min-width: 900px) { .ix-kg { grid-template-columns: repeat(10, 1fr); } }

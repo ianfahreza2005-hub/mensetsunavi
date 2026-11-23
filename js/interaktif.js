@@ -432,6 +432,10 @@
         if (hdr(t, /cara baca|romaji/i) >= 0 && t.slice(1).some(function (r) { return r.some(function (c) { return CJK.test(c); }); })) return add(W.phrase(t));
         if (tpl === 'T04') return add(W.reveal(t));
         if (tpl === 'T02' && t[0].length >= 3) { parts.push(staticTable(t)); choiceAt = parts.length; return; }
+        if (tpl === 'T16' && /^blok$/i.test(t[0][0]) && window.MN_JIKO) {
+          var jw = window.MN_JIKO.widget({ sayJa: sayJa, spk: SPK, md: md, esc: esc });
+          if (jw) return add(jw);
+        }
         if (/^T0[3678]$|^T16$/.test(tpl)) {
           var lc = [0]; if (t[0].length >= 4 && t.slice(1).every(function (r) { return String(r[1]).length < 40; })) lc = [0, 1];
           if (/pertanyaan/i.test(t[0][1]) && /^no$/i.test(t[0][0])) lc = [1];

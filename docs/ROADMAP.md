@@ -15,7 +15,8 @@
 - [x] T09 Slider ojigi, T12 Cocokkan Kartu, T13 Pilihan Situasi
 - [ ] T14 Dengar & Tebak, gambar panel komik T13
 - [x] T15 Rekam Suara + daftar periksa (Lapis 2)
-- [ ] T15 analisis otomatis Lapis 1, T16 Penyusun Jikoshoukai berisian
+- [ ] T15 analisis otomatis Lapis 1
+- [x] T16 Penyusun Jikoshoukai berisian (B4-14)
 
 ## Tahap 3 · Aset
 - [ ] Rekaman narasi (±82 file) dan ungkapan Jepang (setelah cek SME)

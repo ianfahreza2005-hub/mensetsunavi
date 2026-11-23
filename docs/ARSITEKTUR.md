@@ -61,10 +61,19 @@ yang cocok dengan widget. Pemilihan widget berdasarkan kode template dan judul k
 | kolom Cara baca/Romaji + teks Jepang | kartu ungkapan + suara + Romaji/Arti |
 | T04 | tabel bertahap |
 | T03 + daftar bernomor ≥3 langkah (bukan berlabel) | stepper: langkah muncul satu per satu |
-| T03/T06/T07/T08/T16 tabel, atau daftar berlabel `**Judul:**` | kartu buka |
+| T16 + tabel berjudul kolom Blok | penyusun jikoshoukai (`js/jikoshoukai.js`): 5 blok isian → kalimat Jepang + romaji + arti, durasi, salin/unduh |
+| T03/T06/T07/T08 tabel, atau daftar berlabel `**Judul:**` | kartu buka |
 | T11 + paragraf "urutkan … (Bx-xx)" | urutkan langkah dari slide rujukan |
 | T02 | pilih dulu, penjelasan terbuka setelahnya |
 | T15 | perekam suara + daftar periksa |
 
 Jadi, **mengubah isi naskah cukup lewat `tools/gen_data.py`**; widget ikut menyesuaikan selama judul kolom tetap.
 Slide dengan widget baru tercatat selesai setelah semua widget-nya tuntas.
+
+## Penyusun jikoshoukai (T16, B4-14)
+
+`js/jikoshoukai.js` (`MN_JIKO.widget`) dipanggil dari `interaktif.js`. Kalimat **tidak ditulis ulang di kode**: blok 3 dibaca dari tabel B4-07,
+blok 4 dari B4-08 (kelebihan + dua contoh bukti), blok 5 dari B4-09, daftar kota dari tabel B4-14, tempat kerja dari paragraf "Kosakata tempat kerja" B4-07.
+Mengubah naskah lalu `gen_data.py` otomatis mengubah pilihan. Yang tetap di kode: kerangka kalimat blok 1, 2, 4; cara baca usia 18–25 dan 1–5 tahun;
+nama kota berbahasa Indonesia (kolom arti); konverter katakana → romaji (gaya naskah: koukou, juu); rumus durasi 0,27 dtk/karakter (patokan contoh Rani ±40 dtk).
+Isian dan hasil disimpan di `MN_STORE.get().jiko` (`f` = isian, `hasil` = teks akhir) supaya bisa dipakai B4-15.

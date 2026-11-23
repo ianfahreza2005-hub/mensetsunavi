@@ -8,12 +8,14 @@
 - [x] Menu ☰, pengaturan, mode uji tim
 
 ## Tahap 2 · Template interaktif (urutan sesuai Pola Penyajian LMS)
-- [ ] T03 Buka Item (kartu balik, tab, hotspot) dan syarat selesai per slide
-- [ ] T05 Kartu Ungkapan Audio + tombol Romaji/Arti
-- [ ] T02 Pemantik, T04 Tabel Bertahap, T10 Kelompokkan, T11 Urutkan & Lengkapi
-- [ ] T07/T08 video benar–salah dan temukan kesalahan
-- [ ] T09 Slider ojigi, T12 Cocokkan Kartu, T13 Komik/Pilihan Situasi, T14 Dengar & Tebak
-- [ ] T15 Rekam Suara (analisis Lapis 1 + checklist Lapis 2), T16 Penyusun Jikoshoukai
+- [x] T03 Buka Item dan syarat selesai per slide
+- [x] T05 Kartu Ungkapan Audio + tombol Romaji/Arti (suara bawaan perangkat sampai rekaman ada)
+- [x] T02 Pemantik, T04 Tabel Bertahap, T10 Kelompokkan, T11 Urutkan & Lengkapi
+- [ ] T07/T08 video benar–salah (T08 sementara: kartu titik kesalahan)
+- [x] T09 Slider ojigi, T12 Cocokkan Kartu, T13 Pilihan Situasi
+- [ ] T14 Dengar & Tebak, gambar panel komik T13
+- [x] T15 Rekam Suara + daftar periksa (Lapis 2)
+- [ ] T15 analisis otomatis Lapis 1, T16 Penyusun Jikoshoukai berisian
 
 ## Tahap 3 · Aset
 - [ ] Rekaman narasi (±82 file) dan ungkapan Jepang (setelah cek SME)

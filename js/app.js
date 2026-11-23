@@ -188,7 +188,9 @@
     if (ST.status(n) === 'locked') { toast('Selesaikan pre-test dulu, ya.'); return go('#/pre/0'); }
     k = Math.max(0, Math.min(k, b.slides.length - 1));
     var code = b.slides[k], s = D.slides[code], last = b.slides.length - 1;
-    ST.seen(n, code, k);
+    var ix = (k > 0 && k < last && window.MN_IX) ? MN_IX.render(code) : null;
+    var gate = ix && ix.gated && !ST.isSeen(n, code) && !ST.get().unlockAll;
+    if (gate) ST.last(n, k); else ST.seen(n, code, k);
     var root = '#/bab/' + n + '/', pct = (k + 1) / b.slides.length, sub = b.label + (s.pel && s.pel[0] === 'P' ? ' · ' + s.pel : '');
     var inner;
     if (k === 0) {
@@ -205,11 +207,17 @@
         '<a class="btn full" href="#/kuis/' + n + '">Mulai kuis' + ic('next') + '</a>' + naviSay(code, s.narasi, 'pose_semangat') + '</div>';
     } else {
       inner = '<div class="body"><span class="chip">' + esc(code + (s.tpl ? ' · ' + s.tpl : '')) + '</span><h2 class="slide-h">' + esc(s.title) + '</h2>' +
-        '<p class="treat">' + esc(s.treat) + '</p><div class="card">' + blocks(s.screen) + '</div>' +
+        '<p class="treat">' + esc(s.treat) + '</p><div class="card' + (ix ? ' ix-slide' : '') + '">' + (ix ? ix.html : blocks(s.screen)) + '</div>' +
         naviSay(code, s.narasi, 'exp_senang') + visualNote(s) + '</div>';
     }
     show('<div class="with-side" style="--c:' + b.col + ';--cl:' + b.colL + '">' + side(b, k) + '<div class="screen">' + topbar(sub, s.title, pct, b.col) + inner +
-      bottombar(k > 0 ? root + (k - 1) : '#/rak', (k + 1) + ' / ' + b.slides.length, k < last ? root + (k + 1) : null, k === 0 ? 'Mulai ' + b.label : 'Lanjut') + '</div></div>');
+      bottombar(k > 0 ? root + (k - 1) : '#/rak', (k + 1) + ' / ' + b.slides.length, k < last ? root + (k + 1) : null, k === 0 ? 'Mulai ' + b.label : 'Lanjut', gate) + '</div></div>');
+    if (ix) ix.bind(view, function () {
+      if (!ST.isSeen(n, code)) { ST.seen(n, code, k); toast('Bagus! Slide ini selesai.'); }
+      var nx = view.querySelector('.bottombar .btn[aria-disabled]');
+      if (nx) { nx.removeAttribute('aria-disabled'); nx.removeAttribute('style'); nx.classList.add('pulse'); }
+      var ck = view.querySelector('.side a.cur .ck'); if (ck) ck.textContent = '✓';
+    });
   }
 
   /* ------------------------------------------------------------ kuis bab */

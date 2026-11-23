@@ -44,3 +44,26 @@ Aturan kunci: Bab 1–6 terbuka setelah pre-test; Simulasi setelah 6 stempel; Po
 ## Suara
 
 Tombol **Dengarkan** memutar `assets/audio/narasi/<KODE>.mp3` bila ada; jika belum ada, memakai suara bawaan peramban (bahasa Indonesia).
+
+## Template interaktif
+
+`js/interaktif.js` (`MN_IX.render(kode)`) membaca blok layar slide dari `kursus.js` dan mengganti tabel/daftar
+yang cocok dengan widget. Pemilihan widget berdasarkan kode template dan judul kolom tabel naskah:
+
+| Kondisi | Widget |
+|---|---|
+| T12 | cocokkan kartu Jepang ↔ arti |
+| T09 + kolom Sudut | penggeser ojigi |
+| kolom Pengecoh | pilih ungkapan benar (T11 tahap B) |
+| kolom Pilihan, Hasil | kasus bercabang + indikator Kepercayaan |
+| kolom Tepat/Kurang tepat/Salah atau Jawaban jujur | pilih jawaban terbaik |
+| kolom Jawaban + Umpan balik | kelompokkan / pilih kategori |
+| kolom Cara baca/Romaji + teks Jepang | kartu ungkapan + suara + Romaji/Arti |
+| T04 | tabel bertahap |
+| T03/T06/T07/T08/T16 tabel, atau daftar berlabel `**Judul:**` | kartu buka |
+| T11 + paragraf "urutkan … (Bx-xx)" | urutkan langkah dari slide rujukan |
+| T02 | pilih dulu, penjelasan terbuka setelahnya |
+| T15 | perekam suara + daftar periksa |
+
+Jadi, **mengubah isi naskah cukup lewat `tools/gen_data.py`**; widget ikut menyesuaikan selama judul kolom tetap.
+Slide dengan widget baru tercatat selesai setelah semua widget-nya tuntas.

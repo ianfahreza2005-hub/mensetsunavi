@@ -2,6 +2,15 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 
+## [0.3.0] — Template interaktif
+
+### Ditambahkan
+- `js/interaktif.js`: 54 slide Bab 1–6 kini interaktif, dibaca langsung dari tabel/daftar di naskah:
+  kartu buka (T03/T06/T08/T16), kartu ungkapan + suara Jepang + tombol Romaji/Arti (T05/T15),
+  tabel bertahap (T04), pemantik pilih-dulu (T02), kelompokkan (T10), kasus bercabang + indikator Kepercayaan (T13),
+  urutkan langkah + lengkapi ungkapan (T11), penggeser sudut ojigi (T09), cocokkan kartu (T12), rekam suara + daftar periksa (T15).
+- Syarat selesai per slide: tombol Lanjut aktif setelah aktivitas slide tuntas; progres bab hanya bertambah dari slide yang tuntas. Mode uji tim melewati syarat ini.
+
 ## [0.2.0] — Kerangka v2 (rancangan final)
 
 ### Diubah

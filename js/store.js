@@ -15,6 +15,8 @@
     save: save,
     reset: function () { S = blank(); save(); },
     bab: bab,
+    last: function (n, k) { bab(n).last = k; save(); },
+    isSeen: function (n, code) { return bab(n).seen.indexOf(code) >= 0; },
     seen: function (n, code, k) {
       var b = bab(n);
       if (b.seen.indexOf(code) < 0) b.seen.push(code);

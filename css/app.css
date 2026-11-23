@@ -184,3 +184,99 @@ b, strong { font-weight: 800; }
 .side a.cur { background: var(--cl); color: var(--c); font-weight: 800; }
 .side a .ck { width: 16px; color: var(--good); }
 .side svg { width: 16px; height: 16px; flex: none; }
+
+/* ---------- template interaktif (js/interaktif.js) ---------- */
+.ix { margin: 4px 0 12px; }
+.ix-hint { font-size: 13px; color: var(--ink2); margin: 8px 0 0 !important; }
+.ix-count { font-weight: 800; color: var(--c); }
+.ix-k { color: var(--c); }
+.ix-in { animation: masuk .4s var(--ease); }
+.shake { animation: goyang .45s; }
+@keyframes goyang { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+.btn.pulse { animation: denyut 1.2s var(--ease) 2; }
+@keyframes denyut { 50% { transform: scale(1.06); box-shadow: 0 0 0 8px color-mix(in srgb, var(--c) 18%, transparent); } }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--pri); text-decoration: underline; font-weight: 700; }
+/* kartu buka */
+.ix-open { display: flex; flex-direction: column; gap: 8px; }
+.ix-card { border-radius: 16px; background: var(--ground); box-shadow: inset 0 0 0 1.5px transparent; transition: box-shadow .25s, background .25s; }
+.ix-card.on { background: #fff; box-shadow: inset 0 0 0 1.5px var(--c), var(--sh2); }
+.ix-head { width: 100%; display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: none; border: 0; text-align: left; font-weight: 800; min-height: 52px; }
+.ix-n { flex: none; width: 28px; height: 28px; border-radius: 9px; background: var(--c); color: #fff; display: grid; place-items: center; font-size: 13px; }
+.ix-l { flex: 1; }
+.ix-ck { flex: none; width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); transition: .25s; }
+.ix-card.seen .ix-ck { background: var(--good); border-color: var(--good); box-shadow: inset 0 0 0 4px #fff; }
+.ix-head::after { content: ""; width: 9px; height: 9px; border: solid var(--ink2); border-width: 0 2px 2px 0; transform: rotate(45deg); transition: transform .25s; margin-right: 4px; }
+.ix-card.on .ix-head::after { transform: rotate(-135deg); }
+.ix-body { padding: 0 16px 14px 52px; font-size: 15px; animation: masuk .35s var(--ease); }
+.ix-body p { margin: 0 0 8px; }
+.ix-body ul { margin: 0; padding-left: 18px; }
+/* kartu ungkapan */
+.ix-phr { display: flex; flex-direction: column; gap: 10px; }
+.ix-tog { display: flex; gap: 8px; }
+.ix-tog .btn { min-height: 38px; padding: 6px 14px; font-size: 13px; opacity: .55; }
+.ix-tog .btn.on { opacity: 1; }
+.ix-pc { border-radius: 18px; background: var(--ground); padding: 12px 14px; border-left: 5px solid var(--line); transition: border-color .3s; }
+.ix-pc.seen { border-left-color: var(--good); }
+.ix-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+.ix-meta span { font-size: 11px; font-weight: 800; color: var(--c); background: var(--cl); padding: 2px 8px; border-radius: 999px; }
+.ix-jrow { display: flex; align-items: center; gap: 10px; }
+.ix-j { flex: 1; font-size: 20px; font-weight: 700; line-height: 1.4; }
+.ix-sp { flex: none; width: 46px; height: 46px; border-radius: 50%; border: 0; background: var(--c); color: #fff; display: grid; place-items: center; box-shadow: var(--sh2); }
+.ix-sp svg { width: 22px; height: 22px; }
+.ix-sp:active { transform: scale(.94); }
+.ix-ro { color: var(--c); font-weight: 700; font-size: 14px; margin-top: 2px; }
+.ix-ar { color: var(--ink2); font-size: 14px; }
+.no-ro .ix-ro:not(.peek), .no-ar .ix-ar:not(.peek) { color: transparent; background: var(--line); border-radius: 8px; user-select: none; cursor: pointer; }
+/* pilihan */
+.ix-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.ix-opts.col { flex-direction: column; }
+.ix-o { text-align: left; padding: 11px 14px; min-height: 46px; border-radius: 14px; border: 1.5px solid var(--line); background: #fff; font-weight: 600; transition: border-color .2s, background .2s; }
+.ix-o:hover:not([disabled]) { border-color: var(--c); }
+.ix-o.sel { border-color: var(--c); background: var(--cl); }
+.ix-o.good { border-color: var(--good); background: var(--goodL); }
+.ix-o.bad { border-color: var(--bad); background: var(--badL); }
+.ix-o.mid { border-color: var(--warn); background: var(--warnL); }
+.ix-o[disabled] { cursor: default; }
+.ix-sort { display: flex; flex-direction: column; gap: 10px; }
+.ix-sc { border-radius: 18px; background: var(--ground); padding: 12px 14px; }
+.ix-sc.done { background: var(--goodL); }
+.ix-q { font-weight: 700; margin: 0 0 8px !important; }
+.ix-fb { margin: 8px 0 0 !important; font-size: 14px; padding: 8px 12px; border-radius: 12px; }
+.ix-fb.good { background: var(--goodL); color: var(--good); }
+.ix-fb.bad { background: var(--badL); color: var(--bad); }
+.ix-fb.mid { background: var(--warnL); color: var(--warn); }
+.ix-trust { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 800; color: var(--ink2); margin-bottom: 10px; }
+.ix-trust b { flex: 1; height: 10px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.ix-trust i { display: block; height: 100%; background: linear-gradient(90deg, var(--sakura), var(--good)); transition: width .5s var(--ease); }
+/* tabel bertahap */
+.ix-rev tr[hidden] { display: none; }
+/* urutkan */
+.ix-slots { margin: 0 0 10px; padding: 0 0 0 26px; display: flex; flex-direction: column; gap: 6px; }
+.ix-slots li { min-height: 44px; padding: 10px 12px; border-radius: 12px; background: var(--goodL); }
+.ix-slots li.empty { background: none; border: 1.5px dashed var(--line); }
+.ix-pool { display: flex; flex-direction: column; gap: 8px; }
+/* ojigi */
+.ix-oj { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.ix-fig { width: 170px; height: 170px; }
+.ix-fig .torso { transition: transform .12s linear; }
+.ix-deg { font-size: 22px; }
+.ix-oj input[type=range] { width: 100%; max-width: 360px; accent-color: var(--c); height: 32px; }
+.ix-ojc { width: 100%; background: var(--cl); border-radius: 16px; padding: 12px 14px; animation: masuk .3s var(--ease); }
+.ix-ojc p { margin: 6px 0 0; font-size: 14px; }
+/* cocokkan */
+.ix-match { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ix-match .col { display: flex; flex-direction: column; gap: 8px; }
+.ix-match .ix-o { display: flex; flex-direction: column; justify-content: center; min-height: 56px; }
+.ix-match .ix-o .jp { font-size: 17px; font-weight: 700; }
+.ix-match .ix-o small { color: var(--ink2); font-size: 11px; }
+.ix-match .ix-o.good { opacity: .55; }
+/* rekam */
+.ix-rec { border-radius: 18px; background: var(--ground); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.ix-rrow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ix-r.live { background: var(--bad); animation: denyut 1.2s infinite; }
+.ix-tm { font-weight: 800; font-variant-numeric: tabular-nums; }
+.ix-rec audio { width: 100%; max-width: 360px; }
+.ix-chk { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.ix-chk label { display: flex; gap: 8px; align-items: center; min-height: 36px; }
+.ix-chk input { width: 20px; height: 20px; accent-color: var(--good); }
+@media (prefers-reduced-motion: reduce) { .ix-in, .shake, .btn.pulse, .ix-body, .ix-ojc { animation: none !important; } }

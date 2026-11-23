@@ -60,6 +60,7 @@ yang cocok dengan widget. Pemilihan widget berdasarkan kode template dan judul k
 | kolom Jawaban + Umpan balik | kelompokkan / pilih kategori |
 | kolom Cara baca/Romaji + teks Jepang | kartu ungkapan + suara + Romaji/Arti |
 | T04 | tabel bertahap |
+| T03 + daftar bernomor ≥3 langkah (bukan berlabel) | stepper: langkah muncul satu per satu |
 | T03/T06/T07/T08/T16 tabel, atau daftar berlabel `**Judul:**` | kartu buka |
 | T11 + paragraf "urutkan … (Bx-xx)" | urutkan langkah dari slide rujukan |
 | T02 | pilih dulu, penjelasan terbuka setelahnya |

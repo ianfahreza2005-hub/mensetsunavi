@@ -267,6 +267,28 @@
     };
   };
 
+  /* T03: daftar langkah bernomor, tampil satu per satu (stepper) */
+  W.steps = function (items) {
+    var n = items.length;
+    return {
+      html: '<div class="ix-steps"><ol>' + items.map(function (b, i) {
+        return '<li' + (i ? ' hidden' : ' class="cur"') + '><span class="ix-sn">' + (i + 1) + '</span><span class="ix-st">' + md(b.li) + '</span></li>';
+      }).join('') + '</ol><div class="ix-sbar"><span class="ix-count" aria-live="polite"></span><button class="btn soft ix-more">Berikutnya</button></div></div>',
+      bind: function (el, done) {
+        var lis = el.querySelectorAll('li'), b = el.querySelector('.ix-more'), c = el.querySelector('.ix-count'), at = 0;
+        function upd() {
+          c.textContent = (at + 1) + ' / ' + n;
+          lis.forEach(function (li, i) { li.classList.toggle('cur', i === at); li.classList.toggle('past', i < at); });
+          if (at === n - 1) { b.hidden = true; c.textContent = n + ' / ' + n + ' · lengkap'; done(); }
+        }
+        b.addEventListener('click', function () {
+          if (at < n - 1) { at++; lis[at].hidden = false; lis[at].classList.add('ix-in'); upd(); try { lis[at].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { /* peramban lama */ } }
+        });
+        upd();
+      }
+    };
+  };
+
   /* T02: pemantik, pilih dulu lalu penjelasan terbuka */
   W.choice = function (opts) {
     return {
@@ -426,6 +448,7 @@
         }
         var cards = /^T0[3567]$|^T15$/.test(tpl) ? labeledCards(g.li) : null;
         if (cards) return add(W.open(cards));
+        if (tpl === 'T03' && g.li.length >= 3 && g.li.every(function (b) { return (b.lvl || 0) === 0 && b.num; })) return add(W.steps(g.li));
         return parts.push(staticLi(g.li));
       }
       /* paragraf */

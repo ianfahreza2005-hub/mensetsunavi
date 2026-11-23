@@ -6,6 +6,13 @@
   };
   var S;
   try { S = JSON.parse(localStorage.getItem(KEY)) || blank(); } catch (e) { S = blank(); }
+  /* tahan data lama/rusak: lengkapi kolom yang hilang dengan nilai awal */
+  (function () {
+    var d = blank();
+    if (!S || typeof S !== 'object') S = d;
+    for (var k in d) if (S[k] === undefined) S[k] = d[k];
+    if (typeof S.bab !== 'object' || S.bab === null) S.bab = {};
+  })();
 
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* mode privat */ } }
   function bab(n) { return S.bab[n] || (S.bab[n] = { seen: [], last: 0, best: 0, stamp: false }); }

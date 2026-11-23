@@ -55,7 +55,8 @@
   }
 
   /* ------------------------------------------------------------ bagian bersama */
-  function blocks(list) {
+  function blocks(list, code) {
+    if (window.MN_IX) return MN_IX.blocks(code || '', list);
     var html = '', items = '';
     function flush() { if (items) { html += '<ul class="items">' + items + '</ul>'; items = ''; } }
     (list || []).forEach(function (b) {
@@ -75,7 +76,7 @@
     return html;
   }
   function naviSay(code, text, pose) {
-    if (!text) return '';
+    if (!text || /^tidak ada/i.test(text)) return '';
     return '<div class="navi-say"><img src="' + navi(pose || 'exp_senang') + '" alt="Navi"><div class="bubble">' + esc(text) +
       '<div><button class="btn soft" data-speak="' + esc(code) + '">' + ic('speaker') + 'Dengarkan</button></div></div></div>';
   }
@@ -98,6 +99,10 @@
       (next ? '<a class="btn" href="' + next + '"' + (nextDisabled ? ' aria-disabled="true" style="pointer-events:none;background:var(--line);color:var(--ink2);box-shadow:none"' : '') + '>' + esc(nextLabel || 'Lanjut') + ic('next') + '</a>' : '<span style="width:120px"></span>') +
       '</footer>';
   }
+  function devNote(s) {
+    if (!ST.get().unlockAll) return '';
+    return '<details class="visual-note"><summary><b>Mode uji · ' + esc(s.code + (s.tpl ? ' · ' + s.tpl : '')) + '</b></summary><p><b>Treatment:</b> ' + esc(s.treat) + '</p>' + (s.visual ? '<p><b>Rencana visual:</b> ' + esc(s.visual) + '</p>' : '') + '</details>';
+  }
   function visualNote(s) {
     if (!s.visual) return '';
     return '<details class="visual-note"><summary><b>Rencana visual (storyboard)</b></summary>' + esc(s.visual) + '</details>';
@@ -116,14 +121,15 @@
   /* ------------------------------------------------------------ pembuka (GLB-00) */
   function scrMulai() {
     var S = ST.get();
-    show('<div class="screen">' +
+    show('<div class="screen start">' +
       '<div class="hero">' + SG + '<div class="eyebrow">PEMANDU WAWANCARA KERJA</div><h1>Mensetsu Navi</h1><div class="jp">面接ナビ</div>' +
       '<img src="' + navi('pose_melambai') + '" alt="Navi melambai"></div>' +
-      '<div class="body" style="margin-top:40px">' +
+      '<div class="body start-body">' +
       '<h2 class="slide-h">Halo! Aku Navi, pemandumu.</h2>' +
       '<p class="treat" style="font-size:15px">Wawancara kerja di Jepang bukan hanya soal bahasa, tetapi juga sikap. Kita mulai dengan pre-test singkat untuk melihat kemampuan awalmu.</p>' +
       '<label class="field">Nama panggilanmu<input id="nm" type="text" autocomplete="nickname" maxlength="20" value="' + esc(S.name || '') + '" placeholder="contoh: Rani"></label>' +
-      '<div class="card"><b>Misimu:</b> kamu akan diwawancarai 田中さん (Tanaka-san) dari さくら食品 (Sakura Foods). Kumpulkan enam stempel bab, lalu yakinkan Tanaka-san di Simulasi.</div>' +
+      '<div class="mission"><img src="' + navi('pose_menunjuk') + '" alt=""><div><b>Misimu</b><p>Kamu akan diwawancarai <span class="jp">田中さん</span> (Tanaka-san) dari <span class="jp">さくら食品</span> (Sakura Foods).</p>' +
+      '<ol class="mission-steps"><li>Pre-test singkat</li><li>Kumpulkan 6 stempel <span class="jp">済</span></li><li>Yakinkan Tanaka-san di Simulasi</li></ol></div></div>' +
       '<button class="btn full" id="go">' + (S.pre ? 'Lanjut ke rak bab' : 'Mulai Pre-test') + ic('next') + '</button>' +
       '</div></div>');
     document.getElementById('go').addEventListener('click', function () {
@@ -136,6 +142,7 @@
 
   /* ------------------------------------------------------------ pre-test & post-test */
   var testAns = { pre: [], post: [] };
+  function cleanStem(t) { return String(t).split('\nTranskrip')[0].replace(/\s*\((Arti|Romaji)[^)]*(ditampilkan|menguji)[^)]*\)/g, ''); }
   function scrTest(kind, i) {
     var S = ST.get(), Q = D.pre, N = Q.length, isPre = kind === 'pre';
     var base = isPre ? 'Pre-test' : 'Post-test', root = '#/' + kind + '/';
@@ -143,9 +150,9 @@
       testAns[kind] = [];
       var intro = isPre ? D.slides['PRE-00'] : D.slides['POST-00'];
       return show('<div class="screen">' + topbar(base, 'Petunjuk', 0) + '<div class="body">' +
-        '<span class="chip">' + (isPre ? 'Belum dinilai · tanpa umpan balik' : 'Bagian dari Nilai Sumatif') + '</span>' +
-        '<h2 class="slide-h">' + esc(intro.title) + '</h2><div class="card">' + blocks(intro.screen) + '</div>' +
-        naviSay(intro.code, intro.narasi, 'pose_menunjuk') + '</div>' + bottombar(null, '20 soal · ±15 menit', root + '1', 'Mulai') + '</div>');
+        '<span class="chip">' + (isPre ? '20 soal · ±15 menit · belum dinilai' : '20 soal · bagian dari nilai akhir') + '</span>' +
+        '<h2 class="slide-h">' + esc(intro.title) + '</h2><div class="card">' + blocks(intro.screen, intro.code) + '</div>' +
+        naviSay(intro.code, intro.narasi, 'pose_menunjuk') + '</div>' + bottombar(null, '', root + '1', 'Mulai') + '</div>');
     }
     if (i > N) {
       var ans = testAns[kind];
@@ -167,7 +174,7 @@
     }
     var q = Q[i - 1], sel = testAns[kind][i - 1];
     show('<div class="screen">' + topbar(base + ' · soal ' + i + ' dari ' + N, 'Bab ' + q.bab + ' · indikator ' + q.ind, (i - 1) / N) +
-      '<div class="body"><p class="q-stem">' + esc(q.stem.split('\nTranskrip')[0]) + '</p><div class="opts">' +
+      '<div class="body"><p class="q-stem">' + esc(cleanStem(q.stem)) + '</p><div class="opts">' +
       q.opts.map(function (o, k) { var L = 'ABCD'[k]; return '<button class="opt' + (sel === L ? ' sel' : '') + '" data-l="' + L + '"><span class="L">' + L + '</span><span>' + esc(o) + '</span></button>'; }).join('') +
       '</div></div>' + bottombar(i > 1 ? root + (i - 1) : root + '0', i + ' / ' + N, root + (i + 1), i === N ? 'Selesai' : 'Lanjut', !sel) + '</div>');
     view.querySelectorAll('.opt').forEach(function (b) {
@@ -180,7 +187,7 @@
     return '<aside class="side"><a href="#/rak">' + ic('home') + ' Rak bab</a><div class="mini" style="padding:10px">' + esc(b.label + ' · ' + b.title) + '</div>' +
       b.slides.map(function (c, j) {
         var s = D.slides[c], seen = ST.bab(b.no).seen.indexOf(c) >= 0;
-        return '<a href="#/bab/' + b.no + '/' + j + '"' + (j === k ? ' class="cur"' : '') + '><span class="ck">' + (seen ? '✓' : '') + '</span>' + esc(c + ' ' + s.title) + '</a>';
+        return '<a href="#/bab/' + b.no + '/' + j + '"' + (j === k ? ' class="cur"' : '') + '><span class="ck">' + (seen ? '✓' : '') + '</span>' + esc(s.title.replace(/^Aktivitas:\s*/, '')) + '</a>';
       }).join('') + '</aside>';
   }
   function scrBab(n, k) {
@@ -196,19 +203,23 @@
     if (k === 0) {
       inner = '<div class="cover-hero" style="--c:' + b.col + '">' + SG + '<div class="top"><span class="chip" style="background:rgba(255,255,255,.92)">' + esc(b.dur + ' · ' + b.slides.length + ' slide') + '</span></div>' +
         '<div class="kj jp">' + esc(b.kj) + '</div><div class="eb">' + esc(b.label + ' · ' + b.kjr) + '</div><img src="' + navi('act_memberi_salam') + '" alt=""></div>' +
-        '<div class="body cover-body"><div class="card"><h2 class="slide-h">' + esc(b.title) + '</h2><p>' + esc(b.blurb) + '</p>' + blocks(s.screen) +
-        '<ul class="lessons">' + b.lessons.map(function (t, j) { return '<li><b>P' + (j + 1) + '</b>' + esc(t) + '</li>'; }).join('') + '</ul></div>' +
+        '<div class="body cover-body"><div class="card cover-card"><h2 class="slide-h">' + esc(b.title) + '</h2><p class="lead">' + esc(b.blurb) + '</p>' +
+        '<h3 class="sec-h">Setelah bab ini, kamu mampu</h3><ul class="goals">' + s.screen.filter(function (x) { return x.li != null && x.lvl === 1; }).map(function (x) { return '<li>' + md(x.li.replace(/[;.]$/, '')) + '</li>'; }).join('') + '</ul>' +
+        '<h3 class="sec-h">Isi bab</h3><ol class="path">' + b.lessons.map(function (t, j) { return '<li><b>' + (j + 1) + '</b><span>' + esc(t) + '</span></li>'; }).join('') + '<li class="end"><b class="jp">済</b><span>Kuis bab, stempel jika skor ≥ 80</span></li></ol></div>' +
         naviSay(code, s.narasi, 'pose_menunjuk') + '</div>';
     } else if (k === last) {
       var st = ST.bab(n);
-      inner = '<div class="body"><span class="chip">Kuis formatif · bank 10 soal, tampil 5</span><h2 class="slide-h">' + esc(s.title) + '</h2>' +
-        '<div class="card"><p>Lima soal acak, satu per layar, dengan umpan balik langsung. Skor minimal <b>80</b> memberi stempel ' + esc(b.label) + '.</p>' +
-        (st.best ? '<p>Skor terbaikmu: <b>' + st.best + '</b>' + (st.stamp ? ' · stempel sudah didapat 済' : '') + '</p>' : '') + '</div>' +
-        '<a class="btn full" href="#/kuis/' + n + '">Mulai kuis' + ic('next') + '</a>' + naviSay(code, s.narasi, 'pose_semangat') + '</div>';
+      inner = '<div class="body"><span class="chip">' + esc(b.label) + ' · penutup</span><h2 class="slide-h">Kuis ' + esc(b.label) + '</h2>' +
+        '<div class="card quiz-intro"><div class="hanko' + (st.stamp ? ' got' : ' ghost') + '"><span class="jp">済</span></div><div>' +
+        '<p><b>5 soal</b>, satu per layar, dengan umpan balik langsung. Dapatkan skor <b>80</b> untuk stempel ' + esc(b.label) + '.</p>' +
+        (st.best ? '<p class="mini">Skor terbaikmu: <b>' + st.best + '</b>' + (st.stamp ? ' · stempel sudah didapat' : '') + '</p>' : '') + '</div></div>' +
+        '<a class="btn full" href="#/kuis/' + n + '">' + (st.best ? 'Ulangi kuis' : 'Mulai kuis') + ic('next') + '</a>' + naviSay(code, 'Siap? Kalau belum mencapai 80, kamu bisa mengulang dengan soal yang berbeda.', 'pose_semangat') + '</div>';
     } else {
-      inner = '<div class="body"><span class="chip">' + esc(code + (s.tpl ? ' · ' + s.tpl : '')) + '</span><h2 class="slide-h">' + esc(s.title) + '</h2>' +
-        '<p class="treat">' + esc(s.treat) + '</p><div class="card' + (ix ? ' ix-slide' : '') + '">' + (ix ? ix.html : blocks(s.screen)) + '</div>' +
-        naviSay(code, s.narasi, 'exp_senang') + visualNote(s) + '</div>';
+      var pj = /^P(\d)/.exec(s.pel || ''), lesson = pj ? 'Pelajaran ' + pj[1] + ' · ' + (b.lessons[pj[1] - 1] || '') : (s.pel || '');
+      inner = '<div class="body"><span class="chip">' + esc(lesson) + '</span><h2 class="slide-h">' + esc(s.title.replace(/^Aktivitas:\s*/, '')) + '</h2>' +
+        (/^Aktivitas/.test(s.title) ? '<span class="act-tag">Aktivitas</span>' : '') +
+        '<div class="card' + (ix ? ' ix-slide' : '') + '">' + (ix ? ix.html : blocks(s.screen, code)) + '</div>' +
+        naviSay(code, s.narasi, 'exp_senang') + devNote(s) + '</div>';
     }
     show('<div class="with-side" style="--c:' + b.col + ';--cl:' + b.colL + '">' + side(b, k) + '<div class="screen">' + topbar(sub, s.title, pct, b.col) + inner +
       bottombar(k > 0 ? root + (k - 1) : '#/rak', (k + 1) + ' / ' + b.slides.length, k < last ? root + (k + 1) : null, k === 0 ? 'Mulai ' + b.label : 'Lanjut', gate) + '</div></div>');
@@ -272,9 +283,15 @@
       sim = { pts: [], pick: [], trust: 50, order: M.map(function (m) { return shuffle([0, 1, 2]); }) };
       if (i !== 0) return go('#/sim/0');
       var s0 = D.slides['SIM-00'];
-      return show('<div class="screen"><div class="sim-scene" style="background-image:url(assets/bg/ruang_wawancara.webp)"></div><div class="body">' +
-        '<span class="chip" style="background:#2C4479;color:#fff">Evaluasi · 50% Nilai Sumatif</span><h2 class="slide-h">' + esc(s0.title) + '</h2>' +
-        '<div class="card" style="color:var(--ink)">' + blocks(s0.screen) + '</div></div>' + bottombar('#/rak', '13 momen · 20 detik per momen', '#/sim/1', 'Mulai simulasi') + '</div>', { dark: true });
+      return show('<div class="screen"><div class="sim-scene sim-intro" style="background-image:url(assets/bg/ruang_wawancara.webp)">' +
+        '<div class="sim-card"><span class="jp">さくら食品 · 人事部</span><b class="jp">田中さん</b><span>Tanaka-san, pewawancara</span></div></div><div class="body">' +
+        '<span class="chip" style="background:#2C4479;color:#fff">Bagian dari nilai akhir (50%)</span><h2 class="slide-h">Hari wawancaramu tiba</h2>' +
+        '<p class="sim-lead">Kamu melamar ke <span class="jp">さくら食品</span> (Sakura Shokuhin), pabrik makanan. Dari depan gedung sampai keluar ruangan, setiap keputusanmu dinilai.</p>' +
+        '<div class="rules">' +
+        '<div><b>13</b><span>momen keputusan</span></div><div><b>20<small> dtk</small></b><span>per momen; habis = 0 poin</span></div>' +
+        '<div><b>3</b><span>pilihan tindakan</span></div><div><b class="jp">信頼度</b><span>Trust Meter mulai 50</span></div></div>' +
+        '<p class="mini sim-note">Ucapan Tanaka-san tampil dalam bahasa Jepang dan romaji, tanpa arti, seperti wawancara sungguhan.</p></div>' +
+        bottombar('#/rak', '', '#/sim/1', 'Mulai simulasi') + '</div>', { dark: true });
     }
     if (i > M.length) return scrSimEnd(i);
     var m = M[i - 1], picked = sim.pick[i - 1];
@@ -351,14 +368,14 @@
   /* ------------------------------------------------------------ fitur global & pengaturan */
   function scrHal(code) {
     var s = D.slides[code]; if (!s) return go('#/rak');
-    show('<div class="screen">' + topbar('Fitur global · ' + code, s.title, 1) + '<div class="body"><h2 class="slide-h">' + esc(s.title) + '</h2><p class="treat">' + esc(s.treat) + '</p>' +
-      '<div class="card">' + blocks(s.screen) + '</div>' + naviSay(code, s.narasi, 'pose_dagu') + visualNote(s) + '</div>' + bottombar('#/rak', '', null) + '</div>');
+    show('<div class="screen">' + topbar('Fitur', s.title, 1) + '<div class="body"><span class="chip soon">Sedang disiapkan</span><h2 class="slide-h">' + esc(s.title) + '</h2>' +
+      (ST.get().unlockAll ? '<div class="card">' + blocks(s.screen, code) + '</div>' : '') + naviSay(code, s.narasi, 'pose_dagu') + devNote(s) + '</div>' + bottombar('#/rak', '', null) + '</div>');
   }
   function scrAtur() {
     var S = ST.get();
     show('<div class="screen">' + topbar('Pengaturan', 'Data dan mode uji', 1) + '<div class="body">' +
       '<label class="field">Nama panggilan<input id="nm" value="' + esc(S.name) + '" maxlength="20"></label>' +
-      '<label class="card" style="display:flex;gap:12px;align-items:center"><input type="checkbox" id="ua" ' + (S.unlockAll ? 'checked' : '') + ' style="width:22px;height:22px"> <span><b>Mode uji tim:</b> buka semua bab dan evaluasi tanpa syarat. Matikan sebelum dipakai peserta.</span></label>' +
+      '<label class="card switch-row"><span><b>Mode uji tim</b><span class="mini">Buka semua bab dan evaluasi tanpa syarat, dan tampilkan catatan storyboard. Matikan sebelum dipakai peserta.</span></span><input type="checkbox" role="switch" class="switch" id="ua" ' + (S.unlockAll ? 'checked' : '') + '></label>' +
       '<div class="card"><b>Data tersimpan di perangkat ini saja.</b><p class="mini">Progres, jawaban, dan nilai disimpan di peramban HP/laptop ini dan tidak dikirim ke mana pun.</p><button class="btn ghost" id="rs">Hapus semua progres</button></div>' +
       '</div>' + bottombar('#/rak', '', null) + '</div>');
     document.getElementById('nm').addEventListener('change', function (e) { S.name = e.target.value.trim(); ST.save(); });

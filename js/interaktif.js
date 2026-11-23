@@ -28,11 +28,32 @@
   /* ---------------------------------------------------- pemecah blok */
   function groups(list) {
     var out = [], cur = null;
-    (list || []).forEach(function (b) {
+    (list || []).forEach(function (b, i) {
       if (b.li != null) { if (!cur) { cur = { li: [] }; out.push(cur); } cur.li.push(b); return; }
-      cur = null; out.push(b);
+      cur = null; var c = {}; for (var k in b) c[k] = b[k]; c.i = i; out.push(c);
     });
     return out;
+  }
+  /* paragraf naskah → teks untuk peserta (lihat js/data/tampilan.js) */
+  function cap(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
+  function para(code, i, p) {
+    var o = (window.MN_TAMPIL || {})[code];
+    if (o && Object.prototype.hasOwnProperty.call(o, i)) { if (o[i] === null) return ''; p = o[i]; }
+    p = String(p).trim();
+    if (/^"[^"]+"$/.test(p)) p = p.slice(1, -1);
+    if (/^[a-z]/.test(p)) p = cap(p);
+    var m;
+    if ((m = /^Kotak "([^"]+)":\s*/.exec(p))) {
+      var kind = /hindari/i.test(m[1]) ? 'warn' : /tahukah/i.test(m[1]) ? 'tip' : 'info';
+      return '<aside class="callout ' + kind + '"><b class="ct">' + esc(m[1]) + '</b><p>' + md(cap(p.slice(m[0].length))) + '</p></aside>';
+    }
+    if ((m = /^Tips:\s*/.exec(p))) return '<aside class="callout tip"><b class="ct">Tips</b><p>' + md(cap(p.slice(m[0].length))) + '</p></aside>';
+    if ((m = /^(Kalimat kunci|Kata Mutiara):\s*/.exec(p))) return '<blockquote class="kunci">' + md(p.slice(m[0].length).replace(/\*\*/g, '').replace(/^"|"$/g, '')) + '</blockquote>';
+    if ((m = /^(Keterangan kecil|Keterangan|Catatan kecil|Catatan kosakata|Catatan):\s*/.exec(p))) return '<p class="note"><b>' + esc(m[1].replace(/ kecil$/, '')) + ':</b> ' + md(p.slice(m[0].length)) + '</p>';
+    return '<p>' + md(p) + '</p>';
+  }
+  function blocksFor(code, list) {
+    return groups(list).map(function (g) { return g.li ? staticLi(g.li) : g.table ? staticTable(g.table) : para(code, g.i, g.p); }).join('');
   }
   function staticLi(items) {
     return '<ul class="items">' + items.map(function (b) {
@@ -409,7 +430,7 @@
       }
       /* paragraf */
       var ref = tpl === 'T11' && /urutkan/i.test(g.p) && /\((B\d-\d\d)\)/.exec(g.p);
-      parts.push('<p>' + md(g.p) + '</p>');
+      parts.push(para(code, g.i, g.p));
       if (ref && D.slides[ref[1]]) {
         var steps = D.slides[ref[1]].screen.filter(function (b) { return b.li != null && (b.lvl || 0) === 0; }).map(function (b) { return b.li; });
         if (steps.length >= 3) add(W.order(steps));
@@ -438,5 +459,5 @@
     };
   }
 
-  window.MN_IX = { render: render, sayJa: sayJa };
+  window.MN_IX = { render: render, sayJa: sayJa, blocks: blocksFor, para: para };
 })();

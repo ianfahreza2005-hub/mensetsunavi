@@ -2,6 +2,17 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 
+## [0.4.0] — Tampilan dirapikan
+
+### Diubah
+- Teks arahan storyboard tidak lagi tampil ke peserta; ditulis ulang di `js/data/tampilan.js`.
+- Kotak "Tahukah kamu?", "Hindari", Tips, Kalimat kunci/Kata Mutiara, dan Keterangan tampil sebagai kotak bergaya.
+- Kode slide, kode template, treatment, dan rencana visual hanya tampil di Mode uji tim.
+- Sampul bab: capaian dengan tanda centang dan jalur pelajaran sampai stempel kuis.
+- Layar pembuka dua kolom di laptop, kartu misi tiga langkah.
+- Pengantar Simulasi baru (kartu Tanaka-san, empat aturan), kuis bab dengan pratinjau stempel, sakelar Mode uji.
+- Soal pre/post-test tanpa catatan penyusun; fitur yang belum jadi ditandai "Sedang disiapkan".
+
 ## [0.3.0] — Template interaktif
 
 ### Ditambahkan

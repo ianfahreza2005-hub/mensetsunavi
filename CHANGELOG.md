@@ -15,7 +15,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 
 ### Diubah
 - Struktur mengikuti rancangan final: Pre-test → Bab 1–6 → Simulasi → Post-test → Rapor, layar HP tegak dan laptop.
-- Prototipe lama (Modul 1–5, panggung 16:9) diganti; tersimpan di tag `v0.1-prototipe-lama`.
+- Prototipe lama (Modul 1–5, panggung 16:9) diganti; tersimpan di branch `arsip/prototipe-lama`.
 
 ### Ditambahkan
 - Rak bab 3D (Three.js r181 lokal) dengan panel gambaran bab, Buka/Tutup, kunci bergetar, stempel 済.

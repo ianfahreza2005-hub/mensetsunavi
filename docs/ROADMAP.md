@@ -15,7 +15,7 @@
 - [x] T09 Slider ojigi, T12 Cocokkan Kartu, T13 Pilihan Situasi
 - [ ] T14 Dengar & Tebak, gambar panel komik T13
 - [x] T15 Rekam Suara + daftar periksa (Lapis 2)
-- [ ] T15 analisis otomatis Lapis 1
+- [ ] T15 analisis otomatis Lapis 1: modul siap (`js/suara.js`, dipakai GLB-04), belum dipasang di B4-15/B5-13
 - [x] T16 Penyusun Jikoshoukai berisian (B4-14)
 
 ## Tahap 3 · Aset
@@ -25,7 +25,9 @@
 
 ## Tahap 4 · Penyempurnaan
 - [x] GLB-03 Bank Kosakata + kartu hafalan Leitner (3 kotak, sesi 10 kartu)
-- [ ] GLB-04 latihan pertanyaan acak dengan rekam suara; petunjuk Navi (GLB-07)
+- [x] GLB-04 Latihan Pertanyaan Acak: mode Dengar + Jawab-rekam, bank 25 soal (suara bawaan perangkat)
+- [ ] GLB-04: rekaman audio pewawancara penutur asli (setelah cek SME soal 2–17 dan 23–25)
+- [ ] Petunjuk Navi (GLB-07)
 - [ ] GLB-03: contoh kalimat per istilah dan rekaman audio istilah (menunggu naskah/SME)
 - [ ] Audio pewawancara simulasi, Mode Latihan tanpa timer
 - [ ] Uji di HP Android kelas bawah, uji offline, uji coba ke peserta LPK

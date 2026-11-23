@@ -368,11 +368,11 @@
   /* ------------------------------------------------------------ fitur global & pengaturan */
   function scrHal(code) {
     var s = D.slides[code]; if (!s) return go('#/rak');
-    if (code === 'GLB-03' && window.MN_KOSA) {
-      show('<div class="screen" style="--c:#B0436A;--cl:#FBE6EE">' + topbar('Sumber belajar', 'Bank Kosakata', 1, '#B0436A') + '<div class="body"><h2 class="slide-h">' + esc(s.title) + '</h2><div id="kosa"></div></div>' + bottombar('#/rak', '', null) + '</div>');
-      var kv = document.getElementById('kosa');
-      window.MN_KOSA.mount(kv, { esc: esc, ic: ic, naviSay: naviSay, bindSpeak: bindSpeak, toast: toast, status: function (n) { return ST.status(n); },
-        sayJa: function (t) { return window.MN_IX ? MN_IX.sayJa(t) : false; } });
+    var FITUR = { 'GLB-03': ['MN_KOSA', 'Bank Kosakata', '#B0436A', '#FBE6EE'], 'GLB-04': ['MN_LATIH', 'Latihan Pertanyaan Acak', '#5B46A8', '#ECE7FA'] }[code];
+    if (FITUR && window[FITUR[0]]) {
+      show('<div class="screen" style="--c:' + FITUR[2] + ';--cl:' + FITUR[3] + '">' + topbar('Sumber belajar', FITUR[1], 1, FITUR[2]) + '<div class="body"><h2 class="slide-h">' + esc(s.title) + '</h2><div id="fitur"></div></div>' + bottombar('#/rak', '', null) + '</div>');
+      window[FITUR[0]].mount(document.getElementById('fitur'), { esc: esc, ic: ic, naviSay: naviSay, bindSpeak: bindSpeak, toast: toast, status: function (n) { return ST.status(n); },
+        sayJa: function (t, rate, onend) { return window.MN_IX ? MN_IX.sayJa(t, rate, onend) : false; } });
       bindSpeak(view);
       return;
     }

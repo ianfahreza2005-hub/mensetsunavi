@@ -8,6 +8,8 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 - T16 Penyusun Jikoshoukai (B4-14): lima blok isian, kalimat Jepang + romaji + arti dirangkai dari naskah B4-06–B4-09, panduan katakana, perkiraan durasi (ideal 30–60 dtk), dengarkan/salin/unduh, isian tersimpan di perangkat.
 - GLB-03 Bank Kosakata dan Kartu Hafalan: daftar 68 istilah (cari, filter bab/kategori, bintang, Romaji/Arti, tautan ke slide) dan kartu hafalan Leitner 3 kotak (sesi 10 kartu).
 - `gen_data.py` membaca glosarium tiap bab ke `D.bab[i].glos`.
+- GLB-04 Latihan Pertanyaan Acak: bank 25 soal dengan contoh jawaban dari slide; mode Dengar (tebak topik) dan Jawab-rekam (hitung mundur 5 dtk, rekam maks. 60 dtk, analisis Lapis 1 durasi/jeda/volume + gelombang). `gen_data.py` membaca bank ke `D.latih`.
+- `js/suara.js`: perekam suara dan analisis Lapis 1 yang bisa dipakai ulang oleh T15.
 - Stepper untuk daftar langkah bernomor T03 (B3-03, B6-03, B6-08).
 
 ### Diperbaiki

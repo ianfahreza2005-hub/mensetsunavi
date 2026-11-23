@@ -14,7 +14,7 @@ Aplikasi satu halaman tanpa framework dan tanpa *build step*: HTML, CSS, dan Jav
 | `#/sim/0` … `#/sim/15` | Simulasi Mensetsu | SIM-00–15 |
 | `#/post/0` … | Post-test | POST-00–20 |
 | `#/rapor` | Rapor Kesiapan | RAP-01–03 |
-| `#/hal/GLB-0x` | Fitur global (GLB-03 Bank Kosakata sudah jadi; GLB-04/05 masih placeholder) | GLB-03–05 |
+| `#/hal/GLB-0x` | Fitur global (GLB-03 Bank Kosakata dan GLB-04 Latihan Pertanyaan Acak sudah jadi; GLB-05 masih placeholder) | GLB-03–05 |
 | `#/atur` | Pengaturan, mode uji, hapus progres | GLB-06 |
 
 ## Data
@@ -88,3 +88,17 @@ Kartu hafalan memakai Leitner tiga kotak: kotak 1 tiap sesi, kotak 2 tiap 2 sesi
 dicadangkan untuk kartu kotak 2/3 yang waktunya tiba (kotak 3 didahulukan) supaya tidak tersisih oleh kotak 1 yang banyak di awal; berbintang didahulukan.
 "Sudah tahu" naik satu kotak, "Belum tahu" kembali ke kotak 1. Progres di `MN_STORE.get().kosa = { box:{istilah:1|2|3}, star:{istilah:1}, sesi:n }`
 (hanya di perangkat; ikut terhapus oleh "Hapus semua data"). Suara memakai `MN_IX.sayJa` (suara ja-JP perangkat) sampai ada rekaman.
+
+## Latihan Pertanyaan Acak (GLB-04) dan perekam suara
+
+`js/latihan.js` (`MN_LATIH.mount`) dipasang oleh `scrHal` (cabang yang sama dengan GLB-03). Data: `D.latih[]` = `{no, g (A–D), q{jp,ro,ar}, topik, acuan, inti, a{jp,ro,ar}, dari, mirip}`,
+dibuat `tools/gen_data.py` dari empat tabel bank di dokumen Fitur Global. Contoh jawaban `a` diambil dari slide (peta `SUMBER` di gen_data.py: B4-10, B5-03…08, B2-10);
+`mirip` terisi bila contoh berasal dari soal serupa (varian nomor 10–17, soal 2, 4, 5, 23, 25), dan layar menampilkannya sebagai "Contoh dari soal serupa".
+
+- **Dengar:** suara pertanyaan (teks disembunyikan) → pilih satu dari 12 topik → benar/salah, teks, romaji, arti, contoh jawaban.
+- **Jawab-rekam:** suara → hitung mundur 5 dtk → rekam otomatis (maks. 60 dtk) → analisis Lapis 1 + pemutar rekaman + contoh jawaban → "Perlu latih lagi" / "Sudah cukup".
+- Jumlah 5/10/25, kecepatan Normal (0,85) / Pelan (0,6). Tidak dinilai. Soal yang perlu diulang tersimpan di `MN_STORE.get().latih.ulang`. Rekaman tidak disimpan.
+- Tanpa mikrofon: peserta menjawab keras lalu langsung ke contoh jawaban. Tanpa suara Jepang di perangkat: teks pertanyaan ditampilkan.
+
+`js/suara.js` (`MN_SUARA`) = perekam (MediaRecorder + AnalyserNode, cuplikan level tiap 0,1 dtk) dan **analisis Lapis 1** (durasi bicara, jeda ≥ 1 dtk, volume, gelombang SVG).
+Dibuat terpisah agar T15 (B4-15, B5-13) bisa memakainya. `MN_IX.sayJa(teks, rate, onend)` kini menerima kecepatan dan callback selesai.

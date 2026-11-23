@@ -147,7 +147,54 @@ EVAL = [
  dict(no=8, id='post', label='Evaluasi', title='Post-test & Rapor', kj='修了', kjr='shuuryou · selesai', col='#7B3F2B', colL='#F6E6DF', dur='±15 menit',
       lessons=['Post-test 20 soal', 'Rapor Kesiapan'], blurb='20 soal post-test, lalu Rapor Kesiapan berisi nilai sumatif, skor komunikasi dan etika, serta rekomendasi.'),
 ]
-data = {'bab': BAB, 'eval': EVAL, 'pre': pre, 'sim': sim, 'slides': slides, 'order': order}
+# bank 25 pertanyaan GLB-04 (Latihan Pertanyaan Acak) dari dokumen Fitur Global + contoh jawaban dari slide
+def pecah(t):
+    """'「JP」 (romaji. "arti")' -> {'jp','ro','ar'}; tanpa tanda kutip, romaji = sebanyak kalimat JP."""
+    m = re.match(r'^「?(.+?)」?\s*[\(（](.*)[\)）]\s*$', t.strip(), re.S)
+    if not m: return {'jp': t.strip().strip('「」'), 'ro': '', 'ar': ''}
+    jp, inner = m.group(1).strip(), m.group(2).strip()
+    if re.search(r'["“”]', inner):
+        parts = re.split(r'["“”]', inner); return {'jp': jp, 'ro': parts[0].strip(), 'ar': parts[1].strip()}
+    n = max(1, len(re.findall(r'[。？！]', jp)))
+    sent = re.split(r'(?<=[.?!])\s+', inner)
+    return {'jp': jp, 'ro': ' '.join(sent[:n]).strip(), 'ar': ' '.join(sent[n:]).strip()}
+def baris_jawaban(code, key):
+    for bl in slides[code]['screen']:
+        if 'table' not in bl: continue
+        hd = bl['table'][0]; ja = [i for i, h in enumerate(hd) if 'jawaban' in h.lower()]
+        if not ja: continue
+        for r in bl['table'][1:]:
+            if any(key in c for c in r): return pecah(r[[i for i, h in enumerate(hd) if 'pertanyaan' in h.lower()][0]]), pecah(r[ja[0]])
+    raise KeyError((code, key))
+def rani_utuh():
+    t = [bl['table'] for bl in slides['B4-10']['screen'] if 'table' in bl][0][1:]
+    return {'jp': ''.join(r[1] for r in t), 'ro': ' '.join(r[2] for r in t), 'ar': ' '.join(r[3] for r in t)}
+def pola_b503():
+    t = [bl['table'] for bl in slides['B5-03']['screen'] if 'table' in bl][0][1:]
+    q = [bl['p'] for bl in slides['B5-03']['screen'] if 'p' in bl and bl['p'].startswith('Contoh untuk')][0]
+    return pecah(q.split(':', 1)[0].replace('Contoh untuk', '').strip()), {'jp': ''.join(r[1] for r in t), 'ro': ' '.join(r[2] for r in t), 'ar': ' '.join(r[3] for r in t)}
+SUMBER = {1: ('B4-10', None), 2: ('B5-03', None), 10: ('B5-03', None), 3: ('B5-04', '志望動機'), 11: ('B5-04', '志望動機'),
+          4: ('B5-05', '長所と短所'), 5: ('B5-05', '長所と短所'), 12: ('B5-05', '長所と短所'), 13: ('B5-05', '長所と短所'), 6: ('B5-05', '体力'), 14: ('B5-05', '体力'),
+          7: ('B5-06', '日本語はどのくらいできますか'), 15: ('B5-06', '日本語はどのくらいできますか'), 8: ('B5-06', '前の仕事'), 16: ('B5-06', '前の仕事'),
+          9: ('B5-07', 'どのくらい働きたい'), 17: ('B5-07', '将来の目標'), 18: ('B5-08', '趣味'), 19: ('B5-08', '休みの日'), 20: ('B5-08', '日本の食べ物'),
+          21: ('B5-08', '今朝'), 22: ('B5-08', 'インドネシアのいいところ'), 23: ('B2-10', 'ミス'), 24: ('B2-10', '分からない'), 25: ('B2-10', '遅刻')}
+G = flat(x['glb'])
+g0 = [k for k, (t, sx) in enumerate(G) if t.startswith('h') and 'GLB-04' in sx][0]
+g1 = [k for k, (t, sx) in enumerate(G) if k > g0 and t == 'h2'][0]
+GRUP = ['A', 'B', 'C', 'D']
+latih = []
+for gi, tb in enumerate([v for t, v in G[g0:g1] if t == 'table' and v[0][:2] == ['No', 'Pertanyaan']]):
+    for r in tb[1:]:
+        no = int(r[0]); q = pecah(r[1]); code, key = SUMBER[no]
+        if no == 1: sq, ans = None, rani_utuh()
+        elif key is None: sq, ans = pola_b503()
+        else: sq, ans = baris_jawaban(code, key)
+        norm = lambda z: re.sub(r'[。？！\s]', '', z)
+        latih.append({'no': no, 'g': GRUP[gi], 'q': q, 'topik': r[2].strip(), 'acuan': r[3].strip() if gi == 0 else '', 'inti': r[3].strip() if gi == 3 else '',
+                      'a': ans, 'dari': code, 'mirip': (sq['jp'] if sq else '') if (sq and norm(sq['jp']) != norm(q['jp'])) else ''})
+assert [q['no'] for q in latih] == list(range(1, 26)), len(latih)
+assert all(q['a']['jp'] and q['a']['ro'] and q['a']['ar'] for q in latih), [q['no'] for q in latih if not (q['a']['jp'] and q['a']['ro'] and q['a']['ar'])]
+data = {'bab': BAB, 'latih': latih, 'eval': EVAL, 'pre': pre, 'sim': sim, 'slides': slides, 'order': order}
 js = '/* Dibuat otomatis dari naskah materi dan storyboard (gen_data.py). Jangan diedit manual. */\nwindow.MN_DATA = ' + json.dumps(data, ensure_ascii=False) + ';\n'
 open('js/data/kursus.js', 'w').write(js)
 print('ok', len(js), {n: len(b['slides']) for n, b in enumerate(BAB, 1)}, len(sim), len(pre))

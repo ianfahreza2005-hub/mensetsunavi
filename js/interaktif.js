@@ -15,12 +15,13 @@
   function hdr(t, re) { for (var i = 0; i < t[0].length; i++) if (re.test(t[0][i])) return i; return -1; }
 
   /* suara Jepang: rekaman bila kelak ada, sementara suara bawaan perangkat (ja-JP) */
-  function sayJa(text) {
+  function sayJa(text, rate, onend) {
     var t = String(text || '').replace(/[「」]/g, '').replace(/[〇○]+/g, '').replace(/\(.*?\)|（.*?）/g, '').trim();
     if (!t || !window.speechSynthesis) return false;
     speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(t); u.lang = 'ja-JP'; u.rate = 0.85;
-    var v = speechSynthesis.getVoices().filter(function (x) { return /^ja/i.test(x.lang); })[0]; if (v) u.voice = v;
+    var u = new SpeechSynthesisUtterance(t); u.lang = 'ja-JP'; u.rate = rate || 0.85;
+    if (onend) { u.onend = onend; u.onerror = onend; }
+    try { var v = speechSynthesis.getVoices().filter(function (x) { return /^ja/i.test(x.lang); })[0]; if (v) u.voice = v; } catch (e) { /* pakai suara bawaan */ }
     speechSynthesis.speak(u); return true;
   }
   var SPK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>';

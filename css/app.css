@@ -588,3 +588,88 @@ b, strong { font-weight: 800; }
 .km-top { display: flex; align-items: baseline; justify-content: space-between; }
 .km-kj { font-size: 22px; font-weight: 900; color: var(--c); }
 @media (min-width: 700px) { .km-list { grid-template-columns: 1fr 1fr; } }
+
+
+/* =====================================================================================
+   TATA LETAK RESPONSIF (rancangan canvas v2: D = laptop, L = HP landscape)
+   ===================================================================================== */
+
+/* ---------- HP landscape (tinggi ≤ 520px): bilah atas dipipihkan; Kembali/Lanjut pindah ke kolom kanan (L1–L3) ---------- */
+@media (orientation: landscape) and (max-height: 520px) {
+  :root { --tbh: 52px; --kol: 132px; }
+  .topbar .row { height: 48px; padding: 0 max(10px, env(safe-area-inset-left)); gap: 8px; }
+  .topbar .sub { display: none; }
+  .topbar .title { font-size: 14px; }
+  .icon-btn { width: 38px; height: 38px; border-radius: 12px; }
+  .bar { height: 4px; }
+  .body { padding: 10px max(14px, env(safe-area-inset-left)) 16px; gap: 10px; }
+  .slide-h { font-size: 22px; }
+  .q-stem { font-size: 16px; }
+  .opt { padding: 10px 12px; min-height: 48px; }
+  .navi-say img { width: 54px; }
+  .cover-hero { padding: 12px 16px 22px; }
+  .cover-hero .kj { font-size: 64px; margin-top: 6px; }
+  .screen.has-bar { max-width: none; padding-right: var(--kol); }
+  .screen.has-bar > .topbar { margin-right: calc(-1 * var(--kol)); }
+  .screen.has-bar > .bottombar { position: fixed; z-index: 6; top: var(--tbh); right: 0; bottom: 0; width: var(--kol); flex-direction: column; justify-content: center; gap: 8px;
+    padding: 8px 10px max(8px, env(safe-area-inset-bottom)); border-top: 0; border-left: 1px solid var(--line); }
+  .screen.has-bar > .bottombar > span:not(.no) { display: none; }
+  .screen.has-bar > .bottombar .btn { width: 100%; min-height: 44px; padding: 8px; }
+  .screen.has-bar > .bottombar .btn:not(.ghost) { order: -1; }   /* Lanjut di atas, Kembali di bawah */
+  .screen.has-bar > .bottombar .no { flex: none; order: 0; }
+  .screen.has-bar > .bottombar .btn.ghost { order: 1; }
+  .toast { bottom: 16px; }
+  .gt-row { flex-wrap: nowrap; }
+}
+
+/* ---------- simulasi dua kolom saat landscape (HP, tablet, laptop): ilustrasi di kiri, pilihan di panel kanan (L3, D3) ---------- */
+@media (orientation: landscape) and (min-width: 640px) {
+  .sim .screen.sim-split { flex: none; overflow: hidden; max-width: none; padding-right: 0; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; height: 100vh; height: 100dvh; }
+  .screen.sim-split > .sim-scene { grid-column: 1; grid-row: 1 / span 2; height: auto; min-height: 0; border-radius: 0 28px 28px 0; }
+  .screen.sim-split > .body { grid-column: 2; grid-row: 1; overflow-y: auto; justify-content: flex-start; padding: 16px max(20px, 3vw); }
+  .screen.sim-split > .body > :first-child { margin-top: auto; }
+  .screen.sim-split > .body > :last-child { margin-bottom: auto; }
+  .screen.sim-split.has-bar > .bottombar { grid-column: 2; grid-row: 2; position: static; width: auto; flex-direction: row; border-left: 0; border-top: 1px solid rgba(255, 255, 255, .12); background: rgba(22, 33, 62, .96); padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); }
+  .screen.sim-split.has-bar > .bottombar > span:not(.no) { display: block; }
+  .screen.sim-split.has-bar > .bottombar .btn { width: auto; }
+  .screen.sim-split.has-bar > .bottombar .btn:not(.ghost), .screen.sim-split.has-bar > .bottombar .btn.ghost { order: 0; }
+  .screen.sim-split.has-bar > .topbar { margin-right: 0; }
+}
+
+/* ---------- laptop ≥1280px: panel kanan di slide materi (D2), rapor dua kolom (D4), halaman fitur lebih lebar ---------- */
+.rpanel { display: none; }
+.rp-glos h3 { margin: 14px 0 8px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); }
+.rp-g { background: var(--ground); border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; display: grid; grid-template-columns: 1fr auto; gap: 0 8px; align-items: center; }
+.rp-g .ix-ro, .rp-g .ix-ar { grid-column: 1 / -1; }
+.rp-jp { font-size: 20px; font-weight: 800; }
+.rp-g .ix-sp { width: 36px; height: 36px; } .rp-g .ix-sp svg { width: 18px; height: 18px; }
+@media (min-width: 1280px) {
+  .with-side.has-rp { grid-template-columns: 260px minmax(0, 1fr) 320px; max-width: 1480px; }
+  .with-side.has-rp .inl-navi { display: none; }
+  .rpanel { display: block; position: sticky; top: 0; height: 100vh; overflow: auto; padding: 20px 16px; border-left: 1px solid var(--line); background: #fff; }
+}
+@media (min-width: 1024px) {
+  .rapor .body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+  .rapor .body > :first-child, .rapor .body > .navi-say, .rapor .body > .card:nth-last-child(2) { grid-column: 1 / -1; }
+}
+@media (min-width: 1100px) {
+  .screen.fitur { max-width: 980px; }
+  .screen.fitur .kv-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .screen.fitur .km-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* simulasi: teks panel kanan lebih besar di layar lebar (D3) */
+@media (orientation: landscape) and (min-width: 1100px) and (min-height: 600px) {
+  .screen.sim-split > .body { padding: 24px 40px; gap: 16px; }
+  .screen.sim-split .q-stem { font-size: 24px; line-height: 1.35; }
+  .screen.sim-split .opt { font-size: 18px; padding: 16px 18px; }
+  .screen.sim-split .sim-lead { font-size: 18px; }
+}
+
+/* tablet tegak (700–1023px): teks dan ruang sedikit lebih besar dari HP */
+@media (min-width: 700px) and (max-width: 1023px) and (orientation: portrait) {
+  .body { padding: 22px 30px 28px; }
+  .q-stem { font-size: 20px; }
+  .opt { padding: 15px 18px; font-size: 17px; }
+  .slide-h { font-size: 30px; }
+}

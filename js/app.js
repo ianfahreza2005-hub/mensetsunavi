@@ -149,9 +149,11 @@
   var hashTampil = location.hash;
   function show(html, opts) {
     stopVoice();
-    rakEl.hidden = true; if (window.MN_RAK) window.MN_RAK.hide();
+    var keBuku = !!buku && !buku.tampil;   /* masuk ke buku: halaman disusun di atas rak, tak terlihat, rak tetap berjalan */
+    if (!keBuku) { rakEl.hidden = true; if (window.MN_RAK) window.MN_RAK.hide(); }
     saranEl.hidden = true;
     view.hidden = false;
+    view.classList.toggle('dari-buku', keBuku); view.inert = keBuku;
     document.body.className = ((opts && opts.dark) ? 'sim' : '') + setClasses();
     view.innerHTML = html;
     view.querySelectorAll('.screen').forEach(function (sc) { for (var c = sc.firstElementChild; c; c = c.nextElementSibling) if (c.classList.contains('bottombar')) { sc.classList.add('has-bar'); break; } });
@@ -170,9 +172,81 @@
     window.scrollTo(0, 0);
     view.querySelectorAll('[data-menu]').forEach(function (b) { b.addEventListener('click', openMenu); });
     bindSpeak(view);
+    if (keBuku) {
+      /* Halaman ini nanti kembali ke alur biasa dan halaman bisa digulir. Bila peramban memakai scrollbar klasik (Windows),
+         lebarnya dikurangi sekarang dan tempat scrollbar diisi warna latar, supaya isi tidak bergeser saat scrollbar muncul. */
+      var sb = lebarScrollbar(), panjang = sb > 0 && view.scrollHeight > innerHeight + 1;
+      view.style.setProperty('--sb-buku', panjang ? sb + 'px' : '0px');
+      hashTampil = location.hash;   /* tanpa kemunculan bertahap: halaman muncul utuh dari dalam halaman buku */
+      return;
+    }
     /* gerak masuk layar (js/gerak.js) hanya saat berpindah layar, bukan saat layar yang sama digambar ulang (mis. memilih jawaban) */
     if (window.MN_GERAK && location.hash !== hashTampil) MN_GERAK.jadwal();
     hashTampil = location.hash;
+  }
+  var sbLebar = null;
+  function lebarScrollbar() {
+    if (sbLebar === null) {
+      var d = document.createElement('div'); d.style.cssText = 'position:absolute;top:-999px;left:0;width:100px;height:100px;overflow:scroll;visibility:hidden';
+      document.body.appendChild(d); sbLebar = d.offsetWidth - d.clientWidth; d.parentNode.removeChild(d);
+    }
+    return sbLebar;
+  }
+
+  /* ------------------------------------------------------------ masuk ke buku (rak 3D → halaman materi)
+     1. Peserta menekan Lanjutkan di rak: rak memanggil masukBuku(no) sebelum buku mulai bergerak. Alamat berganti dan
+        halaman tujuan langsung disusun di #view.dari-buku (fixed di atas rak, opacity ±0, inert). Kerja berat ini selesai
+        sebelum animasi dimulai, jadi tidak memotong gerak 3D.
+     2. Buku membuka dan kamera menyelam ke halaman judul. Begitu halaman judul setinggi layar, rak memanggil ukurBuku(skala,
+        opacity) di setiap frame: halaman materi tampil sebagai kartu tepat di atas kartu isi halaman judul dan membesar
+        bersama halaman 3D (skala dihitung dari zoom 3D yang sama, jadi keduanya bergerak sebagai satu benda).
+     3. Selaman berhenti melambat saat kartu memenuhi layar: rak memanggil tibaBuku(); #view kembali ke alur biasa,
+        rak disembunyikan dan dijeda.
+     Hanya transform dan opacity #view yang berubah per frame (lapisan komposit, tanpa tata letak/lukis ulang).
+     "Kurangi gerak", HP, dan peramban tanpa WebGL tetap memakai jalur lama (APP.open + transisi pudar). */
+  var buku = null, abaikanHash = null;
+  function tujuanBuku(no) {
+    if (no <= 6) return '#/bab/' + no + '/' + (ST.bab(no).last || 0);
+    if (no === 7) return '#/sim/0';
+    return ST.get().post && ST.get().post.done ? '#/rapor' : '#/post/0';
+  }
+  function masukBuku(no) {
+    if (buku || rakEl.hidden || !view.hidden) return false;   /* hanya dari rak yang sedang tampil */
+    var h = tujuanBuku(no);
+    buku = { hash: h, tampil: false, anim: [] };
+    abaikanHash = h; hashLalu = h; location.hash = h;   /* hashchange-nya diabaikan: halaman disusun langsung di sini */
+    try { route(); } catch (e) { selesaiBuku(); throw e; }
+    if (!buku || location.hash !== h || !view.classList.contains('dari-buku')) { selesaiBuku(); return false; }   /* dialihkan ke tempat lain */
+    buku.jaga = setTimeout(cadanganBuku, 4000);   /* jaga-jaga bila rak tidak sempat menyetir (mis. tab di latar) */
+    return true;
+  }
+  function ukurBuku(skala, op) {
+    if (!buku) return;
+    buku.tampil = true;
+    view.style.transform = skala >= 0.9995 ? 'none' : 'scale(' + skala.toFixed(5) + ')';
+    view.style.opacity = Math.max(0.001, Math.min(1, op)).toFixed(4);
+  }
+  function tibaBuku() { ukurBuku(1, 1); selesaiBuku(); }
+  /* rak tidak menyetir (tab di latar, galat 3D): halaman tetap muncul, dengan pudar + membesar biasa */
+  function cadanganBuku() {
+    if (!buku || !view.animate) { selesaiBuku(); return; }
+    buku.tampil = true; view.style.transform = ''; view.style.opacity = '';
+    buku.anim = [
+      view.animate([{ opacity: 0.001 }, { opacity: 1 }], { duration: 300, easing: 'cubic-bezier(.3, 0, .2, 1)', fill: 'forwards' }),
+      view.animate([{ transform: 'scale(.96)' }, { transform: 'none' }], { duration: 560, easing: 'cubic-bezier(.22, 1, .36, 1)', fill: 'forwards' })
+    ];
+    buku.anim[1].finished.then(selesaiBuku, selesaiBuku);
+  }
+  function selesaiBuku() {
+    if (!buku) return;
+    var b = buku; buku = null; clearTimeout(b.jaga);
+    view.classList.remove('dari-buku'); view.inert = false;
+    view.style.removeProperty('--sb-buku'); view.style.transform = ''; view.style.opacity = '';
+    b.anim.forEach(function (a) { try { a.cancel(); } catch (e) { /* sudah selesai */ } });
+    if (!b.tampil) return;   /* dibatalkan sebelum tampil: rak tetap */
+    rakEl.hidden = true; if (window.MN_RAK) window.MN_RAK.hide();
+    var f = document.getElementById('rakf'); if (f && document.activeElement === f) f.blur();
+    window.scrollTo(0, 0);
   }
 
   /* ------------------------------------------------------------ pembuka (GLB-00) */
@@ -840,7 +914,11 @@
     name: function () { return ST.get().name; },
     pre: function () { return ST.get().pre; },
     bab: function (no) { var b = ST.bab(no); return b; },
-    open: function (no) { if (no <= 6) go('#/bab/' + no + '/' + (ST.bab(no).last || 0)); else if (no === 7) go('#/sim/0'); else go(ST.get().post && ST.get().post.done ? '#/rapor' : '#/post/0'); },
+    open: function (no) { var h = tujuanBuku(no); if (location.hash === h) { hashLalu = h; denganGeser('buka', route); } else go(h); },
+    masukBuku: masukBuku,
+    ukurBuku: ukurBuku,
+    tibaBuku: tibaBuku,
+    gerakKurang: gerakKurang,
     menu: openMenu
   };
 
@@ -904,6 +982,9 @@
   terapkanGerak();
   if (mqGerak && mqGerak.addEventListener) mqGerak.addEventListener('change', terapkanGerak);
   window.addEventListener('hashchange', function () {
+    if (abaikanHash && location.hash === abaikanHash) { abaikanHash = null; return; }   /* sudah disusun oleh masukBuku */
+    abaikanHash = null;
+    if (buku) selesaiBuku();   /* alamat berganti lagi di tengah selam (mis. tombol Kembali peramban): selesaikan dulu */
     var arah = jenisPindah(hashLalu, location.hash); hashLalu = location.hash;
     denganGeser(arah, route);
   });

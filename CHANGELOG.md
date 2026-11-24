@@ -12,6 +12,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 - Pengaturan "Kurangi gerak" (mengikuti setelan perangkat bila tidak diaktifkan).
 
 ### Diubah
+- Masuk ke bab dari rak tidak lagi terpotong: setelah sampul terbuka, kamera menyelam ke halaman judul tanpa berhenti, lalu halaman materi muncul sebagai kartu di atas kartu isi halaman judul dan membesar bersama halaman itu sampai memenuhi layar. Halaman materi disusun saat tombol Lanjutkan ditekan, jadi tidak ada lagi layar kosong sesaat. Kamera rak juga tidak lagi meloncat saat buku dipilih atau dibuka.
 - Transisi halaman dirombak supaya mulus 60 fps:
   - blur kaca (`backdrop-filter`) di bilah atas/bawah dihapus; inilah penyebab geseran slide tersendat di ±30 fps;
   - pola pudar-lewat: isi lama hilang dulu, baru isi baru masuk, jadi teks tidak kabur bertumpuk;

@@ -98,6 +98,12 @@ Catatan keputusan yang sudah dikunci. Semua dokumen T1/T2 harus mengikuti ini.
 - Prototipe: https://claude.ai/artifact/HcEfFzfnaz414uPJ3Wus6A (sumber: rak-bab-mensetsu-navi.html); versi produk = rak.html di repo.
 - Rak 2 susun × 4 buku: Bab 1–4 atas; Bab 5, Bab 6, Simulasi, Post-test & Rapor bawah. Sampul = warna bab + seigaiha + kanji (面接, 報連相, 入室, 自己紹介, 質疑応答, 退室, 模擬面接, 修了). Sampul belakang = isi bab (P1–Pn + kuis).
 - Alur: hover/ketuk → buku terangkat → pilih → buku keluar ke depan, rak blur, panel sobekan kertas dari kiri (label bab, judul, kanji, status, gambaran umum, daftar pelajaran) + tombol **Buka** dan **Tutup**. Tutup = buku kembali ke rak. Buka = sampul depan terbuka di engsel punggung → halaman judul mendekat memenuhi layar → berganti ke Sampul Bab (T01).
+- Masuk ke buku (revisi 24 Nov, atas permintaan pemilik repo: potongan dari buku ke materi terasa patah):
+  - halaman materi disusun saat tombol Lanjutkan ditekan, sebelum buku bergerak;
+  - sampul membuka, lalu kamera menyelam ke halaman judul tanpa berhenti (skala logaritmik, titik bidik sepertiga atas: aksara bab dan judul);
+  - begitu halaman judul setinggi layar, halaman materi muncul sebagai kartu tepat di atas kartu isi halaman judul (pudar 0,2 dtk) dan membesar bersama halaman 3D (skala dihitung dari zoom yang sama tiap frame) sampai memenuhi layar, lalu berhenti melambat;
+  - kamera tidak lagi meloncat saat buku dipilih/dibuka; latar rak berhenti digambar begitu tertutup halaman judul.
+  Kurangi gerak, HP, dan tanpa WebGL tetap memakai jalur lama (buka singkat + pudar).
 - Status: terkunci = sampul abu + gembok, diklik bergetar + toast alasan; selesai = stempel hanko 済 di sampul + punggung + rel (animasi cap); sedang dipelajari = bilah progres di sampul + cincin %; disarankan pre-test = label kuning (bab dengan skor pre-test terendah).
 - HP (<768 px): tumpukan buku digeser vertikal, bar bawah Detail/Buka; landscape & laptop: rak penuh + rel katalog bawah. Tanpa WebGL: daftar bab 2D.
 

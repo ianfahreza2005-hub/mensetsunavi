@@ -35,7 +35,13 @@ Aturan kunci: Bab 1–6 terbuka setelah pre-test; Simulasi setelah 6 stempel; Po
 
 ## Rak bab 3D
 
-`rak.html` dimuat di dalam iframe agar gaya dan *render loop*-nya terpisah. Rak membaca data dan status dari aplikasi induk (`window.parent.MN_DATA`, `MN_APP`) dan memanggil `MN_APP.open(no)` setelah animasi buku terbuka. Saat kembali ke rak, induk memanggil `MN_RAK_RESET()` (buku kembali ke rak, sampul diperbarui) dan `MN_RAK_PAUSE()` saat rak disembunyikan. Tanpa WebGL, rak menampilkan daftar bab biasa.
+`rak.html` dimuat di dalam iframe agar gaya dan *render loop*-nya terpisah. Rak membaca data dan status dari aplikasi induk (`window.parent.MN_DATA`, `MN_APP`) dan memanggil `MN_APP.open(no)` setelah animasi buku terbuka. Di laptop dengan gerak penuh, rak memakai jalur "selam":
+`MN_APP.masukBuku(no)` saat Lanjutkan ditekan (alamat berganti, halaman tujuan disusun di `#view.dari-buku`, fixed di atas rak,
+opacity 0,001, `inert`); begitu halaman judul setinggi layar, rak memanggil `MN_APP.ukurBuku(skala, opacity)` setiap frame
+(skala = zoom 3D ÷ zoom penuh, jadi kartu halaman materi menempel di kartu isi halaman judul dan membesar bersamanya);
+selaman berhenti saat kartu memenuhi layar dan rak memanggil `MN_APP.tibaBuku()`: `#view` kembali ke alur biasa, rak disembunyikan.
+Bila rak tidak menyetir dalam 4 detik, aplikasi memunculkan halaman sendiri (pudar + membesar). Rak membaca `MN_APP.gerakKurang()`
+untuk memilih jalur singkat. Saat kembali ke rak, induk memanggil `MN_RAK_RESET()` (buku kembali ke rak, sampul diperbarui) dan `MN_RAK_PAUSE()` saat rak disembunyikan. Tanpa WebGL, rak menampilkan daftar bab biasa.
 
 ## Offline
 

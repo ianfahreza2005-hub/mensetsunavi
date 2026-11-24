@@ -177,6 +177,15 @@ b, strong { font-weight: 800; }
 
 /* ---------- rak (layar beranda 3D) ---------- */
 #rak { position: fixed; inset: 0; z-index: 1; }
+/* masuk ke buku: halaman materi disusun di atas rak, hampir tak terlihat (0,001 supaya tetap dirasterisasi lebih dulu),
+   lalu rak menyetir skala + opacity-nya per frame (js/app.js ukurBuku) sampai memenuhi layar.
+   Latar sendiri karena latar halaman biasa milik body; tempat scrollbar klasik diisi warna latar (--sb-buku).
+   display: block (bukan flex) supaya isi yang lebih panjang dari layar tidak ikut menyusut: tata letaknya harus sama persis
+   dengan halaman akhir, kalau tidak ada lompatan saat kembali ke alur biasa. */
+#view.dari-buku { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; height: 100dvh; z-index: 2; overflow: hidden; display: block;
+  opacity: .001; pointer-events: none; transform-origin: 50% 50%; will-change: opacity, transform; background: var(--ground);
+  border-right: var(--sb-buku, 0px) solid var(--ground); box-shadow: 0 26px 70px -24px rgba(14, 42, 71, .55); }
+.sim #view.dari-buku { background: var(--tetsukon); border-right-color: var(--tetsukon); }
 
 /* ---------- layar lebar ---------- */
   .with-side { display: grid; grid-template-columns: 280px minmax(0, 1fr); max-width: 1200px; margin: 0 auto; width: 100%; gap: 0; }

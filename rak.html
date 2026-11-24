@@ -187,6 +187,11 @@
   body.mobile .pill{padding:6px}
   body.mobile .detail{display:none}
   body.opening .mbar,body.opening footer{opacity:0!important;pointer-events:none}
+  /* selam ke halaman judul: bingkai rak ikut menghilang, yang tersisa hanya buku */
+  header,.hint{transition:opacity .35s var(--ease)}
+  .menubtn{transition:opacity .35s var(--ease)}
+  body.menyelam header,body.menyelam footer,body.menyelam .hint,body.menyelam .menubtn{opacity:0!important;pointer-events:none}
+  body.menyelam{pointer-events:none}
 
   @media (max-height:760px) and (min-width:768px){
     .detail{padding-top:64px;padding-bottom:96px}
@@ -541,6 +546,12 @@ function artSpine(b,W,H){
     g.fillStyle='#B3282F'; g.font=`700 ${W*.34}px ${JPS}`; g.fillText('済',W*.52,H*.951); }
   else if(b.status==='locked') lockIcon(g,W*.52,H*.95,W*.34,FOIL);
   else { g.font=`800 ${W*.30}px ${MINCHO}`; g.fillText(b.kj[0],W*.52,H*.95); }
+  return c;
+}
+/* kartu isi halaman judul yang dikosongkan sesaat sebelum halaman materi muncul di atasnya (selam) */
+function artKartuKosong(W,H){
+  const c=C(W,H),g=c.getContext('2d');
+  g.fillStyle='#ffffff'; rr(g,0,0,W,H,W*(0.05/0.92)); g.fill();
   return c;
 }
 /* the title page under the cover, and the endpaper inside it */
@@ -1044,6 +1055,7 @@ function bookBase(b){
   return [slotX(b.data.slot), K.shelfTop[b.data.shelf]+(SZH/2)*Math.cos(b._lean), K.bookZ];
 }
 
+const KARTU_KOSONG=(()=>{ const t=new THREE.CanvasTexture(artKartuKosong(512,417)); t.colorSpace=THREE.SRGBColorSpace; return t; })();
 function buildBook(data,index){
   const rnd=mulberry(index*7919+13);
   const B={data,index,flipped:false};
@@ -1090,6 +1102,10 @@ function buildBook(data,index){
   // the front board hangs on a hinge at the spine
   const hinge=new THREE.Group(); hinge.position.set(-SZW/2,0,SZD/2+K.chamf+0.0008); gScl.add(hinge);
   cover.position.set(SZW/2,0,0); hinge.add(cover);
+  // kartu putih kosong tepat di atas kartu isi halaman judul (x 4–96 %, y 44–94 % dari atas), tak terlihat kecuali saat selam
+  const blankMat=new THREE.MeshBasicMaterial({map:KARTU_KOSONG,transparent:true,opacity:0,depthWrite:false});
+  const blank=new THREE.Mesh(new THREE.PlaneGeometry(SZW*0.92,SZH*0.50),blankMat);
+  blank.position.set(0,(0.5-0.69)*SZH,SZD/2+0.0006); gScl.add(blank);
   const endTex=new THREE.CanvasTexture(artEndpaper(data,384,576)); endTex.colorSpace=THREE.SRGBColorSpace;
   const endMat=new THREE.MeshBasicMaterial({map:endTex,transparent:true,opacity:0});
   const endp=new THREE.Mesh(new THREE.PlaneGeometry(SZW*0.99,SZH*0.99),endMat);
@@ -1154,7 +1170,7 @@ function buildBook(data,index){
   scene.add(refl);
 
   Object.assign(B,{gRoot,gHover,gWob,gTilt,gScl,body,cover,back,coverMat,backMat,spineMat,
-    clothMat,pages,hit,wallSh,cs,crease,refl,reflMat,hinge,titleMat,endMat,shakeT:0,
+    clothMat,pages,hit,wallSh,cs,crease,refl,reflMat,hinge,titleMat,endMat,blankMat,kosong:0,shakeT:0,
     tCover:new Tw([0]),
     tHover:new Tw([...B.base]), tTilt:new Tw(MOBILE?[K.mTilt,0,0]:[...B.rest]),
     sWob:new Spring([0,0,0],80,6,1),
@@ -1253,7 +1269,9 @@ function pushZ(){
   return camera.position.z-Math.min(dv,dh)*0.80;
 }
 /* Buka: the board swings open on its hinge, the volume squares up,
-   then travels into the title page, which becomes the chapter cover screen */
+   then travels into the title page, which becomes the chapter cover screen.
+   Laptop dengan gerak penuh memakai "selam" (lihat mulaiSelam): halaman materi sudah disusun aplikasi saat tombol ditekan,
+   kamera menyelam ke halaman judul tanpa berhenti, dan halaman materi muncul dari dalam halaman judul itu. */
 function openBab(B){
   if(!B)return;
   if(B.data.status==='locked'){shake(B);return;}
@@ -1262,25 +1280,82 @@ function openBab(B){
     setActive(B); setTimeout(()=>openBab(B),K.activeDuration+60); return;
   }
   if(S.anim!=='active')return;
+  // "kurangi gerak" dari perangkat atau dari Pengaturan aplikasi: buka singkat, tanpa selam
+  const kurang=REDUCED||!!(APP&&APP.gerakKurang&&APP.gerakKurang());
+  // halaman tujuan disusun sekarang, sebelum ada yang bergerak, supaya kerja beratnya tidak memotong animasi
+  let selam=false;
+  if(!MOBILE&&!kurang&&APP&&APP.masukBuku){ try{ selam=!!APP.masukBuku(B.data.no); }catch(err){ selam=false; } }
+  if(selam) NOW=performance.now();          // jam animasi dimulai setelah penyusunan, jadi tidak ada lompatan di awal
   S.anim='opening'; B.flipped=false; dragReset(); B.sWob.start([0,0,0]);
   detailEl.classList.remove('on'); WASH.target=0; hintEl.classList.remove('on');
   document.body.style.cursor='default'; document.body.classList.add('opening');
   const ay=(MOBILE?mobileTargetY():K.boxCY)-B.tHover.v[1];
-  const D=REDUCED?240:K.openDur;
+  const D=kurang?240:K.openDur;
   B.tActiveR.start([0,0,0],D,activeEase);
   B.tActiveP.start([0,ay,activeZ()],D,activeEase);
-  B.tCover.start([K.coverOpen],REDUCED?1:D*0.96,activeEase,REDUCED?0:D*0.16);
+  B.tCover.start([K.coverOpen],kurang?1:D*0.96,activeEase,kurang?0:D*0.16);
+  if(selam){ mulaiSelam(B,D); return; }
   setTimeout(()=>{
     if(S.anim!=='opening')return;
-    const P=REDUCED?1:K.pushDur;
+    const P=kurang?1:K.pushDur;
     B.tActiveP.start([0,ay,pushZ()-B.tHover.v[2]],P,easeSettle);
-    setTimeout(()=>showOverlay(B),REDUCED?0:P*0.42);
+    setTimeout(()=>showOverlay(B),kurang?0:P*0.42);
     setTimeout(()=>{ if(S.anim==='opening') S.anim='open'; },P+80);
-  },REDUCED?240:D*0.9);
+  },kurang?240:D*0.9);
+}
+
+/* Selam: kamera masuk ke halaman judul, dan halaman materi menempel di halaman itu (match-move).
+   Zoom diukur dalam skala logaritmik (tinggi halaman judul ÷ tinggi layar), jadi laju membesarnya terasa rata.
+   - mulai saat sampul ±70 % terbuka (0,62 × durasi buka), jadi gerak buka dan selam menyambung tanpa jeda;
+   - buku bergeser sehingga titik bidik (kartu isi halaman judul: judul, ringkasan, daftar pelajaran) tiba di tengah layar
+     sebelum halaman materi muncul;
+   - saat halaman judul setinggi layar, halaman materi muncul sebagai kartu tepat di atas kartu isi itu (APP.ukurBuku:
+     skala = zoom ÷ zoom penuh, jadi kartu dan halaman 3D membesar bersama sebagai satu benda) dan memudar masuk 0,2 dtk;
+   - selaman berhenti melambat tepat saat lebar kartu isi (92 % halaman) = lebar layar: kartu memenuhi layar, APP.tibaBuku();
+   - begitu halaman judul menutupi layar, latar rak dan blur-nya tidak digambar lagi (tidak terlihat, GPU lebih ringan). */
+const SELAM={on:false,B:null,t0:0,d:920,dist0:1,zoom0:1,zoom:1,aimV:0.62,kartu:0,ended:false,tutup:false};
+const tanFov=()=>Math.tan(K.fov*Math.PI/360);
+const zoomAt=dist=>SZH/(2*dist*tanFov());          // tinggi halaman judul dibanding tinggi layar
+const distFor=zoom=>SZH/(2*zoom*tanFov());
+const zoomCover=()=>camera.aspect*(SZH/SZW);         // pada zoom ini lebar halaman = lebar layar
+function mulaiSelam(B,D){
+  const fit=Math.max((SZH*0.5)/(0.60*tanFov()),(SZW*0.5)/(0.60*tanFov()*camera.aspect));   // jarak akar buku pada activeZ()
+  const dist0=fit-B.tHover.v[2]-SZD/2;                                                     // jarak halaman judul ke kamera
+  Object.assign(SELAM,{on:true,B,t0:NOW+D*0.62,d:920,dist0,zoom0:zoomAt(dist0),zoom:zoomAt(dist0),kartu:0,ended:false,tutup:false});
+  document.body.classList.add('menyelam');
+}
+/* dipanggil sekali per frame: [geser y, geser z] untuk buku yang diselami, dan menyetir kartu halaman materi di aplikasi */
+function majuSelam(){
+  const s=SELAM, zc=zoomCover(), zEnd=zc/0.92;           // akhir: lebar kartu isi (92 % halaman) = lebar layar
+  const t=clamp((NOW-s.t0)/s.d,0,1), e=easeSettle(t);
+  s.zoom=s.zoom0*Math.pow(zEnd/s.zoom0,e);
+  s.tutup=s.zoom>=zc;
+  // isi kartu halaman judul memudar jadi kertas kosong dulu (zoom 0,70 → 0,95), baru halaman materi muncul di atasnya:
+  // teks judul dan teks halaman materi tidak pernah tampil bertumpuk
+  s.B.kosong=smooth(clamp((s.zoom-0.70)/0.25,0,1));
+  // kartu halaman materi: mulai saat halaman judul setinggi layar (jendela sempit: lebih awal), ikut membesar bersama halaman 3D
+  if(!s.kartu&&s.zoom>=Math.min(1,zEnd*0.62)){ s.kartu=NOW; }
+  if(s.kartu&&APP&&APP.ukurBuku){
+    const o=smooth(clamp((NOW-s.kartu)/200,0,1));
+    try{ APP.ukurBuku(s.zoom/zEnd,o); }catch(err){}
+  }
+  if(t>=1&&!s.ended){
+    s.ended=true; if(S.anim==='opening') S.anim='open';
+    try{ if(APP&&APP.tibaBuku) APP.tibaBuku(); }catch(err){}
+  }
+  // titik bidik ditaruh tepat di garis pandang kamera (kamera sedikit menunduk, jadi garis itu tidak datar)
+  // jarak halaman ke kamera dibuat persis distFor(zoom), jadi di akhir lebar halaman = lebar layar tepat sama dengan kartu
+  const B=s.B, zPage=camera.position.z-distFor(s.zoom);
+  const oz=zPage-(B.tActiveP.v[2]+B.tHover.v[2]+SZD/2);
+  const yAxis=TGT.y+(camera.position.y-TGT.y)*(zPage-TGT.z)/(camera.position.z-TGT.z);
+  const yAim=B.tActiveP.v[1]+B.tHover.v[1]+(0.5-s.aimV)*SZH;
+  const w=smooth(clamp(t/0.4,0,1));                       // bidikan selesai sebelum kartu muncul
+  return [(yAxis-yAim)*w, oz];
 }
 /* Kembali ke rak: the screen lifts away, the volume backs out, closes, and is shelved */
 function closeBab(){
   const B=S.active; if(!B||S.anim!=='open')return;
+  if(SELAM.on){ snapBack(); return; }   // setelah selam, rak sudah tersembunyi; kembali ke rak = langsung di rak
   S.anim='closing';
   for(const x of books) if(x._repaint){ x._repaint=false; repaint(x); }
   renderRail();
@@ -1304,8 +1379,12 @@ function mobileTargetY(){
   const stackTop=K.mY+(BOOKS.length-1)*K.mStepY+SZH*0.5*Math.cos(K.mTilt);
   return Math.max(K.mY+K.mDrop*D*tan, stackTop-0.80*D*tan);
 }
+/* seberapa jauh kamera ikut kursor: penuh di rak, 0,42 saat buku dipegang, 0 saat buku dibuka.
+   Nilainya didekati per frame (CAMD), jadi kamera tidak meloncat saat buku dipilih atau dibuka. */
+const camDampTarget=()=>MOBILE?0:(['opening','open','closing'].includes(S.anim)?0:(S.active?0.42:1));
+let CAMD=1;
 function applyCamera(){
-  const damp=MOBILE?0:(['opening','open','closing'].includes(S.anim)?0:(S.active?0.42:1));
+  const damp=CAMD;
   const az=ORB.x*K.orbitAz*damp;
   const el=0.0025-ORB.y*K.orbitEl*damp;
   TGT.set(0, MOBILE?mobileTargetY():K.boxCY, 0);
@@ -1790,7 +1869,9 @@ function tick(now){
   }
   const k=(S.anim==='intro')?1:Math.min(1,dt*3.4);
   ORB.x+=(ORB.tx-ORB.x)*k; ORB.y+=(ORB.ty-ORB.y)*k;
+  CAMD+=(camDampTarget()-CAMD)*(S.anim==='intro'?1:Math.min(1,dt*5.5));
   applyCamera();
+  const sel=SELAM.on?majuSelam():null;
 
   wallFade.update();
   const wf=wallFade.v[0];
@@ -1821,7 +1902,8 @@ function tick(now){
       if(t<0.6) sh=Math.sin(t*44)*Math.exp(-t*5.5)*(REDUCED?0.03:0.085); else B.shakeT=0; }
     B.gWob.rotation.set(B.sWob.v[0],B.sWob.v[1]+sh,B.sWob.v[2]+sh*0.45);
     B.gWob.position.x=sh*0.14;
-    B.gRoot.position.set(B.tActiveP.v[0],B.tActiveP.v[1],B.tActiveP.v[2]);
+    if(sel&&B===SELAM.B) B.gRoot.position.set(B.tActiveP.v[0],B.tActiveP.v[1]+sel[0],B.tActiveP.v[2]+sel[1]);
+    else B.gRoot.position.set(B.tActiveP.v[0],B.tActiveP.v[1],B.tActiveP.v[2]);
     B.gRoot.rotation.set(B.tActiveR.v[0],B.tActiveR.v[1],B.tActiveR.v[2]);
     B.gScl.scale.setScalar(B.tScale.v[0]);
     const op=B.tFade.v[0]*wf*(MOBILE&&B.mFade!==undefined&&B!==S.active?B.mFade:1);
@@ -1829,7 +1911,7 @@ function tick(now){
     B.pages.uniforms.uOpacity.value=op;
     B.coverMat.uniforms.uOpacity.value=op;
     B.backMat.uniforms.uOpacity.value=op;
-    B.titleMat.opacity=op; B.endMat.opacity=op;
+    B.titleMat.opacity=op; B.endMat.opacity=op; B.blankMat.opacity=op*B.kosong;
     B.tCover.update(); B.hinge.rotation.y=B.tCover.v[0];
     if(!MOBILE){
       const lift=B.tHover.v[1], away=clamp((B.tHover.v[2]-B.base[2])/0.075,0,1);
@@ -1852,16 +1934,22 @@ function tick(now){
   blurTw.i.update();blurTw.n.update();
 
   const act=S.anim!=='intro'&&S.anim!=='inactive';
-  camera.layers.set(LAY_BG);
-  renderer.setRenderTarget(rt);
-  renderer.clear(true,true,false);
-  renderer.render(scene,camera);
-  renderer.setRenderTarget(null);
-  passMat.uniforms.ignoreBlur.value=!act;
-  passMat.uniforms.intensity.value=blurTw.i.v[0];
-  passMat.uniforms.noiseScale.value=blurTw.n.v[0];
-  renderer.clear(true,true,false);
-  renderer.render(quadScene,quadCam);
+  if(sel&&SELAM.tutup){
+    // halaman judul sudah menutupi layar: latar rak + blur tidak terlihat, jadi tidak digambar
+    renderer.setRenderTarget(null);
+    renderer.clear(true,true,false);
+  } else {
+    camera.layers.set(LAY_BG);
+    renderer.setRenderTarget(rt);
+    renderer.clear(true,true,false);
+    renderer.render(scene,camera);
+    renderer.setRenderTarget(null);
+    passMat.uniforms.ignoreBlur.value=!act;
+    passMat.uniforms.intensity.value=blurTw.i.v[0];
+    passMat.uniforms.noiseScale.value=blurTw.n.v[0];
+    renderer.clear(true,true,false);
+    renderer.render(quadScene,quadCam);
+  }
   if(act){
     renderer.clearDepth();
     camera.layers.set(LAY_FG);
@@ -1911,8 +1999,10 @@ function snapBack(){
   }
   if(S.lifted&&S.lifted!==B) hoverOut(S.lifted);
   S.active=null; S.lifted=null; if(S.anim!=='intro') S.anim='inactive';
+  if(SELAM.B) SELAM.B.kosong=0;
+  SELAM.on=false; SELAM.B=null; SELAM.tutup=false;
   detailEl.classList.remove('on'); WASH.target=0; hintEl.classList.remove('on');
-  document.body.classList.remove('reading','opening');
+  document.body.classList.remove('reading','opening','menyelam');
   mDetails.textContent='Detail';
 }
 window.MN_RAK_RESET=function(){

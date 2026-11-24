@@ -1298,3 +1298,181 @@ a.jl-t:hover { transform: translateY(-2px); background: var(--cl); color: var(--
 .sim .screen:not(.sim-split) > .bottombar { background: rgba(14, 42, 71, 0.92); border-top-color: rgba(255, 255, 255, 0.1); }
 .sim .screen:not(.sim-split) > .bottombar .no { color: #A9BCD6; }
 .sh-ringkas .rp-batang { grid-template-columns: 112px minmax(0, 1fr) 40px; }
+
+/* =====================================================================================================
+   GERAK v3.1 — halus 60 fps (hanya transform & opacity per frame) dan aksesibel bertingkat
+   ===================================================================================================== */
+/* tombol Lanjut berdenyut saat aktivitas selesai (dulu tertimpa @keyframes "denyut" milik titik pita) */
+.btn.pulse { animation: tombolDenyut 1.1s var(--ease) 2; }
+@keyframes tombolDenyut { 0%, 100% { transform: none; } 45% { transform: scale(1.06); } }
+/* titik aktif pita: cincin di pseudo-elemen, berdenyut lewat transform + opacity (tanpa melukis ulang box-shadow tiap frame) */
+.pb-dot.cur { animation: none; }
+.pb-dot.cur::before { content: ""; position: absolute; inset: -3px; border-radius: 999px; border: 2px solid rgba(255, 255, 255, 0.65); pointer-events: none; animation: titikDenyut 2.2s ease-out infinite; }
+@keyframes titikDenyut { from { transform: scale(1, 1); opacity: .9; } to { transform: scale(1.08, 2.4); opacity: 0; } }
+.pb-dot { transition: background-color .25s, transform .3s var(--spring); }
+
+/* kartu lipat: buka & tutup sama halusnya (grid 0fr → 1fr), isi memudar masuk */
+.ix-lipat { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .32s var(--ease); }
+.ix-card.on .ix-lipat { grid-template-rows: 1fr; }
+.ix-lipat > .ix-body { min-height: 0; overflow: hidden; padding-bottom: 0; animation: none; visibility: hidden; transition: visibility 0s .32s; }
+.ix-lipat > .ix-body::after { content: ""; display: block; height: 14px; }
+.ix-card.on .ix-lipat > .ix-body { visibility: visible; transition-delay: 0s; }
+.ix-lipat > .ix-body > * { opacity: 0; transform: translateY(-6px); transition: opacity .18s ease-in, transform .2s ease-in; }
+.ix-card.on .ix-lipat > .ix-body > * { opacity: 1; transform: none; transition: opacity .25s .06s var(--ease), transform .35s .06s var(--ease); }
+
+/* hover tombol & pilihan: hanya transform yang beranimasi (bayangan/filter tidak dianimasikan) */
+.btn { transition: transform .35s var(--spring), background-color .2s; }
+.opt { transition: transform .35s var(--spring), border-color .2s, background-color .2s; }
+
+/* meteran yang diperbarui terus (level suara, durasi rekaman, kepercayaan): scaleX, bukan width */
+.lt-meter i { width: 100%; transform: scaleX(0); transform-origin: left; transition: transform .1s linear; }
+.ls-zone i { width: 100%; transform: scaleX(0); transform-origin: left; transition: transform .2s linear; }
+.ix-trust i { width: 100%; transform-origin: left; transition: transform .5s var(--ease); }
+
+/* umpan balik kecil */
+.sd-les .ck.baru { display: inline-block; animation: centangMasuk .5s var(--spring) both; }
+@keyframes centangMasuk { from { transform: scale(0) rotate(-35deg); opacity: 0; } }
+.toast { transition: opacity .16s ease-in, transform .16s ease-in; }
+.toast.on { transition: opacity .22s var(--ease), transform .35s var(--spring); }
+.gt { transition: background-color .2s, color .2s, border-color .2s, transform .25s var(--spring); }
+.gt:active { transform: scale(.94); }
+.switch::after { transition: transform .3s var(--spring); }
+.icon-btn:active, .ab-say:active { transform: scale(.92); }
+
+/* perpindahan halaman lain (sidebar, sumber belajar, rapor): pudar singkat — keluar cepat, masuk melambat */
+html[data-geser="pudar"]::view-transition-old(isi) { animation: vtPudar .14s ease-in both; }
+html[data-geser="pudar"]::view-transition-new(isi) { animation: vtMunculPudar .24s .04s var(--ease) both; }
+@keyframes vtMunculPudar { from { opacity: 0; } }
+
+/* Mode "Kurangi gerak" (Pengaturan, atau prefers-reduced-motion perangkat) — bertingkat, bukan dimatikan total:
+   T1 dibuang: geser, membesar, melayang, berputar, paralaks, denyut berulang.
+   T2 dilunakkan: kemunculan isi jadi pudar ≤ 200 ms.  T3 tetap: pudar, perubahan warna, cincin fokus. */
+.gerak-kurang *, .gerak-kurang *::before, .gerak-kurang *::after {
+  animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important;
+}
+.gerak-kurang .rv, .gerak-kurang .ix-in, .gerak-kurang .soal-fb, .gerak-kurang .adg-item, .gerak-kurang .oj-info, .gerak-kurang .kk-end, .gerak-kurang .reaction {
+  animation: pudarSaja .18s ease both !important; animation-iteration-count: 1 !important;
+}
+.gerak-kurang .toast, .gerak-kurang .adg-pop, .gerak-kurang .ix-lipat > .ix-body > *, .gerak-kurang .vid-main { transition-property: opacity !important; transition-duration: .15s !important; }
+.gerak-kurang .rv-h { -webkit-mask-image: none; mask-image: none; }
+@keyframes pudarSaja { from { opacity: 0; } }
+
+/* =====================================================================================================
+   T08 adegan bergambar "Temukan kesalahan" (B3-02, B6-02)
+   ===================================================================================================== */
+.adg { display: flex; flex-direction: column; gap: 12px; }
+.adg-layar { position: relative; aspect-ratio: 16 / 9; border-radius: 20px; overflow: hidden; isolation: isolate; background: var(--tetsukon); box-shadow: 0 24px 46px -28px rgba(14, 42, 71, 0.7); }
+.adg-babak { position: absolute; inset: 0; }
+.adg-babak[hidden] { display: none; }
+.adg-bg { position: absolute; inset: -3%; z-index: 0; background: center / cover no-repeat; animation: kenBurns 16s ease-in-out infinite alternate; }
+@keyframes kenBurns { from { transform: scale(1); } to { transform: scale(1.06) translate(-1%, -1%); } }
+.adg-babak::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(14, 42, 71, 0.25) 0%, rgba(14, 42, 71, 0) 30%, rgba(14, 42, 71, 0) 55%, rgba(14, 42, 71, 0.7) 100%); }
+.adg-babak.dari-kanan { animation: adgKanan .45s var(--ease) both; }
+.adg-babak.dari-kiri { animation: adgKiri .45s var(--ease) both; }
+@keyframes adgKanan { from { opacity: 0; transform: translateX(44px); } }
+@keyframes adgKiri { from { opacity: 0; transform: translateX(-44px); } }
+.adg-aksi { position: absolute; left: 20px; right: 40%; bottom: 16px; z-index: 2; margin: 0; display: flex; flex-direction: column; gap: 4px; color: #fff; font: 600 18px/1.35 var(--sans); text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45); }
+.adg-aksi span { font: 700 11px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: #7FD1C4; }
+.adg-titik { position: absolute; z-index: 3; width: 56px; height: 56px; margin: -28px 0 0 -28px; padding: 0; border: 0; border-radius: 50%; background: none; display: grid; place-items: center; cursor: pointer; }
+.adg-inti { position: relative; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--akane); color: #fff; font: 800 20px/1 var(--head);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.92), 0 10px 20px -6px rgba(179, 40, 47, 0.8); transition: transform .3s var(--spring), background-color .25s; }
+.adg-titik:hover .adg-inti { transform: scale(1.12); }
+.adg-titik:active .adg-inti { transform: scale(.94); }
+.adg-cincin { position: absolute; inset: 2px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.95); animation: cincinDenyut 1.8s ease-out infinite; }
+@keyframes cincinDenyut { from { transform: scale(.75); opacity: 1; } to { transform: scale(1.9); opacity: 0; } }
+.ketemu .adg-cincin { display: none; }
+.ketemu .adg-inti { background: var(--good); font-size: 0; animation: letup .45s var(--spring); }
+.ketemu .adg-inti::before { content: "✓"; font-size: 20px; }
+.adg-pop { position: absolute; z-index: 4; top: 16px; right: 16px; width: min(46%, 400px); padding: 14px 16px; border-radius: 16px; background: rgba(255, 255, 255, 0.97); color: var(--ink);
+  box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.55); opacity: 0; transform: translateY(-8px) scale(.97); transform-origin: top right; pointer-events: none; transition: opacity .16s ease-in, transform .16s ease-in; }
+.ketemu .adg-pop { opacity: 1; transform: none; pointer-events: auto; transition: opacity .25s var(--ease), transform .4s var(--spring); }
+.adg-pop-l { display: block; margin-bottom: 4px; font: 700 11px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--akane); }
+.adg-pop b { display: block; font: 700 17px/1.3 var(--head); }
+.adg-pop p { margin: 6px 0 0; font-size: 14px; line-height: 1.5; color: var(--ink2); }
+.adg-hitung { position: absolute; z-index: 4; top: 16px; left: 16px; padding: 7px 14px; border-radius: 999px; background: rgba(14, 42, 71, 0.85); color: #fff; font: 600 13px/1 var(--sans); }
+.adg-hitung b { color: #7FD1C4; font-size: 15px; }
+.adg.selesai .adg-hitung { background: var(--good); } .adg.selesai .adg-hitung b { color: #fff; }
+.adg-nav { position: absolute; z-index: 4; top: 50%; width: 46px; height: 46px; margin-top: -23px; border: 0; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, 0.92); color: var(--ink);
+  font: 700 26px/1 var(--head); box-shadow: 0 8px 18px -8px rgba(0, 0, 0, 0.5); cursor: pointer; transition: transform .3s var(--spring), opacity .2s, background-color .2s, color .2s; }
+.adg-nav.kiri { left: 12px; } .adg-nav.kanan { right: 12px; }
+.adg-nav:hover { transform: scale(1.08); } .adg-nav:active { transform: scale(.94); }
+.adg-nav:disabled { opacity: 0; pointer-events: none; }
+.adg-nav.ajak { background: var(--c); color: #fff; animation: ajakGeser 1.1s ease-in-out 3; }   /* tiga kali saja: mengajak, tidak mengganggu */
+@keyframes ajakGeser { 50% { transform: translateX(5px); } }
+.adg-tutup { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; background: rgba(14, 42, 71, 0.6); color: #fff; font: 600 16px/1 var(--head); opacity: 0; pointer-events: none; transition: opacity .3s; }
+.adg-tutup span { padding: 12px 20px; border-radius: 999px; background: rgba(255, 255, 255, 0.14); }
+.adg.kunci .adg-tutup { opacity: 1; pointer-events: auto; }
+.adg-tok { position: absolute; z-index: 3; padding: 5px 11px; border-radius: 12px 12px 12px 3px; background: #fff; color: var(--ink); font: 800 15px/1 var(--head); box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.5); opacity: 0; animation: tokMuncul 2.6s ease-in-out infinite; }
+.adg-tok.d2 { animation-delay: .4s; }
+@keyframes tokMuncul { 0% { opacity: 0; transform: scale(.6); } 10%, 38% { opacity: 1; transform: scale(1); } 52%, 100% { opacity: 0; transform: scale(.9); } }
+.adg-bawah { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.adg-dots { display: flex; gap: 6px; }
+.adg-dots button { width: 26px; height: 8px; padding: 0; border: 0; border-radius: 4px; background: var(--line); cursor: pointer; transition: background-color .2s, transform .3s var(--spring); }
+.adg-dots button.on { transform: scaleX(1.3); background: var(--c); }
+.adg-dots button.ok { background: var(--good); }
+.adg-temuan { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.adg-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--goodL); animation: muncul .4s var(--ease) both; }
+.adg-no { flex: none; width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: var(--good); color: #fff; font: 700 13px/1 var(--head); }
+.adg-item b { display: block; } .adg-item span span { display: block; margin-top: 2px; font-size: 14px; color: var(--ink2); }
+.adg-tanya { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+.adg-q { margin: 0; font: 600 19px/1.4 var(--head); }
+.adg-opsi { display: flex; gap: 10px; }
+.adg-opsi .ix-o { min-width: 130px; text-align: center; }
+
+/* =====================================================================================================
+   T08 rekaman (B4-13): pilih kesalahan utama tiap rekaman
+   ===================================================================================================== */
+.rk { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.rk-kartu { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 18px; background: #F4F3F7; border: 1.5px solid transparent; transition: border-color .25s, background-color .25s; }
+.rk-kartu.beres { background: var(--goodL); border-color: color-mix(in srgb, var(--good) 35%, transparent); }
+.rk-kepala { display: flex; align-items: center; gap: 10px; }
+.rk-kepala b { font: 700 15px/1 var(--head); }
+.rk-putar { flex: none; width: 38px; height: 38px; border: 0; border-radius: 50%; display: grid; place-items: center; background: var(--c); color: #fff; cursor: pointer; transition: transform .3s var(--spring); }
+.rk-putar svg { width: 18px; height: 18px; margin-left: 2px; }
+.rk-putar:hover { transform: scale(1.08); } .rk-putar:active { transform: scale(.92); }
+.rk-teks { background: #fff; color: var(--c); font: 700 15px/1 var(--head); cursor: default; }
+.rk-gel { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 3px; height: 26px; }
+.rk-gel i { width: 4px; height: 100%; border-radius: 2px; background: color-mix(in srgb, var(--c) 32%, transparent); transform: scaleY(calc(var(--h) * .45)); transition: transform .3s; }
+.rk-kartu.main .rk-gel i { background: var(--c); animation: gelBicara .55s ease-in-out infinite alternate; animation-delay: calc(var(--h) * -0.55s); }
+@keyframes gelBicara { from { transform: scaleY(.2); } to { transform: scaleY(var(--h)); } }
+.rk-isi { margin: 0; font-size: 14.5px; line-height: 1.5; }
+.rk-tanya { margin: 2px 0 0; font: 700 11.5px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink2); }
+.rk-opsi { display: flex; flex-wrap: wrap; gap: 6px; }
+.rk-opsi .ix-o { min-height: 0; padding: 8px 12px; font-size: 13.5px; background: #fff; }
+.rk-opsi .ix-o.good { background: var(--good); border-color: var(--good); color: #fff; }
+.rk-opsi .ix-o[disabled]:not(.good) { opacity: .45; }
+.rk-umpan { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s var(--ease); }
+.rk-kartu.beres .rk-umpan { grid-template-rows: 1fr; }
+.rk-umpan > div { min-height: 0; overflow: hidden; }
+.rk-umpan p { margin: 4px 0 0; font-size: 14px; color: var(--good); }
+
+/* =====================================================================================================
+   T09 ojigi (B3-08): figur SVG, busur sudut, jejak samar tiap jenis yang sudah dilihat
+   ===================================================================================================== */
+.oj { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 18px; align-items: center; }
+.oj-panggung { position: relative; padding: 8px; border-radius: 20px; background: linear-gradient(180deg, #F8F7FB, #ECEAF1); }
+.oj-fig { display: block; width: 100%; height: auto; }
+.oj-jalur { fill: none; stroke: #DCD9E2; stroke-width: 6; stroke-linecap: round; }
+.oj-busur { fill: none; stroke: var(--c); stroke-width: 6; stroke-linecap: round; }
+.oj-tik { stroke: #B9B6C3; stroke-width: 3; stroke-linecap: round; transition: stroke .2s; }
+.oj-tik.on { stroke: var(--akane); }
+.oj-tl { font: 700 12px var(--head); fill: #8A8FA3; text-anchor: middle; dominant-baseline: middle; transition: fill .2s; }
+.oj-tl.on { fill: var(--akane); }
+.oj-lantai { stroke: #CFCBD8; stroke-width: 4; stroke-linecap: round; }
+.oj-hantu { opacity: 0; transition: opacity .5s; }
+.oj-hantu.on { opacity: .14; }
+.oj-baca { position: absolute; left: 18px; top: 14px; display: flex; flex-direction: column; }
+.oj-deg { font: 700 46px/1 var(--head); color: var(--c); font-variant-numeric: tabular-nums; }
+.oj-jenis { margin-top: 4px; font: 600 14px/1.3 var(--sans); color: var(--ink2); }
+.oj-kontrol { display: flex; flex-direction: column; gap: 12px; }
+.oj input[type=range] { width: 100%; accent-color: var(--c); }
+.oj-pilih { display: flex; flex-wrap: wrap; gap: 6px; }
+.oj-pilih .ix-o { min-height: 0; padding: 8px 12px; font-size: 13.5px; }
+.oj-pilih .ix-o.sel { background: var(--c); border-color: var(--c); color: #fff; }
+.oj-kartu { min-height: 158px; padding: 14px 16px; border-radius: 16px; background: #fff; border: 1.5px solid var(--line); }
+.oj-info { animation: muncul .35s var(--ease) both; }
+.oj-info b.jp { display: block; font-size: 22px; }
+.oj-sudut { display: inline-block; margin: 6px 0; padding: 3px 10px; border-radius: 999px; background: var(--akane); color: #fff; font: 700 12px/1.4 var(--sans); }
+.oj-info p { margin: 4px 0 0; font-size: 14px; }
+.oj-kosong { margin: 0; font-size: 14px; color: var(--ink2); }
+html[data-geser="pudar"]::view-transition-new(panel) { animation: vtMunculPudar .24s .04s var(--ease) both; }

@@ -180,3 +180,8 @@ Di bawah 1024px `appbar` dan `side` disembunyikan CSS, jadi tampilan HP tidak be
 - Menu ☰ (HP) ikut tertutup saat halaman berganti (`route()`); ikon menu kini berukuran 22px.
 
 - **T02 tabel 3 kolom berkolom pertama kosong** (sekarang hanya B1-02) dirender `W.versus`: dua panel berdampingan (layar terbelah), kalimat "Pertanyaan: …" dipindah ke atas panel, pilihan di dalam panel membuka kunci Lanjut.
+
+- **T08 adegan** (`W.adegan`, konfigurasi `ADEGAN` per kode slide di `js/interaktif.js`): babak berlatar `assets/bg/*.webp`, satu titik per babak (posisi dalam % gambar), teks kesalahan diambil dari naskah slide. Dipakai B3-02 dan B6-02 (dengan pertanyaan Ya/Tidak).
+- **T08 rekaman** (`W.rekaman`): tabel berkolom Isi | Kesalahan utama | Umpan balik → pilih kesalahan utama per rekaman (B4-13).
+- **T09 ojigi** (`W.ojigi`): figur SVG, badan atas `rotate(sudut 150 150)` diperbarui per frame dengan pegas ringan; busur `pathLength=45`.
+- **Gerak**: `gerakDikurangi()` (interaktif.js) dan `gerakKurang()` (app.js) membaca kelas `html.gerak-kurang` (Pengaturan atau prefers-reduced-motion). Pindah antarhalaman ber-sidebar memakai View Transitions `data-geser="pudar"`.

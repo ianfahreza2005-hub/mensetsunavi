@@ -8,14 +8,14 @@
 (function () {
   var kurang = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)');
   var mouse = window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)');
-  function diam() { return kurang && kurang.matches; }
+  function diam() { return (kurang && kurang.matches) || document.documentElement.classList.contains('gerak-kurang'); }
 
   /* ---------- masuk layar ---------- */
   var DAFTAR = '.body > *, .cover-body > *, .opts > *, .lessons > li, .items > li, .km-list > *, .kv-list > *, .lt-grid > *, .grid2 > *, .stamps > *';
   function masuk() {
     if (diam()) return;
     var view = document.getElementById('view'); if (!view) return;
-    var n = 0, geser = document.documentElement.hasAttribute('data-geser');   /* saat pindah slide bergeser: isi tidak dimunculkan bertahap lagi */
+    var dg = document.documentElement.getAttribute('data-geser'), n = 0, geser = !!dg && dg !== 'pudar';   /* saat pindah slide bergeser: isi tidak dimunculkan bertahap lagi */
     Array.prototype.forEach.call(view.querySelectorAll(DAFTAR), function (el) {
       if (geser || n > 18 || el.classList.contains('rv')) return;
       var r = el.getBoundingClientRect();

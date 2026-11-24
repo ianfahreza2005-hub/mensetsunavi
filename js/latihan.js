@@ -140,7 +140,7 @@
       sesi.fase = 'rekam'; drawRekam();
       var meter = root.querySelector('.lt-meter i'), waktu = root.querySelector('.lt-wkt');
       rec = SU.rekam(stream, { maks: MAKS_REKAM,
-        onLevel: function (v) { if (meter) meter.style.width = Math.round(v * 100) + '%'; },
+        onLevel: function (v) { if (meter) meter.style.transform = 'scaleX(' + Math.min(1, v).toFixed(3) + ')'; },
         onDetik: function (d) { if (waktu) waktu.textContent = Math.floor(d / 60) + ':' + ('0' + Math.floor(d % 60)).slice(-2) + ' / 1:00'; },
         onSelesai: function (h) { rec = null; sesi.rek = h; sesi.fase = 'hasil'; drawRekam(); } });
     }

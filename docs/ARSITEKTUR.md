@@ -14,7 +14,7 @@ Aplikasi satu halaman tanpa framework dan tanpa *build step*: HTML, CSS, dan Jav
 | `#/sim/0` … `#/sim/15` | Simulasi Mensetsu | SIM-00–15 |
 | `#/post/0` … | Post-test | POST-00–20 |
 | `#/rapor` | Rapor Kesiapan | RAP-01–03 |
-| `#/hal/GLB-0x` | Fitur global (GLB-03 Bank Kosakata dan GLB-04 Latihan Pertanyaan Acak sudah jadi; GLB-05 masih placeholder) | GLB-03–05 |
+| `#/hal/GLB-0x` | Fitur global (GLB-03 Bank Kosakata, GLB-04 Latihan Pertanyaan Acak, dan GLB-05 Tips & Trik sudah jadi) | GLB-03–05 |
 | `#/atur` | Pengaturan, mode uji, hapus progres | GLB-06 |
 
 ## Data
@@ -114,3 +114,10 @@ Daftar langkah storyboard di dua slide itu (Persiapan, Lapis 1–3) disembunyika
 - **Lapis 1** memakai `MN_SUARA.analisis(level, target)`. **Lapis 3**: ringkasan profil, "Unduh rekaman" (tiap rekaman satu berkas) dan "Unduh lembar rubrik" (.txt: hasil Lapis 1, centang peserta, kolom skor instruktur).
 - Yang tersimpan hanya angka di `MN_STORE.get().lisan` (`jiko` dan `jawab[]`: durasi, jeda, volume, jumlah centang). Rekaman hanya ada selama slide dibuka. Rapor menampilkan "Profil Kesiapan Lisan" (formatif).
 - Tanpa mikrofon: Lapis 1 dilewati; peserta berlatih dengar-tirukan lalu menekan "Selesai berlatih". Lanjut aktif setelah minimal satu rekaman (atau setelah "Selesai berlatih" tanpa mikrofon).
+
+## Tips & Trik (GLB-05)
+
+`js/tips.js` (`MN_TIPS.mount`) dipasang oleh `scrHal` (cabang FITUR yang sama dengan GLB-03/04). Data `D.tips[]` = `{tahap, no, tips, acuan, alasan}` dari tabel GLB-05 di dokumen Fitur Global (via `gen_data.py`).
+Delapan kartu dalam rel geser CSS scroll-snap; tab Sebelum/Saat/Sesudah melompat ke kartu pertama tiap tahap; titik, tombol sebelumnya/berikutnya, dan panah keyboard.
+"Pelajari" membuka slide acuan (`#/bab/N/K`) atau halaman fitur (GLB-04); tombol terkunci bila bab acuan belum terbuka (sebelum pre-test).
+Kolom `Alasan` opsional: bila ditambahkan ke tabel naskah, `gen_data.py` memuatnya dan kartu menampilkannya.

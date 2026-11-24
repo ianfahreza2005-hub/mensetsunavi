@@ -28,6 +28,7 @@
 - [x] GLB-03 Bank Kosakata + kartu hafalan Leitner (3 kotak, sesi 10 kartu)
 - [x] GLB-04 Latihan Pertanyaan Acak: mode Dengar + Jawab-rekam, bank 25 soal (suara bawaan perangkat)
 - [ ] GLB-04: rekaman audio pewawancara penutur asli (setelah cek SME soal 2–17 dan 23–25)
+- [x] GLB-05 Tips & Trik (8 kartu geser, 3 tab)
 - [ ] Petunjuk Navi (GLB-07)
 - [ ] GLB-03: contoh kalimat per istilah dan rekaman audio istilah (menunggu naskah/SME)
 - [ ] Audio pewawancara simulasi, Mode Latihan tanpa timer

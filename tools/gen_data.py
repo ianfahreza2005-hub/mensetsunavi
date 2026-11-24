@@ -203,7 +203,15 @@ for code in ['B5-04', 'B5-05', 'B5-06', 'B5-07']:
                 a = pola_b503()[1] if r[1].strip().startswith('Jawaban di') else pecah(r[1])
                 lisan5.append({'q': pecah(r[0]), 'a': a, 'tip': r[2].strip() if len(r) > 2 else '', 'dari': code})
 assert len(lisan5) >= 3 and all(z['q']['jp'] and z['a']['jp'] and z['a']['ro'] and z['a']['ar'] for z in lisan5), len(lisan5)
-data = {'bab': BAB, 'latih': latih, 'lisan5': lisan5, 'eval': EVAL, 'pre': pre, 'sim': sim, 'slides': slides, 'order': order}
+# Tips & Trik (GLB-05): tabel Tahap | No | Tips | Acuan [| Alasan bila kelak ditambahkan di dokumen]
+t0 = [k for k, (t, sx) in enumerate(G) if t.startswith('h') and 'GLB-05' in sx][0]
+tb = [v for t, v in G[t0:t0 + 6] if t == 'table'][0]
+hd = [h.strip().lower() for h in tb[0]]
+tips = [{'tahap': r[hd.index('tahap')].strip(), 'no': int(r[hd.index('no')]), 'tips': r[hd.index('tips')].strip(), 'acuan': r[hd.index('acuan')].strip(),
+         'alasan': r[hd.index('alasan')].strip() if 'alasan' in hd else ''} for r in tb[1:]]
+assert [z['no'] for z in tips] == list(range(1, len(tips) + 1)) and len(tips) == 8, len(tips)
+assert all(z['acuan'] in slides or z['acuan'].startswith('GLB') for z in tips), [z['acuan'] for z in tips]
+data = {'bab': BAB, 'latih': latih, 'lisan5': lisan5, 'tips': tips, 'eval': EVAL, 'pre': pre, 'sim': sim, 'slides': slides, 'order': order}
 js = '/* Dibuat otomatis dari naskah materi dan storyboard (gen_data.py). Jangan diedit manual. */\nwindow.MN_DATA = ' + json.dumps(data, ensure_ascii=False) + ';\n'
 open('js/data/kursus.js', 'w').write(js)
 print('ok', len(js), {n: len(b['slides']) for n, b in enumerate(BAB, 1)}, len(sim), len(pre))

@@ -12,6 +12,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 - `js/suara.js`: perekam suara dan analisis Lapis 1 (durasi, jeda, volume, gelombang).
 - T15 Latihan Lisan 3 lapis di B4-15 (jikoshoukai, target 30–60 dtk) dan B5-13 (tiga pertanyaan acak, target 10–30 dtk): analisis Lapis 1, daftar periksa Lapis 2, profil + Unduh rekaman + Unduh lembar rubrik (Lapis 3). Profil Kesiapan Lisan tampil di rapor.
 - `gen_data.py` membaca soal B5-13 ke `D.lisan5`.
+- GLB-05 Tips & Trik: 8 kartu geser dalam tiga tahap (Sebelum/Saat/Sesudah), tab lompat, tombol Pelajari ke slide acuan. `gen_data.py` membaca tabel ke `D.tips`.
 - Stepper untuk daftar langkah bernomor T03 (B3-03, B6-03, B6-08).
 
 ### Diperbaiki

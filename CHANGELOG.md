@@ -5,6 +5,8 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 ## [Belum dirilis]
 
 ### Diubah
+- Panel kanan slide: Navi di atas dan gelembung selebar panel, sehingga teks narasi tidak terjepit.
+- Bank Kosakata berwarna 青碧 (hijau kebiruan), bukan merah, agar tombol suara tidak terbaca sebagai tanda salah.
 - Khusus laptop & Mac: aturan tampilan HP, tablet, dan HP landscape dihapus; tata letak laptop berlaku di semua lebar (viewport 1280). Versi responsif tersimpan di commit `64fc85a`.
 - Pratinjau Artifact menampilkan aplikasi selebar 1280 px yang diperkecil agar pas di panel kanan aplikasi Claude.
 - Gaya v3: palet warna tradisional Jepang (漆黒, 月白, 茜, 藍, 鉄紺) dengan kontras WCAG AA, warna bab baru, huruf Poppins + Plus Jakarta Sans + Zen Kaku Gothic New, pola ombak di permukaan gelap, bilah atas laptop 鉄紺.

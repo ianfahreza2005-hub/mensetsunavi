@@ -72,7 +72,7 @@ Catatan keputusan yang sudah dikunci. Semua dokumen T1/T2 harus mengikuti ini.
 
 ## Video animasi B5-09 (24 Nov)
 - Paragraf "Langkah bila tetap tidak paham…", kotak "Hindari", dan kotak "Gugup di tengah wawancara?" di B5-09 diganti video
-  motion graphic 52 detik (1080p, 60 fps) dengan gaya gerak yang sama seperti B2-09, atas permintaan pemilik repo. Tabel ungkapan
+  motion graphic 51 detik (1080p, 60 fps) dengan gaya gerak yang sama seperti B2-09, atas permintaan pemilik repo. Tabel ungkapan
   penyelamat di atasnya tetap. Teks yang diganti tetap ada di bawah video ("Lihat teks lengkap"). Menonton tidak diwajibkan.
 - Isi tanpa tambahan materi: dua ungkapan dari tabel B5-09 (bertanya dua kali), empat hal yang dihindari, kalimat
   申し訳ありません。まだ分からないところがあります。, langkah saat gugup + 少し考えてもいいですか。, narasi Navi, dan judul slide.

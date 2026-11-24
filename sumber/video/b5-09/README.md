@@ -3,7 +3,7 @@
 Video motion graphic untuk slide **B5-09 Saat Tidak Paham, Jangan Diam** (Bab 5 · Menjawab Pertanyaan). Video ini menggantikan
 tiga blok teks di bawah tabel ungkapan: paragraf "Langkah bila tetap tidak paham…", kotak "Hindari", dan kotak
 "Gugup di tengah wawancara?". Teks aslinya tetap ada di slide, dalam lipatan "Lihat teks lengkap".
-Hasil akhir: `assets/video/B5-09.mp4` (1920×1080, 60 fps, ±52 detik) + poster `assets/video/B5-09.jpg`.
+Hasil akhir: `assets/video/B5-09.mp4` (1920×1080, 60 fps, ±51 detik) + poster `assets/video/B5-09.jpg`.
 
 Gaya geraknya sama dengan video B2-09: tipografi kinetik, kotak sorot, kartu jatuh, sapuan lingkaran antaradegan.
 Warna aksennya ungu Bab 5 (#5E4391). Semua teks diambil dari slide B5-09 dan ada di `src/naskah.ts`:

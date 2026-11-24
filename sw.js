@@ -1,6 +1,6 @@
 /* Service worker Mensetsu Navi: menyimpan aplikasi agar bisa dipakai tanpa internet.
    Daftar dan VERSION diperbarui oleh tools/build_sw.py setiap kali isi berubah. */
-var VERSION = 'mn-77371bb56a';
+var VERSION = 'mn-2e22546b56';
 var PRECACHE = [
  "./",
  "index.html",

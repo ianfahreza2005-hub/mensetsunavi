@@ -25,7 +25,7 @@ Awalan nama: `exp_` ekspresi, `pose_` pose seluruh badan, `act_` aktivitas. Bila
 Format disarankan: MP3 mono 64–96 kbps, video MP4 H.264 720p. Setelah menambah file, jalankan `python tools/build_sw.py`.
 
 **Video animasi** dibuat dengan Remotion (React → MP4) di `sumber/video/<kode>/`; README di folder itu menjelaskan cara membuat ulang.
-Ekspor web: H.264 1080p 60 fps, CRF 26, `-movflags +faststart` (B2-09: 42 dtk, 7,8 MB). Video tidak di-precache service worker;
+Ekspor web: H.264 1080p 60 fps, CRF 26, `-movflags +faststart` (B2-09: 42 dtk, 7,8 MB; B5-09: 51 dtk, 9,6 MB). Video tidak di-precache service worker;
 salinan utuhnya disimpan saat pertama diputar sehingga bisa diputar offline. Daftarkan video baru di `VIDEO` (`js/interaktif.js`).
 Suara Jepang memakai VOICEVOX; kredit "VOICEVOX:<nama karakter>" wajib tampil (kartu akhir video + keterangan pemutar).
 

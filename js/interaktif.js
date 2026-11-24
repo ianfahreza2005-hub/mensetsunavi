@@ -22,7 +22,11 @@
       return k + sp + '<span class="gro ro-only">(<span class="r">' + inner + '</span>)</span>';
     });
   }
-  function md(s) { return roWrap(esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')); }
+  /* kode slide di naskah ("pakai ungkapan di B5-09") diganti judul slidenya dalam tanda petik: peserta tidak melihat kode slide */
+  function judulKode(h) {
+    return h.replace(/\b(B\d-\d\d)\b/g, function (m, kode) { var sl = D.slides[kode]; return sl ? '“' + esc(sl.title.replace(/^Aktivitas:\s*/, '')) + '”' : m; });
+  }
+  function md(s) { return roWrap(judulKode(esc(s)).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')); }
   function plain(s) { return String(s || '').replace(/\*\*/g, ''); }
   function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   function hdr(t, re) { for (var i = 0; i < t[0].length; i++) if (re.test(t[0][i])) return i; return -1; }
@@ -434,7 +438,7 @@
     'B2-09': { ganti: /^Contoh telepon/i, src: 'assets/video/B2-09.mp4', poster: 'assets/video/B2-09.jpg', durasi: '0:42',
       judul: 'Contoh telepon renraku: terlambat karena kereta', kredit: 'Suara: VOICEVOX:雀松朱司' },
     /* simpan: paragraf yang diganti tetap ada di transkrip (di sini paragraf langkah, kotak Hindari, dan kotak Gugup) */
-    'B5-09': { ganti: /^Langkah bila tetap tidak paham/i, simpan: true, src: 'assets/video/B5-09.mp4', poster: 'assets/video/B5-09.jpg', durasi: '0:52',
+    'B5-09': { ganti: /^Langkah bila tetap tidak paham/i, simpan: true, src: 'assets/video/B5-09.mp4', poster: 'assets/video/B5-09.jpg', durasi: '0:51',
       judul: 'Saat tetap tidak paham: jujur dengan sopan', kredit: 'Suara: VOICEVOX:雀松朱司', teks: 'Lihat teks lengkap (langkah, hal yang dihindari, saat gugup)' }
   };
   var PUTAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>';

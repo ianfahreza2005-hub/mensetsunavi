@@ -229,6 +229,61 @@
     };
   };
 
+  /* T13 komik kasus (B2-11): beberapa "Kasus N (tempat): situasi" + tabel Pilihan|Hasil digabung jadi satu
+     panggung bertab. Satu kasus tampil sekali waktu (panel situasi berwarna + pilihan), pindah kasus bergeser halus,
+     panel penutup terbuka setelah semua kasus dijawab tepat. Pilihan per kasus tetap memakai W.cases. */
+  W.kasus = function (cases, penutup) {
+    var ws = cases.map(function (c) { return W.cases(c.table); });
+    var POSE = ['exp_berpikir', 'exp_bingung', 'exp_gugup', 'exp_berpikir'];
+    function tempat(t) { return /wawancara/i.test(t) ? 'iv' : 'kerja'; }
+    var tabs = cases.map(function (c, i) {
+      return '<button class="kk-tab" data-k="' + i + '" role="tab" aria-selected="' + (i === 0) + '"><b>' + (i + 1) + '</b><span>' + esc(cap(c.tempat)) + '</span><i class="kk-ok" aria-hidden="true">✓</i></button>';
+    }).join('');
+    var panes = cases.map(function (c, i) {
+      return '<section class="kk-case kk-' + tempat(c.tempat) + '" data-k="' + i + '" role="tabpanel"' + (i ? ' hidden' : '') + '>' +
+        '<div class="kk-scene"><img src="assets/navi/' + POSE[i % POSE.length] + '.webp" alt="" class="kk-navi"><div class="kk-sit">' +
+        '<span class="kk-tag">Kasus ' + (i + 1) + ' · ' + esc(cap(c.tempat)) + '</span><p>' + md(c.teks.replace(/^"|"$/g, '')) + '</p></div></div>' +
+        '<p class="kk-q">Apa yang kamu lakukan?</p><div class="kk-opsi">' + ws[i].html + '</div></section>';
+    }).join('');
+    return {
+      html: '<div class="kk" data-k="0"><div class="kk-tabs" role="tablist">' + tabs + '</div><div class="kk-stage">' + panes + '</div>' +
+        '<div class="kk-nav"><button class="btn ghost kk-prev" disabled>' + '‹ Sebelumnya</button><span class="kk-no">Kasus 1 dari ' + cases.length + '</span><button class="btn kk-next" disabled>Kasus berikutnya ›</button></div>' +
+        (penutup ? '<div class="kk-end" hidden><span class="jp">信頼</span><p>' + md(penutup) + '</p></div>' : '') + '</div>',
+      bind: function (el, done) {
+        var at = 0, ok = {}, n = cases.length, root = el.querySelector('.kk');
+        var tabsEl = el.querySelectorAll('.kk-tab'), panesEl = el.querySelectorAll('.kk-case');
+        var prev = el.querySelector('.kk-prev'), next = el.querySelector('.kk-next'), no = el.querySelector('.kk-no');
+        function upd() {
+          prev.disabled = at === 0;
+          next.disabled = !ok[at] || at === n - 1;
+          next.hidden = at === n - 1;
+          no.textContent = 'Kasus ' + (at + 1) + ' dari ' + n + (Object.keys(ok).length === n ? ' · semua tepat' : '');
+          tabsEl.forEach(function (t, i) { t.setAttribute('aria-selected', i === at); t.classList.toggle('on', i === at); t.classList.toggle('ok', !!ok[i]); });
+        }
+        function ke(i) {
+          if (i === at || i < 0 || i >= n) return;
+          var arah = i > at ? 'kanan' : 'kiri';
+          panesEl[at].hidden = true;
+          panesEl[i].hidden = false; panesEl[i].classList.remove('kk-in-kanan', 'kk-in-kiri'); void panesEl[i].offsetWidth; panesEl[i].classList.add('kk-in-' + arah);
+          at = i; root.dataset.k = i; upd();
+        }
+        tabsEl.forEach(function (t) { t.addEventListener('click', function () { ke(+t.dataset.k); }); });
+        prev.addEventListener('click', function () { ke(at - 1); });
+        next.addEventListener('click', function () { ke(at + 1); });
+        panesEl.forEach(function (p, i) {
+          ws[i].bind(p, function () {
+            ok[i] = 1; upd();
+            if (Object.keys(ok).length === n) {
+              var end = el.querySelector('.kk-end'); if (end) { end.hidden = false; end.classList.add('ix-in'); }
+              done();
+            }
+          });
+        });
+        upd();
+      }
+    };
+  };
+
   /* T13 pilihan dengan kolom benar/salah (Tepat|Kurang tepat|Salah atau jujur/tidak jujur) */
   /* sel "Jawaban Rani di B5-05 (…)" diganti contoh jawaban asli dari slide yang dirujuk */
   function resolveRef(cell, question) {
@@ -487,7 +542,18 @@
     function add(w) { var id = ws.length; ws.push(w); parts.push('<div class="ix" data-w="' + id + '">' + w.html + '</div>'); }
 
     var choiceAt = -1, choiceLabels = null, vsAt = -1;
+    /* komik kasus: ≥2 pasangan "Kasus N (tempat): …" + tabel Pilihan|Hasil → satu panggung bertab (W.kasus) */
+    var kasus = [], pakai = {}, penutup = null, RX_K = /^\**Kasus\s+\d+\s*\(([^)]+)\):?\**:?\s*/;
     gs.forEach(function (g, gi) {
+      var nx = gs[gi + 1];
+      if (g.p && RX_K.test(g.p) && nx && nx.table && /^pilihan\|hasil/i.test(nx.table[0].join('|'))) {
+        kasus.push({ tempat: RX_K.exec(g.p)[1], teks: g.p.replace(RX_K, ''), table: nx.table, at: gi }); pakai[gi] = pakai[gi + 1] = 1;
+      }
+      if (g.p && /^Panel penutup:/i.test(g.p)) { var pm = /"([^"]+)"/.exec(g.p); penutup = pm ? pm[1] : null; if (kasus.length >= 2) pakai[gi] = 1; }
+    });
+    if (kasus.length < 2) { pakai = {}; kasus = []; }
+    gs.forEach(function (g, gi) {
+      if (pakai[gi]) { if (kasus.length && gi === kasus[0].at) add(W.kasus(kasus, penutup)); return; }
       if (g.table) {
         var t = g.table, h = t[0].join('|');
         if (tpl === 'T12') return add(W.match(t));

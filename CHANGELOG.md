@@ -5,6 +5,12 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 ## [Belum dirilis]
 
 ### Diubah
+- Peta bab (pita navigasi) berwarna bab di atas setiap slide dan di sampul: satu titik per slide (klik untuk pindah, judul muncul saat kursor di atasnya), segmen per pelajaran, persentase dipelajari. Sampul bab: kartu pelajaran dengan progres, paralaks kanji dan Navi mengikuti kursor.
+- Pindah slide bergeser halus (View Transitions): maju masuk dari kanan, mundur dari kiri; bilah atas, sidebar, dan bilah bawah diam. Berlaku untuk slide bab, soal pre/post-test, dan langkah simulasi.
+- Komik Kasus (B2-11): empat kasus ditampilkan satu per satu dengan tab, panel situasi berwarna (tempat kerja 青碧, wawancara 藍) bersama Navi, pesan penutup 信頼 setelah semua kasus tepat.
+- Halaman yang isinya sedikit dibuat dua kolom: petunjuk tes + "Yang diukur" per bab, hasil tes skor + rincian, pembuka kuis + materi yang diuji.
+- Pilihan jawaban di dalam kartu berlatar lembut (tidak putih di atas putih).
+- Daftar "Pelajari lagi" di hasil kuis tidak lagi menampilkan kode slide.
 - Panel kanan slide: Navi di atas dan gelembung selebar panel, sehingga teks narasi tidak terjepit.
 - Bank Kosakata berwarna 青碧 (hijau kebiruan), bukan merah, agar tombol suara tidak terbaca sebagai tanda salah.
 - Khusus laptop & Mac: aturan tampilan HP, tablet, dan HP landscape dihapus; tata letak laptop berlaku di semua lebar (viewport 1280). Versi responsif tersimpan di commit `64fc85a`.

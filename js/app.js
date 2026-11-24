@@ -128,6 +128,7 @@
     var t = ST.set(); t[g] = on; ST.save(); document.body.classList.toggle('no-' + g, !on);
     view.querySelectorAll('.gt[data-g="' + g + '"]').forEach(function (x) { x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
   }
+  var hashTampil = location.hash;
   function show(html, opts) {
     stopVoice();
     rakEl.hidden = true; if (window.MN_RAK) window.MN_RAK.hide();
@@ -148,6 +149,9 @@
     window.scrollTo(0, 0);
     view.querySelectorAll('[data-menu]').forEach(function (b) { b.addEventListener('click', openMenu); });
     bindSpeak(view);
+    /* gerak masuk layar (js/gerak.js) hanya saat berpindah layar, bukan saat layar yang sama digambar ulang (mis. memilih jawaban) */
+    if (window.MN_GERAK && location.hash !== hashTampil) MN_GERAK.jadwal();
+    hashTampil = location.hash;
   }
 
   /* ------------------------------------------------------------ pembuka (GLB-00) */
@@ -175,6 +179,12 @@
   /* ------------------------------------------------------------ pre-test & post-test */
   var testAns = { pre: [], post: [] };
   function cleanStem(t) { return String(t).split('\nTranskrip')[0].replace(/\s*\((Arti|Romaji)[^)]*(ditampilkan|menguji)[^)]*\)/g, ''); }
+  function cakupan(Q) {   /* petunjuk tes: berapa soal dari tiap bab, dalam warna bab */
+    var n = {}; Q.forEach(function (q) { n[q.bab] = (n[q.bab] || 0) + 1; });
+    return '<div class="card cakup"><h3 class="sec-h">Yang diukur</h3><div class="ck-grid">' + D.bab.map(function (b) {
+      return '<div class="ck-bab" style="--c:' + b.col + ';--cl:' + b.colL + '"><span class="jp ck-kj">' + esc(b.kj) + '</span><span class="ck-t"><small>' + esc(b.label) + '</small><b>' + esc(b.title) + '</b></span><em>' + (n[b.no] || 0) + ' soal</em></div>';
+    }).join('') + '</div></div>';
+  }
   function scrTest(kind, i) {
     var S = ST.get(), isPre = kind === 'pre';
     var Q = isPre ? D.preSub.map(function (k) { return D.pre[k]; }) : D.pre, N = Q.length;   /* pre-test = 10 butir terpilih (D.preSub), post-test = 20 butir */
@@ -184,8 +194,8 @@
       var intro = isPre ? D.slides['PRE-00'] : D.slides['POST-00'];
       return show('<div class="screen">' + topbar(base, 'Petunjuk', 0) + '<div class="body">' +
         '<span class="chip">' + (isPre ? N + ' soal · ±8 menit · belum dinilai' : N + ' soal · bagian dari nilai akhir') + '</span>' +
-        '<h2 class="slide-h">' + esc(intro.title) + '</h2><div class="card">' + blocks(intro.screen, intro.code) + '</div>' +
-        naviSay(intro.code, intro.narasi, 'pose_menunjuk') + '</div>' + bottombar(null, '', root + '1', 'Mulai') + '</div>');
+        '<h2 class="slide-h">' + esc(intro.title) + '</h2><div class="duo"><div class="duo-l"><div class="card">' + blocks(intro.screen, intro.code) + '</div>' +
+        naviSay(intro.code, intro.narasi, 'pose_menunjuk') + '</div><div class="duo-r">' + cakupan(Q) + '</div></div></div>' + bottombar(null, '', root + '1', 'Mulai') + '</div>');
     }
     if (i > N) {
       var ans = testAns[kind];
@@ -199,10 +209,10 @@
         return '<div><span>Bab ' + b + ' · ' + esc(D.bab[b - 1].title) + '</span><span class="tag ' + cls + '">' + p[0] + '/' + p[1] + '</span></div>';
       }).join('');
       return show('<div class="screen">' + topbar(base, 'Hasil', 1) + '<div class="body">' +
-        '<div class="score-ring" style="--p:' + score + '%"><span>' + score + '</span></div>' +
+        '<div class="duo"><div class="duo-l duo-skor"><div class="score-ring" style="--p:' + score + '%"><span>' + score + '</span></div>' +
         '<p class="treat" style="text-align:center">' + right + ' dari ' + N + ' soal benar' + (isPre ? '. Ini peta kemampuan awalmu, bukan nilai kelulusan.' : '.') + '</p>' +
-        '<div class="card"><b>' + (isPre ? 'Peta Kemampuan Awal' : 'Hasil per bab') + '</b><div class="row-list" style="margin-top:10px">' + rows + '</div></div>' +
-        naviSay(isPre ? 'PRE-21' : 'RAP-01', isPre ? 'Bagus! Bab dengan hasil terendah sebaiknya kamu pelajari lebih dulu. Semua bab sudah terbuka di rak.' : 'Post-test selesai. Ayo lihat rapor kesiapanmu!', 'pose_jempol') +
+        naviSay(isPre ? 'PRE-21' : 'RAP-01', isPre ? 'Bagus! Bab dengan hasil terendah sebaiknya kamu pelajari lebih dulu. Semua bab sudah terbuka di rak.' : 'Post-test selesai. Ayo lihat rapor kesiapanmu!', 'pose_jempol') + '</div>' +
+        '<div class="duo-r"><div class="card"><b>' + (isPre ? 'Peta Kemampuan Awal' : 'Hasil per bab') + '</b><div class="row-list" style="margin-top:10px">' + rows + '</div></div></div></div>' +
         '</div>' + bottombar(null, '', isPre ? '#/rak' : '#/rapor', isPre ? 'Ke rak bab' : 'Lihat rapor') + '</div>');
     }
     var q = Q[i - 1], sel = testAns[kind][i - 1];
@@ -229,6 +239,41 @@
       out += '<a' + (j === k ? ' class="cur"' : '') + ' href="#/bab/' + b.no + '/' + j + '"><span class="ck">' + (seen ? '✓' : '') + '</span><span>' + esc(s.title.replace(/^Aktivitas:\s*/, '')) + '</span></a>';
     });
     return out + '</div>';
+  }
+  /* Peta bab (pita navigasi): segmen per bagian (Pembuka, Pelajaran 1–n, Penutup & kuis), satu titik per slide.
+     Titik dan nama bagian bisa diklik untuk pindah slide; judul slide muncul saat kursor di atas titik.
+     hero = true: versi besar di sampul bab (di atas latar warna bab) + kartu pelajaran. */
+  function segBab(b) {
+    var segs = [], cur = null;
+    b.slides.forEach(function (c, j) {
+      var s = D.slides[c], pj = /^P(\d)/.exec(s.pel || ''), key = pj ? 'P' + pj[1] : (j === 0 ? 'A' : 'Z');
+      if (!cur || cur.key !== key) { cur = { key: key, no: pj ? +pj[1] : 0, nama: pj ? (b.lessons[pj[1] - 1] || '') : (j === 0 ? 'Pembuka' : 'Penutup & kuis'), pendek: pj ? pj[1] : (j === 0 ? '始' : '済'), js: [] }; segs.push(cur); }
+      cur.js.push(j);
+    });
+    return segs;
+  }
+  function petaBab(b, k, hero) {
+    var seen = ST.bab(b.no).seen, segs = segBab(b), now = segs.filter(function (g) { return g.js.indexOf(k) >= 0; })[0] || segs[0];
+    var nSeen = b.slides.filter(function (c) { return seen.indexOf(c) >= 0; }).length, pct = Math.round(nSeen / b.slides.length * 100), nPel = b.lessons.length;
+    var track = '<div class="pb-track">' + segs.map(function (g) {
+      return '<div class="pb-seg' + (g === now ? ' cur' : '') + '" style="flex:' + g.js.length + ' 1 0"><div class="pb-dots">' + g.js.map(function (j) {
+        var c = b.slides[j], t = j === b.slides.length - 1 ? 'Kuis ' + b.label : D.slides[c].title.replace(/^Aktivitas:\s*/, '');
+        return '<a class="pb-dot' + (seen.indexOf(c) >= 0 ? ' seen' : '') + (j === k ? ' cur' : '') + (j === b.slides.length - 1 ? ' kuis' : '') + '" href="#/bab/' + b.no + '/' + j + '" data-t="' + esc(t) + '" aria-label="' + esc(t) + '"' + (j === k ? ' aria-current="page"' : '') + '></a>';
+      }).join('') + '</div><a class="pb-lab" href="#/bab/' + b.no + '/' + g.js[0] + '" title="' + esc(g.nama) + '"><b' + (g.no ? '' : ' class="jp"') + '>' + esc(g.pendek) + '</b><span>' + esc(g.nama) + '</span></a></div>';
+    }).join('') + '</div>';
+    if (hero) return '<nav class="pita pita-hero" aria-label="Peta ' + esc(b.label) + '">' + track + '</nav>';
+    return '<nav class="pita" aria-label="Peta ' + esc(b.label) + '" style="--c:' + b.col + ';--cl:' + b.colL + '">' +
+      '<div class="pb-top"><span class="pb-kj jp" aria-hidden="true">' + esc(b.kj) + '</span><div class="pb-t"><small>' + esc(b.label + (now.no ? ' · Pelajaran ' + now.no + ' dari ' + nPel : '')) + '</small><b>' + esc(now.nama) + '</b></div>' +
+      '<span class="pb-pct"><b>' + pct + '%</b> dipelajari</span></div>' + track + '</nav>';
+  }
+  function kartuPelajaran(b, tanpaKuis) {   /* sampul bab: kartu tiap pelajaran (klik untuk mulai dari situ) dengan progres */
+    var seen = ST.bab(b.no).seen, st = ST.bab(b.no);
+    return '<div class="pl-grid">' + segBab(b).filter(function (g) { return g.key !== 'A' && !(tanpaKuis && g.key === 'Z'); }).map(function (g) {
+      var n = g.js.filter(function (j) { return seen.indexOf(b.slides[j]) >= 0; }).length, akhir = g.key === 'Z';
+      return '<a class="pl-card' + (akhir ? ' pl-kuis' : '') + (n === g.js.length ? ' full' : '') + '" href="#/bab/' + b.no + '/' + g.js[0] + '">' +
+        '<span class="pl-no">' + (akhir ? '<span class="jp">済</span>' : g.no) + '</span><span class="pl-t"><small>' + (akhir ? (st.stamp ? 'Stempel didapat' : 'Skor ≥ 80 untuk stempel') : 'Pelajaran ' + g.no) + '</small><b>' + esc(g.nama) + '</b></span>' +
+        '<span class="pl-bar"><i style="width:' + Math.round(n / g.js.length * 100) + '%"></i></span><span class="pl-n">' + n + '/' + g.js.length + ' slide</span></a>';
+    }).join('') + '</div>';
   }
   function sidebar(cur) {   /* cur = { bab, k } di slide bab · { bab } di kuis · { page } di layar lain */
     var S = ST.get(), L = function (href, icon, label, key, lock) {
@@ -273,21 +318,23 @@
     var inner, panel = '';
     if (k === 0) {
       inner = '<div class="cover-hero" style="--c:' + b.col + '">' + SG + '<div class="top"><span class="chip" style="background:rgba(255,255,255,.92)">' + esc(b.dur + ' · ' + b.slides.length + ' slide') + '</span></div>' +
-        '<div class="kj jp">' + esc(b.kj) + '</div><div class="eb">' + esc(b.label + ' · ' + b.kjr) + '</div><img src="' + navi('act_memberi_salam') + '" alt=""></div>' +
+        '<div class="kj jp">' + esc(b.kj) + '</div><div class="eb">' + esc(b.label + ' · ' + b.kjr) + '</div><img src="' + navi('act_memberi_salam') + '" alt="">' + petaBab(b, k, true) + '</div>' +
         '<div class="body cover-body"><div class="card cover-card"><h2 class="slide-h">' + esc(b.title) + '</h2><p class="lead">' + esc(b.blurb) + '</p>' +
         '<h3 class="sec-h">Setelah bab ini, kamu mampu</h3><ul class="goals">' + s.screen.filter(function (x) { return x.li != null && x.lvl === 1; }).map(function (x) { return '<li>' + md(x.li.replace(/[;.]$/, '')) + '</li>'; }).join('') + '</ul>' +
-        '<h3 class="sec-h">Isi bab</h3><ol class="path">' + b.lessons.map(function (t, j) { return '<li><b>' + (j + 1) + '</b><span>' + esc(t) + '</span></li>'; }).join('') + '<li class="end"><b class="jp">済</b><span>Kuis bab, stempel jika skor ≥ 80</span></li></ol></div>' +
+        '<h3 class="sec-h">Isi bab · klik untuk mulai dari pelajaran mana pun</h3>' + kartuPelajaran(b) + '</div>' +
         naviSay(code, s.narasi, 'pose_menunjuk') + '</div>';
     } else if (k === last) {
       var st = ST.bab(n);
-      inner = '<div class="body"><span class="chip">' + esc(b.label) + ' · penutup</span><h2 class="slide-h">Kuis ' + esc(b.label) + '</h2>' +
+      inner = '<div class="body">' + petaBab(b, k) + '<h2 class="slide-h">Kuis ' + esc(b.label) + '</h2>' +
+        '<div class="duo"><div class="duo-l">' +
         '<div class="card quiz-intro"><div class="hanko' + (st.stamp ? ' got' : ' ghost') + '"><span class="jp">済</span></div><div>' +
         '<p><b>5 soal</b>, satu per layar, dengan umpan balik langsung. Dapatkan skor <b>80</b> untuk stempel ' + esc(b.label) + '.</p>' +
         (st.best ? '<p class="mini">Skor terbaikmu: <b>' + st.best + '</b>' + (st.stamp ? ' · stempel sudah didapat' : '') + '</p>' : '') + '</div></div>' +
-        '<a class="btn full" href="#/kuis/' + n + '">' + (st.best ? 'Ulangi kuis' : 'Mulai kuis') + ic('next') + '</a>' + naviSay(code, 'Siap? Kalau belum mencapai 80, kamu bisa mengulang dengan soal yang berbeda.', 'pose_semangat') + '</div>';
+        '<a class="btn full" href="#/kuis/' + n + '">' + (st.best ? 'Ulangi kuis' : 'Mulai kuis') + ic('next') + '</a>' + naviSay(code, 'Siap? Kalau belum mencapai 80, kamu bisa mengulang dengan soal yang berbeda.', 'pose_semangat') + '</div>' +
+        '<div class="duo-r"><div class="card"><h3 class="sec-h">Materi yang diuji · klik untuk mengulang</h3>' + kartuPelajaran(b, true) + '</div></div></div></div>';
     } else {
       var pj = /^P(\d)/.exec(s.pel || ''), lesson = pj ? 'Pelajaran ' + pj[1] + ' · ' + (b.lessons[pj[1] - 1] || '') : (s.pel || '');
-      inner = '<div class="body"><div class="gt-row"><span class="chip">' + esc(lesson) + '</span>' + gtog() + '</div><h2 class="slide-h">' + esc(s.title.replace(/^Aktivitas:\s*/, '')) + '</h2>' +
+      inner = '<div class="body">' + petaBab(b, k) + '<div class="gt-row"><span class="chip">' + esc(lesson) + '</span>' + gtog() + '</div><h2 class="slide-h">' + esc(s.title.replace(/^Aktivitas:\s*/, '')) + '</h2>' +
         (/^Aktivitas/.test(s.title) ? '<span class="act-tag">Aktivitas</span>' : '') +
         '<div class="card' + (ix ? ' ix-slide' : '') + '">' + (ix ? ix.html : blocks(s.screen, code)) + '</div>' +
         (ix && /^(T08|T10|T11|T12)$/.test(s.tpl) && window.MN_NAVI ? '<div class="navi-hint"><button class="btn soft" id="navi-hint">' + ic('bulb') + 'Petunjuk Navi</button><div id="navi-hint-box"></div></div>' : '') +
@@ -336,7 +383,7 @@
           : '<h2 class="slide-h">Hampir! Butuh skor 80 untuk stempel.</h2>') +
         (remed.length ? '<div class="card" style="text-align:left;width:100%"><b>Pelajari lagi</b><div class="row-list" style="margin-top:8px">' + remed.map(function (c) {
           var j = b.slides.indexOf(c); var s = D.slides[c];
-          return j < 0 ? '' : '<div><a href="#/bab/' + n + '/' + j + '">' + esc(c + ' · ' + s.title) + '</a></div>';
+          return j < 0 ? '' : '<div><a href="#/bab/' + n + '/' + j + '">' + esc(s.title.replace(/^Aktivitas:\s*/, '')) + '</a></div>';
         }).join('') + '</div></div>' : '') +
         (score >= 80 ? naviSay('', 'Hebat, kamu lulus ' + b.label + '! Stempelnya sudah di rak.', 'pose_jempol', true) : naviSay('', 'Belum lulus, tidak apa-apa. Baca lagi slide di atas, lalu coba kuis dengan soal yang berbeda. Kamu pasti bisa!', 'pose_semangat', true)) +
         '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button class="btn ghost" id="ulang">Ulangi kuis</button><a class="btn" href="#/rak">Ke rak bab' + ic('next') + '</a></div>' +
@@ -648,7 +695,24 @@
     else if (/^[1-3]$/.test(k)) { el = view.querySelectorAll('.sim-split .opt:not([disabled])')[+k - 1]; if (el) { e.preventDefault(); el.click(); } }
   });
 
-  window.addEventListener('hashchange', route);
+  /* Pindah slide yang halus (View Transitions): antar-slide dalam satu bab, antar-soal pre/post-test, dan antar-langkah simulasi,
+     isi lama bergeser keluar dan isi baru masuk dari arah yang sesuai (maju → dari kanan, mundur → dari kiri).
+     Bilah atas, sidebar, dan bilah bawah diam. Peramban tanpa View Transitions atau dengan "kurangi gerak" langsung berganti. */
+  var hashLalu = location.hash;
+  function arahGeser(a, b) {
+    var ra = /^#\/(bab\/\d+|pre|post|sim)\/(\d+)/.exec(a || ''), rb = /^#\/(bab\/\d+|pre|post|sim)\/(\d+)/.exec(b || '');
+    if (!ra || !rb || ra[1] !== rb[1] || ra[2] === rb[2]) return null;
+    return +rb[2] > +ra[2] ? 'maju' : 'mundur';
+  }
+  window.addEventListener('hashchange', function () {
+    var arah = arahGeser(hashLalu, location.hash); hashLalu = location.hash;
+    var diam = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!arah || diam || !document.startViewTransition) return route();
+    var h = document.documentElement; h.setAttribute('data-geser', arah);
+    var vt = document.startViewTransition(route);
+    vt.finished.then(selesai, selesai);
+    function selesai() { h.removeAttribute('data-geser'); }
+  });
   route();
 
   /* ------------------------------------------------------------ PWA */

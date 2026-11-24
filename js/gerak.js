@@ -15,9 +15,9 @@
   function masuk() {
     if (diam()) return;
     var view = document.getElementById('view'); if (!view) return;
-    var n = 0;
+    var n = 0, geser = document.documentElement.hasAttribute('data-geser');   /* saat pindah slide bergeser: isi tidak dimunculkan bertahap lagi */
     Array.prototype.forEach.call(view.querySelectorAll(DAFTAR), function (el) {
-      if (n > 18 || el.classList.contains('rv')) return;
+      if (geser || n > 18 || el.classList.contains('rv')) return;
       var r = el.getBoundingClientRect();
       if (r.top > innerHeight + 40 || r.height === 0) return;          /* di luar layar: tidak perlu dianimasikan */
       if (getComputedStyle(el).animationName !== 'none') return;     /* elemen yang sudah punya animasi sendiri */
@@ -47,8 +47,8 @@
     requestAnimationFrame(langkah);
   }
 
-  function jadwal() { setTimeout(function () { requestAnimationFrame(masuk); }, 0); }
-  window.addEventListener('hashchange', jadwal);
+  /* dipanggil app.js show() setelah layar baru terpasang; pemuatan pertama dipicu di sini (app.js sudah merender lebih dulu) */
+  function jadwal() { requestAnimationFrame(masuk); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', jadwal); else jadwal();
 
   /* ---------- sorot cahaya mengikuti kursor ---------- */
@@ -86,5 +86,14 @@
     setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 650);
   }, { passive: true });
 
-  window.MN_GERAK = { masuk: masuk };
+  /* paralaks lembut di sampul bab dan pita bab: --px/--py (−0,5…0,5) mengikuti kursor */
+  document.addEventListener('pointermove', function (e) {
+    if (!mouse || !mouse.matches || diam() || e.pointerType !== 'mouse' || !e.target.closest) return;
+    var el = e.target.closest('.cover-hero, .pita'); if (!el) return;
+    var r = el.getBoundingClientRect();
+    el.style.setProperty('--px', ((e.clientX - r.left) / r.width - .5).toFixed(3));
+    el.style.setProperty('--py', ((e.clientY - r.top) / r.height - .5).toFixed(3));
+  }, { passive: true });
+
+  window.MN_GERAK = { masuk: masuk, jadwal: jadwal };
 })();

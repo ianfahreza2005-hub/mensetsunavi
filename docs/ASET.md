@@ -20,7 +20,7 @@ Awalan nama: `exp_` ekspresi, `pose_` pose seluruh badan, `act_` aktivitas. Bila
 | Ucapan pewawancara simulasi | `assets/audio/sim/` | `SIM-04.mp3` (belum diputar aplikasi; sementara suara bawaan perangkat) |
 | Kata Mutiara diucapkan Navi | `assets/audio/mutiara/` | `B1.mp3` … `B6.mp3` (sudah dicoba aplikasi lebih dulu; jika tidak ada, suara bawaan) |
 | Video peragaan | `assets/video/` | `B3-05_benar.mp4`, `B3-05_salah1.mp4` |
-| Video animasi (motion graphic) | `assets/video/` + sumber di `sumber/video/<kode>/` | `B2-09.mp4` + poster `B2-09.jpg` (sudah ada: contoh telepon renraku) |
+| Video animasi (motion graphic) | `assets/video/` + sumber di `sumber/video/<kode>/` | `B2-09.mp4` + poster `B2-09.jpg` (contoh telepon renraku), `B5-09.mp4` + `B5-09.jpg` (saat tidak paham) |
 
 Format disarankan: MP3 mono 64–96 kbps, video MP4 H.264 720p. Setelah menambah file, jalankan `python tools/build_sw.py`.
 

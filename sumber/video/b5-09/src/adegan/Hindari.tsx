@@ -82,7 +82,7 @@ export const Hindari: React.FC<{ dur: number }> = ({ dur }) => {
           }
           if (op <= 0) return null;
           return (
-            <div key={i} style={{ position: 'absolute', left: x - LEBAR / 2, top: y - TINGGI / 2, width: LEBAR, height: TINGGI, rotate: `${rot}deg`, scale: `${skala}`, opacity: op }}>
+            <div key={i} style={{ position: 'absolute', left: x - LEBAR / 2, top: y - TINGGI / 2, width: LEBAR, height: TINGGI, rotate: `${rot}deg`, scale: `${skala}`, opacity: op, zIndex: u > 0 ? 10 + i : i }}>
               <div style={{ position: 'absolute', inset: 0, borderRadius: 30, background: W.putih, display: 'flex', alignItems: 'center', gap: 28, padding: '0 34px 0 30px', boxShadow: '0 26px 50px -22px rgba(0,0,0,0.55)' }}>
                 <span style={{ width: 108, height: 108, borderRadius: 30, flex: 'none', display: 'grid', placeItems: 'center', background: W.akaneL, opacity: 1 - redup * 0.35 }}>
                   <Ikon jenis={h.ikon} f={f} />

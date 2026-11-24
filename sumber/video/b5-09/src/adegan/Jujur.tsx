@@ -36,7 +36,7 @@ export const Jujur: React.FC<{ dur: number }> = ({ dur }) => {
       <AbsoluteFill>
         {/* kelompok judul + kotak seleksi */}
         <div style={{ position: 'absolute', left: 0, top: 0, width: 1920, height: 1080, translate: `0 ${naik * -296}px`, scale: `${1 - naik * 0.58}`, transformOrigin: '960px 400px' }}>
-          <div style={{ position: 'absolute', left: KOTAK.x, top: KOTAK.y, width: KOTAK.w, height: KOTAK.h, borderRadius: 14, background: W.murasaki, opacity: isi * 0.1 * (1 - naik) }} />
+          <div style={{ position: 'absolute', left: KOTAK.x, top: KOTAK.y, width: KOTAK.w, height: KOTAK.h, borderRadius: 14, background: W.murasaki, opacity: isi * 0.1 * kotak }} />
           <div style={{ position: 'absolute', top: 318, width: '100%', display: 'flex', justifyContent: 'center', gap: 36, fontFamily: F.judul, fontWeight: 800, fontSize: 124, lineHeight: 1.15, letterSpacing: '-0.03em', color: W.shikkoku }}>
             {kataJudul(<Sorot mulai={T.j2.audio + 2} warna={WARNA.Jujur} teksJadi={W.putih} radius={22}>Jujur</Sorot>, 18, 'a')}
             {kataJudul('dengan', 28, 'b')}

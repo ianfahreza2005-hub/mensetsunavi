@@ -25,7 +25,7 @@ Keputusan desain yang sudah dikunci ada di **`docs/KEPUTUSAN.md`**. Baca itu seb
 | `tools/dokumen/conv.py` | Pengubah XML doc → Word (A4, TNR 12, MS Mincho) yang dipakai untuk paket Word |
 | `sumber/naskah/` | Naskah materi dalam Markdown (mudah dibaca), plus GBIM, JM, Pola Penyajian LMS |
 | `sumber/rancangan/` | Paket Word resmi 00–13 (T1, GBIM, JM, Flowchart, Storyboard format Pak Imbar, Materi Bab 1–6, Evaluasi, Fitur Global, Pola LMS) |
-| `sumber/video/` | Proyek Remotion untuk video animasi (mis. `b2-09/`); hasil ekspor ke `assets/video/`. README tiap folder berisi cara membuat ulang |
+| `sumber/video/` | Proyek Remotion untuk video animasi (`b2-09/`, `b5-09/`); hasil ekspor ke `assets/video/`. README tiap folder berisi cara membuat ulang |
 | `sumber/desain-canvas/` | Berkas canvas interface v2 (`*.dc.html`, `canvas.json`) + `_generator.py` |
 | `docs/` | `KEPUTUSAN.md`, `ARSITEKTUR.md`, `ROADMAP.md`, `ASET.md` |
 

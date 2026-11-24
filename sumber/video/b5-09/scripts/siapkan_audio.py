@@ -113,9 +113,9 @@ def efek():
             a = int(t0 * SR); x[a:a + n] += (seg * env)[:max(0, len(x) - a)]
             t0 += d + (0.012 if r.random() < 0.8 else 0.07) / (laju / 8)
         return band_fft(x, 120, 1900)
-    simpan('celoteh-cepat.wav', fade(celoteh(1.05, 13, 165, 3), 0.005, 0.06), -9)
-    simpan('celoteh-cepat2.wav', fade(celoteh(0.9, 13, 160, 11), 0.005, 0.06), -9)
-    simpan('celoteh-pelan.wav', fade(celoteh(1.5, 6.5, 150, 5), 0.005, 0.08), -9)
+    simpan('celoteh-cepat.wav', fade(celoteh(1.05, 13, 165, 3), 0.005, 0.06), -6)
+    simpan('celoteh-cepat2.wav', fade(celoteh(0.9, 13, 160, 11), 0.005, 0.06), -6)
+    simpan('celoteh-pelan.wav', fade(celoteh(1.5, 6.5, 150, 5), 0.005, 0.08), -6)
     # tanya: nada naik lembut saat tanda ? muncul
     t = t_(0.3); f = 480 + 520 * (t / 0.3) ** 1.6
     x = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.minimum(1, t / 0.02) * np.exp(-t / 0.12)

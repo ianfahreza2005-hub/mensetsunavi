@@ -66,7 +66,7 @@ export const Pembuka: React.FC<{ dur: number }> = ({ dur }) => {
           {GELEMBUNG.map((g, i) => {
             if (f < g.mulai) return null;
             let naik = 0;
-            for (let j = i + 1; j < GELEMBUNG.length; j++) naik += (GELEMBUNG[j].h + JARAK) * halus(f, fps, GELEMBUNG[j].mulai, 36);
+            for (let j = i + 1; j < GELEMBUNG.length; j++) naik += (GELEMBUNG[j].h + JARAK) * halus(f, fps, GELEMBUNG[j].mulai - 8, 36);
             const atas = DASAR - g.h - naik;
             const masuk = pegas(f, fps, g.mulai, { damping: 14, stiffness: 190 });
             const pudarAtas = ip(atas, 30, 170, 0, 1, (t) => t);

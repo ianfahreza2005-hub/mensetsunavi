@@ -1221,7 +1221,7 @@ function toInactive(B){
   B.tSeat.start([1],K.activeDuration*0.62,easeSettle,K.activeDuration*0.38);
   B.tHover.start([B.base[0],B.base[1]+0.06,B.base[2]],K.activeDuration,easeOutQuart);
   B.tActiveP.start([...B.basePos],K.activeDuration,activeEase);
-  B.tActiveR.start([...K.activeRot],K.activeDuration,activeEase);
+  B.tActiveR.start([0,0,0],K.activeDuration,activeEase);      // pose rak semula (dulu: activeRot, buku kembali miring)
   setTimeout(()=>hoverOut(B),K.activeDuration);
   setTimeout(()=>{ S.anim='inactive'; setLayer(B,LAY_BG);
                    B.gRoot.renderOrder=MOBILE?100-B.index:0;
@@ -1343,14 +1343,74 @@ function majuSelam(){
     s.ended=true; if(S.anim==='opening') S.anim='open';
     try{ if(APP&&APP.tibaBuku) APP.tibaBuku(); }catch(err){}
   }
-  // titik bidik ditaruh tepat di garis pandang kamera (kamera sedikit menunduk, jadi garis itu tidak datar)
-  // jarak halaman ke kamera dibuat persis distFor(zoom), jadi di akhir lebar halaman = lebar layar tepat sama dengan kartu
-  const B=s.B, zPage=camera.position.z-distFor(s.zoom);
+  return poseHalaman(s.B,s.zoom,smooth(clamp(t/0.4,0,1)));   // bidikan selesai sebelum kartu muncul
+}
+/* [geser y, geser z] supaya halaman judul tampil pada `zoom`, dengan titik bidik (kartu isi) di tengah layar sebesar bobot w.
+   Titik bidik ditaruh tepat di garis pandang kamera (kamera sedikit menunduk, jadi garis itu tidak datar); jarak halaman ke
+   kamera dibuat persis distFor(zoom), jadi pada zoom akhir lebar kartu isi = lebar layar, tepat sama dengan kartu aplikasi. */
+function poseHalaman(B,zoom,w){
+  const zPage=camera.position.z-distFor(zoom);
   const oz=zPage-(B.tActiveP.v[2]+B.tHover.v[2]+SZD/2);
   const yAxis=TGT.y+(camera.position.y-TGT.y)*(zPage-TGT.z)/(camera.position.z-TGT.z);
-  const yAim=B.tActiveP.v[1]+B.tHover.v[1]+(0.5-s.aimV)*SZH;
-  const w=smooth(clamp(t/0.4,0,1));                       // bidikan selesai sebelum kartu muncul
+  const yAim=B.tActiveP.v[1]+B.tHover.v[1]+(0.5-SELAM.aimV)*SZH;
   return [(yAxis-yAim)*w, oz];
+}
+
+/* Keluar dari buku (halaman materi → rak): kebalikan selam.
+   - pose awal = akhir selam: halaman judul memenuhi layar dan kartu halaman materi (aplikasi) tepat menutupinya;
+   - kamera mundur dalam skala logaritmik, kartu mengecil bersama halaman 3D (APP.ukurBuku) lalu memudar saat halaman judul
+     tinggal setinggi layar; aplikasi lalu menyembunyikan halaman materi (APP.keluarSelesai);
+   - isi kartu halaman judul muncul lagi, sampul menutup, lalu buku terbang kembali ke tempatnya di rak. */
+const KELUAR={on:false,B:null,t0:0,d:700,zoomA:1,zoom:1,tutup:false,kartuHabis:false,sampul:false,rak:false};
+window.MN_RAK_KELUAR=function(no){
+  if(MOBILE||REDUCED||!books.length||S.anim==='intro') return false;
+  const B=books.find(x=>x.data.no===no); if(!B) return false;
+  segar();                                            // sampul & status terbaru (mis. stempel baru dari kuis)
+  if(S.active&&S.active!==B) snapBack();
+  if(S.lifted&&S.lifted!==B) hoverOut(S.lifted);
+  SELAM.on=false; SELAM.B=null;
+  CAMD=0; applyCamera(); NOW=performance.now();
+  // pose "di dalam buku", sama dengan akhir selam
+  B.flipped=false; dragReset();
+  B.tScale.set([1]); B.tFade.set([1]);
+  B.tHover.set([B.base[0],B.base[1]+0.085,B.base[2]+0.075]); B.tTilt.set([0,0,0]); B.tRefl.set([0]); B.tSeat.set([0]);
+  B.sWob.v=[0,0,0]; B.sWob.vel=[0,0,0]; B.sWob.tgt=[0,0,0];
+  B.tActiveR.set([0,0,0]); B.tCover.set([K.coverOpen]);
+  B.tActiveP.set([0,K.boxCY-B.tHover.v[1],activeZ()]);
+  B.kosong=1; setLayer(B,LAY_FG); B.gRoot.renderOrder=10;
+  S.active=B; S.lifted=B; S.anim='closing';
+  detailEl.classList.remove('on'); WASH.target=0; WASH.t=0; WASH.dirty=true; hintEl.classList.remove('on');
+  document.body.classList.remove('reading'); document.body.classList.add('opening','menyelam');
+  blurTw._w=true; blurTw.i.set([16]); blurTw.n.set([6]);
+  const fit=Math.max((SZH*0.5)/(0.60*tanFov()),(SZW*0.5)/(0.60*tanFov()*camera.aspect));
+  // tahan 90 ms: rak sempat menggambar beberapa frame di balik kartu sebelum kartu mulai mengecil
+  Object.assign(KELUAR,{on:true,B,t0:NOW+90,d:700,zoomA:zoomAt(fit-B.tHover.v[2]-SZD/2),zoom:zoomCover()/0.92,
+    tutup:true,kartuHabis:false,sampul:false,rak:false});
+  return true;
+};
+function majuKeluar(){
+  const k=KELUAR, B=k.B, zc=zoomCover(), zEnd=zc/0.92;
+  const t=clamp((NOW-k.t0)/k.d,0,1), e=easeSettle(t);
+  k.zoom=zEnd*Math.pow(k.zoomA/zEnd,e);
+  k.tutup=k.zoom>=zc;
+  B.kosong=smooth(clamp((k.zoom-0.70)/0.25,0,1));             // teks halaman judul muncul lagi setelah kartu hilang
+  if(!k.kartuHabis){
+    const o=smooth(clamp((k.zoom-1.0)/0.3,0,1));               // kartu memudar saat halaman judul turun ke setinggi layar
+    try{ if(APP&&APP.ukurBuku) APP.ukurBuku(k.zoom/zEnd,o); }catch(err){}
+    if(o<=0){ k.kartuHabis=true; try{ if(APP&&APP.keluarSelesai) APP.keluarSelesai(); }catch(err){} }
+  }
+  if(!k.sampul&&k.kartuHabis&&t>=0.62){ k.sampul=true; B.tCover.start([0],480,easeSettle); }
+  const pose=poseHalaman(B,k.zoom,smooth(clamp((1-t)/0.43,0,1)));   // bidikan dilepas setelah kartu hilang
+  if(!k.rak&&NOW>=k.t0+k.d+150){ k.rak=true; kembaliKeRak(B); }    // sampul hampir tertutup: buku pulang
+  return pose;
+}
+function kembaliKeRak(B){
+  KELUAR.on=false; KELUAR.B=null;
+  document.body.classList.remove('opening','menyelam');
+  S.active=null;
+  toInactive(B);
+  if(B._pop){ B._pop=false;
+    setTimeout(()=>{ const el=tl.children[B.index]; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); },K.activeDuration+60); }
 }
 /* Kembali ke rak: the screen lifts away, the volume backs out, closes, and is shelved */
 function closeBab(){
@@ -1871,7 +1931,9 @@ function tick(now){
   ORB.x+=(ORB.tx-ORB.x)*k; ORB.y+=(ORB.ty-ORB.y)*k;
   CAMD+=(camDampTarget()-CAMD)*(S.anim==='intro'?1:Math.min(1,dt*5.5));
   applyCamera();
-  const sel=SELAM.on?majuSelam():null;
+  const selB=SELAM.on?SELAM.B:(KELUAR.on?KELUAR.B:null);
+  const sel=SELAM.on?majuSelam():(KELUAR.on?majuKeluar():null);
+  const tutupLayar=!!sel&&((SELAM.on&&SELAM.tutup)||(KELUAR.on&&KELUAR.tutup));
 
   wallFade.update();
   const wf=wallFade.v[0];
@@ -1902,7 +1964,7 @@ function tick(now){
       if(t<0.6) sh=Math.sin(t*44)*Math.exp(-t*5.5)*(REDUCED?0.03:0.085); else B.shakeT=0; }
     B.gWob.rotation.set(B.sWob.v[0],B.sWob.v[1]+sh,B.sWob.v[2]+sh*0.45);
     B.gWob.position.x=sh*0.14;
-    if(sel&&B===SELAM.B) B.gRoot.position.set(B.tActiveP.v[0],B.tActiveP.v[1]+sel[0],B.tActiveP.v[2]+sel[1]);
+    if(sel&&B===selB) B.gRoot.position.set(B.tActiveP.v[0],B.tActiveP.v[1]+sel[0],B.tActiveP.v[2]+sel[1]);
     else B.gRoot.position.set(B.tActiveP.v[0],B.tActiveP.v[1],B.tActiveP.v[2]);
     B.gRoot.rotation.set(B.tActiveR.v[0],B.tActiveR.v[1],B.tActiveR.v[2]);
     B.gScl.scale.setScalar(B.tScale.v[0]);
@@ -1934,7 +1996,7 @@ function tick(now){
   blurTw.i.update();blurTw.n.update();
 
   const act=S.anim!=='intro'&&S.anim!=='inactive';
-  if(sel&&SELAM.tutup){
+  if(tutupLayar){
     // halaman judul sudah menutupi layar: latar rak + blur tidak terlihat, jadi tidak digambar
     renderer.setRenderTarget(null);
     renderer.clear(true,true,false);
@@ -1992,7 +2054,7 @@ function snapBack(){
   const B=S.active;
   if(B){
     B.flipped=false; dragReset();
-    B.tCover.set([0]); B.tActiveP.set([...B.basePos]); B.tActiveR.set([...K.activeRot]);
+    B.tCover.set([0]); B.tActiveP.set([...B.basePos]); B.tActiveR.set([0,0,0]);
     B.tHover.set([...B.base]); B.tTilt.set(MOBILE?[B.restTilt,0,0]:[...B.rest]); B.tSeat.set([1]); B.tRefl.set([0.34]);
     B.sWob.v=[0,0,0]; B.sWob.vel=[0,0,0]; B.sWob.tgt=[0,0,0];
     setLayer(B,LAY_BG); B.gRoot.renderOrder=MOBILE?100-B.index:0;
@@ -2000,16 +2062,21 @@ function snapBack(){
   if(S.lifted&&S.lifted!==B) hoverOut(S.lifted);
   S.active=null; S.lifted=null; if(S.anim!=='intro') S.anim='inactive';
   if(SELAM.B) SELAM.B.kosong=0;
-  SELAM.on=false; SELAM.B=null; SELAM.tutup=false;
+  if(KELUAR.B) KELUAR.B.kosong=0;
+  SELAM.on=false; SELAM.B=null; SELAM.tutup=false; KELUAR.on=false; KELUAR.B=null; KELUAR.tutup=false;
   detailEl.classList.remove('on'); WASH.target=0; hintEl.classList.remove('on');
   document.body.classList.remove('reading','opening','menyelam');
   mDetails.textContent='Detail';
 }
-window.MN_RAK_RESET=function(){
+/* status, sampul, dan rel diperbarui dari aplikasi (progres, stempel baru); buku yang baru selesai ditandai _pop */
+function segar(){
   const before=BOOKS.map(b=>b.status+'|'+b.at+'|'+b.saran);
   syncStatus();
   books.forEach((B,i)=>{ if(before[i]!==BOOKS[i].status+'|'+BOOKS[i].at+'|'+BOOKS[i].saran){ repaint(B); if(BOOKS[i].status==='done'&&before[i].split('|')[0]!=='done') B._pop=true; } });
-  snapBack(); renderRail(); if(MOBILE) fillMbar(BOOKS[M.index]);
+  renderRail();
+}
+window.MN_RAK_RESET=function(){
+  segar(); snapBack(); if(MOBILE) fillMbar(BOOKS[M.index]);
   books.forEach((B,i)=>{ if(B._pop){ B._pop=false; setTimeout(()=>{ const el=tl.children[i]; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); },300); } });
 };
 window.MN_RAK_PAUSE=function(p){ PAUSED=!!p; if(!PAUSED&&!LOOP&&books.length){ LOOP=true; last=performance.now(); requestAnimationFrame(tick); } };

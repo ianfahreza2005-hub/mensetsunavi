@@ -274,13 +274,32 @@
   function gerakKurang() {
     return document.documentElement.classList.contains('gerak-kurang') || !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
   }
+  /* Transisi halaman (View Transitions). Lima jenis, lihat css/app.css bagian "Transisi halaman":
+     maju/mundur = isi bergeser, kerangka diam · pudar = antarhalaman bersidebar · buka = dari rak · tutup = ke rak ·
+     silang = layar tanpa kerangka (pembuka, simulasi). Hanya transform dan opacity, jadi dikerjakan GPU.
+     Isi lama ditahan tepat di posisi terakhirnya (termasuk bila halaman sudah digulir) lewat --vt-dx/--vt-dy,
+     sehingga tidak ada lompatan dan grup tidak perlu menganimasikan ukuran (animasi ukuran berjalan di thread utama). */
+  var vtKe = 0;
+  function isiUtama() { return view.hidden ? null : view.querySelector('.with-side > .screen, .screen.sim-split > .body'); }
   function denganGeser(arah, fn) {
-    if (arah && gerakKurang()) arah = 'pudar';   /* gerak dikurangi: tanpa geser, cukup pudar singkat */
-    if (!arah || !document.startViewTransition) return fn();
-    var h = document.documentElement; h.setAttribute('data-geser', arah);
-    var vt = document.startViewTransition(fn);
+    if (arah && gerakKurang()) arah = /^(maju|mundur|pudar)$/.test(arah) ? 'pudar' : 'silang';   /* gerak dikurangi: cukup pudar singkat */
+    if (!arah || !document.startViewTransition || document.hidden) return fn();
+    var h = document.documentElement, ke = ++vtKe, isi = /^(maju|mundur|pudar)$/.test(arah);
+    var lama = isi ? isiUtama() : null, rl = lama ? lama.getBoundingClientRect() : null;
+    var gelap = !view.hidden && document.body.classList.contains('sim');
+    h.setAttribute('data-geser', arah); h.classList.toggle('vt-isi', isi); h.classList.remove('vt-larut');
+    h.style.removeProperty('--vt-dx'); h.style.removeProperty('--vt-dy');
+    var vt = document.startViewTransition(function () {
+      fn();
+      if (!isi && (gelap || (!view.hidden && document.body.classList.contains('sim')))) h.classList.add('vt-larut');   /* layar gelap: larut silang */
+      var baru = rl && isiUtama(); if (!baru) return;
+      var rb = baru.getBoundingClientRect();
+      h.style.setProperty('--vt-dx', Math.round(rl.left - rb.left) + 'px'); h.style.setProperty('--vt-dy', Math.round(rl.top - rb.top) + 'px');
+    });
     vt.finished.then(selesai, selesai);
-    function selesai() { h.removeAttribute('data-geser'); }
+    if (vt.ready) vt.ready.catch(function () {});   /* transisi yang dilewati menolak janji ready: bukan galat */
+    /* klik cepat berturut-turut: transisi lama dilewati, jadi hanya transisi terakhir yang boleh membersihkan penanda */
+    function selesai() { if (ke !== vtKe) return; h.removeAttribute('data-geser'); h.classList.remove('vt-isi', 'vt-larut'); h.style.removeProperty('--vt-dx'); h.style.removeProperty('--vt-dy'); }
   }
   function scrTest(kind, i) {
     var S = ST.get(), isPre = kind === 'pre';
@@ -858,15 +877,26 @@
     else if (/^[a-dA-D]$/.test(k)) { el = view.querySelector('.soal .opt[data-l="' + k.toUpperCase() + '"]:not([disabled]), .sim-split .opt[data-l="' + k.toUpperCase() + '"]:not([disabled])'); if (el) { e.preventDefault(); el.click(); } }
   });
 
-  /* Pindah slide yang halus (View Transitions): antar-slide dalam satu bab, antar-soal pre/post-test, dan antar-langkah simulasi,
-     isi lama bergeser keluar dan isi baru masuk dari arah yang sesuai (maju → dari kanan, mundur → dari kiri).
-     Bilah atas, sidebar, dan bilah bawah diam. Peramban tanpa View Transitions atau dengan "kurangi gerak" langsung berganti. */
+  /* Jenis transisi tiap perpindahan alamat (dijalankan denganGeser):
+     - maju/mundur: antar-slide satu bab, antar-soal pre/post-test, antar-momen simulasi. Isi bergeser (maju → dari kanan),
+       bilah atas, sidebar, bilah bawah, dan foto adegan simulasi diam.
+     - pudar: antarhalaman bersidebar (bab lain, kuis, rapor, pengaturan, sumber belajar).
+     - buka (dari rak) / tutup (ke rak) / silang (pembuka, awal/akhir simulasi): seluruh layar memudar silang dengan sedikit kedalaman.
+     Peramban tanpa View Transitions langsung berganti (isi tetap muncul lewat animasi masuk biasa). */
   var hashLalu = location.hash;
   var KERANGKA = /^#\/(bab|kuis|pre|post|hal|atur|rapor)\b/;   /* layar ber-sidebar: antarhalaman memudar singkat */
   function arahGeser(a, b) {
     var ra = /^#\/(bab\/\d+|pre|post|sim)\/(\d+)/.exec(a || ''), rb = /^#\/(bab\/\d+|pre|post|sim)\/(\d+)/.exec(b || '');
     if (!ra || !rb || ra[1] !== rb[1] || ra[2] === rb[2]) return null;
+    if (ra[1] === 'sim' && Math.max(+ra[2], +rb[2]) > D.sim.length) return null;   /* layar hasil simulasi berbeda bentuk: pudar silang */
     return +rb[2] > +ra[2] ? 'maju' : 'mundur';
+  }
+  function jenisPindah(a, b) {
+    var g = arahGeser(a, b); if (g) return g;
+    if (KERANGKA.test(a) && KERANGKA.test(b)) return 'pudar';
+    if (/^#\/rak\b/.test(b)) return 'tutup';
+    if (/^#\/rak\b/.test(a)) return 'buka';
+    return a && b ? 'silang' : null;
   }
   /* gerak dikurangi bila pengguna memilihnya di Pengaturan ATAU perangkat meminta (prefers-reduced-motion); berubah langsung tanpa muat ulang */
   var mqGerak = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -874,7 +904,7 @@
   terapkanGerak();
   if (mqGerak && mqGerak.addEventListener) mqGerak.addEventListener('change', terapkanGerak);
   window.addEventListener('hashchange', function () {
-    var arah = arahGeser(hashLalu, location.hash) || (KERANGKA.test(hashLalu) && KERANGKA.test(location.hash) ? 'pudar' : null); hashLalu = location.hash;
+    var arah = jenisPindah(hashLalu, location.hash); hashLalu = location.hash;
     denganGeser(arah, route);
   });
   route();

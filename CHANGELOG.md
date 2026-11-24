@@ -24,6 +24,8 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 - Pintasan keyboard: ← → pindah slide, spasi memutar suara, 1–3 memilih tindakan di Simulasi.
 
 ### Diperbaiki
+- **Versi lama tersaji dari cache**: service worker kini memakai jaringan-dulu untuk kode aplikasi, memasang versi baru tanpa cache HTTP, memberi alamat berversi (`?v=<hash>`) pada berkas kode, dan menampilkan spanduk "Versi baru tersedia". Aplikasi tetap jalan offline.
+- Laptop pendek (mis. 1276×675): panel kanan kini muncul sejak 1240px (sebelumnya 1280px) dan sidebar lebih rapat sehingga muat di layar pendek.
 - Menu ☰: ikon membesar 180–230px (tak berukuran) kini 22px, dan menu menutup saat halaman berganti.
 - Bank Kosakata: spasi tidak bisa diketik di kolom cari (kata kunci dua kata mustahil dimasukkan).
 - Analisis suara: bicara terus tanpa diam tidak lagi dianggap hening (ambang relatif terhadap puncak suara).

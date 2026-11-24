@@ -1,6 +1,7 @@
 /* Mensetsu Navi 面接ナビ — gaya aplikasi (kerangka v2)
    Warna mengikuti Panduan Gaya v2: indigo 藍, washi, sakura, hanko. */
 :root {
+  --sbw: 272px;
   --ink: #16213E; --ink2: #4A5670; --pri: #2A4B8D; --priD: #1C3566; --priL: #E4EBF8;
   --ground: #F7F3EC; --card: #FFFFFF; --line: #E4DED2;
   --sakura: #E07A93; --sakuraL: #FCE8EE; --gold: #F2B84B; --hanko: #C0392B;
@@ -643,7 +644,7 @@ b, strong { font-weight: 800; }
 .rp-g .ix-ro, .rp-g .ix-ar { grid-column: 1 / -1; }
 .rp-jp { font-size: 20px; font-weight: 800; }
 .rp-g .ix-sp { width: 36px; height: 36px; } .rp-g .ix-sp svg { width: 18px; height: 18px; }
-@media (min-width: 1280px) {
+@media (min-width: 1240px) {
   .with-side.has-rp { grid-template-columns: 260px minmax(0, 1fr) 320px; max-width: 1480px; }
   .with-side.has-rp .inl-navi { display: none; }
   .rpanel { display: block; position: sticky; top: 0; height: 100vh; overflow: auto; padding: 20px 16px; border-left: 1px solid var(--line); background: #fff; }
@@ -702,7 +703,7 @@ b, strong { font-weight: 800; }
 .sd-pl { font-size: 11px; font-weight: 800; color: var(--c); padding: 10px 8px 2px; }
 
 @media (min-width: 1024px) {
-  .with-side { max-width: none; margin: 0; width: 100%; min-height: 100vh; grid-template-columns: 284px minmax(0, 1fr); grid-template-rows: 64px minmax(0, 1fr); align-items: start; }
+  .with-side { max-width: none; margin: 0; width: 100%; min-height: 100vh; grid-template-columns: var(--sbw) minmax(0, 1fr); grid-template-rows: 64px minmax(0, 1fr); align-items: start; }
   .with-side > .appbar { grid-column: 1 / -1; grid-row: 1; position: sticky; top: 0; z-index: 30; height: 64px; display: flex; align-items: center; gap: 14px; padding: 0 22px 0 0;
     background: rgba(255, 255, 255, .97); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
   .with-side > .side { grid-column: 1; grid-row: 2; top: 64px; height: calc(100vh - 64px); }
@@ -710,7 +711,7 @@ b, strong { font-weight: 800; }
   .with-side > .screen.wide, .with-side > .screen.fitur { max-width: 1040px; }
   .with-side .topbar { display: none; }
   .gt-row .gtog { display: none; }
-  .ab-brand { width: 284px; flex: none; padding-left: 22px; display: flex; flex-direction: column; line-height: 1.15; text-decoration: none; color: var(--ink); }
+  .ab-brand { width: var(--sbw); flex: none; padding-left: 22px; display: flex; flex-direction: column; line-height: 1.15; text-decoration: none; color: var(--ink); }
   .ab-brand b { font-size: 17px; letter-spacing: -.01em; } .ab-brand .jp { font-size: 11px; color: var(--ink2); }
   .ab-crumb { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
   .ab-crumb span { font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--c); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -724,8 +725,8 @@ b, strong { font-weight: 800; }
   .ab-user { flex: none; display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink); font-weight: 800; font-size: 14px; }
   .ab-av { width: 34px; height: 34px; border-radius: 50%; background: var(--sakura); color: #fff; display: grid; place-items: center; font-size: 15px; }
 }
-@media (min-width: 1280px) {
-  .with-side.has-rp { grid-template-columns: 284px minmax(0, 1fr) 320px; max-width: none; }
+@media (min-width: 1240px) {
+  .with-side.has-rp { grid-template-columns: var(--sbw) minmax(0, 1fr) 300px; max-width: none; }
   .with-side.has-rp > .rpanel { grid-column: 3; grid-row: 2; top: 64px; height: calc(100vh - 64px); }
 }
 @media (min-width: 1024px) and (max-width: 1179px) { .ab-prog { display: none; } .ab-nm { display: none; } }
@@ -736,4 +737,18 @@ b, strong { font-weight: 800; }
   .with-side .body { padding: 30px 44px 40px; }
   .with-side .slide-h { font-size: 34px; }
   .with-side .rpanel { font-size: 15px; }
+}
+
+/* spanduk pembaruan versi (sw.js menemukan versi baru) */
+.upd { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 70; display: flex; align-items: center; gap: 12px; background: var(--ink); color: #fff; padding: 8px 8px 8px 18px; border-radius: 18px; box-shadow: var(--sh); font-weight: 700; font-size: 14px; max-width: calc(100vw - 24px); }
+.upd .btn { min-height: 40px; padding: 6px 16px; font-size: 14px; }
+
+/* layar laptop pendek (≤ 820px): sidebar lebih rapat supaya lebih banyak item terlihat tanpa menggulir */
+@media (min-width: 1024px) and (max-height: 820px) {
+  .side { padding: 8px 10px 16px !important; }
+  .side .sd-l, .side .sd-bab { padding: 6px 10px; font-size: 13.5px; }
+  .sd-sec { padding: 10px 10px 2px; }
+  .sd-n { width: 24px; height: 24px; }
+  .sd-les a { padding: 3px 8px; font-size: 12.5px; }
+  .sd-pl { padding-top: 6px; }
 }

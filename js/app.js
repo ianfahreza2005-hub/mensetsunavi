@@ -643,6 +643,21 @@
 
   /* ------------------------------------------------------------ PWA */
   if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
-    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+    var punyaSW = !!navigator.serviceWorker.controller;   /* true bila halaman ini sudah dikendalikan versi sebelumnya */
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!punyaSW) { punyaSW = true; return; }   /* pemasangan pertama, bukan pembaruan */
+      if (document.getElementById('upd')) return;
+      var d = document.createElement('div'); d.id = 'upd'; d.className = 'upd'; d.setAttribute('role', 'status');
+      d.innerHTML = '<span>Versi baru tersedia.</span><button class="btn soft">Muat ulang</button>';
+      d.querySelector('button').addEventListener('click', function () { location.reload(); });
+      document.body.appendChild(d);
+    });
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').then(function (reg) {
+        /* cek pembaruan tiap tab kembali dibuka, dan tiap 30 menit selama terbuka */
+        document.addEventListener('visibilitychange', function () { if (!document.hidden) reg.update().catch(function () {}); });
+        setInterval(function () { reg.update().catch(function () {}); }, 30 * 60 * 1000);
+      }).catch(function () {});
+    });
   }
 })();

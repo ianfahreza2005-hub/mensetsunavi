@@ -53,6 +53,15 @@ Catatan keputusan yang sudah dikunci. Semua dokumen T1/T2 harus mengikuti ini.
 - Pola 波 (garis ombak) di permukaan gelap. Gerak halus (`js/gerak.js`): isi layar muncul bertahap, judul terisi warna, angka skor menghitung naik, sorot cahaya mengikuti kursor di kartu, riak saat tombol ditekan, Navi melayang. Semua mati bila "kurangi gerak" aktif.
 - Dokumen T2/storyboard dan canvas interface masih memakai warna v2; perbarui saat ekspor gambar berikutnya.
 
+## Khusus laptop & Mac (24 Nov)
+- Atas permintaan pemilik repo, semua tampilan HP, tablet, dan HP landscape dihapus sementara. Tata letak laptop
+  (bilah atas, sidebar, panel kanan) berlaku di semua lebar; `html { min-width: 1024px }`, dan `index.html` memakai
+  viewport `width=1280` sehingga HP menampilkan versi laptop yang diperkecil.
+- Uji tampilan cukup di laptop: 1276×675 (laptop Windows 150%) dan 1440×900.
+- Versi responsif terakhir (HP/tablet/landscape) ada di commit `64fc85a` (main, 24 Nov). Dibahas lagi setelah tampilan laptop rapi;
+  peserta LPK kebanyakan memakai HP, jadi ini perlu diputuskan sebelum uji coba ke peserta.
+- Pratinjau di panel kanan aplikasi Claude memuat aplikasi selebar 1280 px lalu memperkecilnya (`tools/pratinjau.py`).
+
 ## Pemilihan bab = rak buku 3D (24 Nov)
 - Referensi tim: ThreeUI "Ashen Press" (Meng To, Three.js r181). Diambil gerak & interaksinya, bukan gambarnya; isi, sampul, dan warna dibuat ulang.
 - Prototipe: https://claude.ai/artifact/HcEfFzfnaz414uPJ3Wus6A (sumber: rak-bab-mensetsu-navi.html); versi produk = rak.html di repo.

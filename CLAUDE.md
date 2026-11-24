@@ -37,7 +37,7 @@ python3 tools/build_sw.py            # WAJIB setiap kali ada file yang diubah/di
 node --check js/app.js js/interaktif.js
 ```
 
-Tidak ada build step, framework, atau npm. HTML/CSS/JS biasa (ES5-ish, `var`, `function`), supaya jalan di HP Android kelas bawah.
+Tidak ada build step, framework, atau npm. HTML/CSS/JS biasa (ES5-ish, `var`, `function`), supaya ringan di perangkat kelas bawah.
 
 ## Terbit
 
@@ -54,7 +54,8 @@ Kalau deploy gagal dengan "No artifacts named github-pages", itu gangguan GitHub
   (https://claude.ai/artifact/KN3BvfafLor1JHkSz8iR5y), supaya pemilik bisa mengecek di panel kanan tanpa membuka browser lain.
   Caranya: `python3 tools/pratinjau.py <folder-scratchpad>/pratinjau`, lalu publish `index.html` hasilnya dengan `files` dari
   `files.json` ke URL itu (dari sesi lain: baca dulu artifact-nya, lalu publish dengan `url`). Tidak perlu persetujuan.
-- **Sebelum commit:** jalankan `tools/build_sw.py`, cek sintaks, lalu uji di browser ukuran HP (390×844) dan laptop (1440×900).
+- **Sebelum commit:** jalankan `tools/build_sw.py`, cek sintaks, lalu uji di browser ukuran laptop 1276×675 dan 1440×900.
+  Sementara ini **khusus laptop & Mac**: tampilan HP/tablet dihapus (lihat `docs/KEPUTUSAN.md`), jangan menambah aturan HP dulu.
   Pastikan semua aktivitas slide tetap bisa diselesaikan dan tidak ada error di Console.
 - **Materi** hanya berubah dari masukan SME/dosen. Ubah naskahnya dulu (doc sumber → `tools/xml.json`), lalu `gen_data.py`.
   Jangan menulis ulang materi di `kursus.js`.

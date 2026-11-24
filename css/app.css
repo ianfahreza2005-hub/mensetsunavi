@@ -551,3 +551,11 @@ b, strong { font-weight: 800; }
 .sr { display: flex; flex-direction: column; gap: 10px; }
 .sr-teks { background: var(--ground); border-radius: 14px; padding: 8px 12px; } .sr-teks summary { font-weight: 800; cursor: pointer; min-height: 32px; display: flex; align-items: center; }
 .sr audio { width: 100%; }
+
+/* GLB-02: tombol Romaji/Arti global. Kelas no-ro / no-ar dipasang di <body>. */
+.gt-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.gtog { display: inline-flex; gap: 6px; }
+.gt { min-height: 32px; padding: 2px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: #fff; font-size: 12px; font-weight: 800; color: var(--ink2); }
+.gt.on { background: var(--cl, var(--ground)); border-color: var(--c, var(--pri)); color: var(--c, var(--pri)); }
+.no-ro .gro .r, .no-ro .gro .s, .no-ar .gro .a, .no-ar .gro .s { display: none; }
+.no-ro .gro.ro-only, .no-ro.no-ar .gro { display: none; }

@@ -14,11 +14,16 @@
     if (typeof S.bab !== 'object' || S.bab === null) S.bab = {};
   })();
 
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* mode privat */ } }
+  var ok = true;   /* false bila peramban menolak penyimpanan (mode privat/diblokir): data hanya bertahan sampai halaman ditutup */
+  try { localStorage.setItem(KEY + '-uji', '1'); localStorage.removeItem(KEY + '-uji'); } catch (e) { ok = false; }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { ok = false; } }
   function bab(n) { return S.bab[n] || (S.bab[n] = { seen: [], last: 0, best: 0, stamp: false }); }
 
   window.MN_STORE = {
     get: function () { return S; },
+    ok: function () { return ok; },
+    /* pengaturan (GLB-02, GLB-06): Romaji dan Arti menyala bawaan; kecepatan audio normal | pelan */
+    set: function () { var t = S.set = S.set || {}; if (t.ro === undefined) t.ro = true; if (t.ar === undefined) t.ar = true; if (!t.kec) t.kec = 'normal'; return t; },
     save: save,
     reset: function () { S = blank(); save(); },
     bab: bab,

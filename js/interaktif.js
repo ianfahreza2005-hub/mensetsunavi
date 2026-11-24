@@ -9,7 +9,20 @@
   var CJK = /[぀-ヿ一-鿿]/;
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  function md(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); }
+  /* GLB-02: pola 「日本語」 (romaji, "arti") dibungkus agar tombol Romaji/Arti bisa menyembunyikan bagiannya.
+     Bentuk: (romaji, "arti"[, catatan]) · (romaji. Arti tanpa kutip, dikenali dari kata awal bahasa Indonesia) · (romaji saja).
+     Saat keduanya menyala, teks identik dengan aslinya. */
+  var ARTI_AWAL = /^([\s\S]*?[.?!])\s+((?:Saya|Jika|Tidak|Kalau|Apa|Bolehkah|Nama|Mohon|Silakan|Terima|Maaf|Selamat|Boleh|Kamu|Permisi)\b[\s\S]*)$/;
+  function roWrap(h) {
+    return h.replace(/(」)(\s*)\(([A-Za-z…][^()]*)\)/g, function (m, k, sp, inner) {
+      var q = /^([\s\S]*?)([,.]?\s+)(?:&quot;|“)([\s\S]+?)(?:&quot;|”)([\s\S]*)$/.exec(inner);
+      if (q) return k + sp + '<span class="gro">(<span class="r">' + q[1] + '</span><span class="s">' + q[2] + '</span><span class="a">“' + q[3] + '”</span>' + q[4] + ')</span>';
+      var u = ARTI_AWAL.exec(inner);
+      if (u) return k + sp + '<span class="gro">(<span class="r">' + u[1] + '</span><span class="s"> </span><span class="a">' + u[2] + '</span>)</span>';
+      return k + sp + '<span class="gro ro-only">(<span class="r">' + inner + '</span>)</span>';
+    });
+  }
+  function md(s) { return roWrap(esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')); }
   function plain(s) { return String(s || '').replace(/\*\*/g, ''); }
   function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   function hdr(t, re) { for (var i = 0; i < t[0].length; i++) if (re.test(t[0][i])) return i; return -1; }
@@ -19,7 +32,7 @@
     var t = String(text || '').replace(/[「」]/g, '').replace(/[〇○]+/g, '').replace(/\(.*?\)|（.*?）/g, '').trim();
     if (!t || !window.speechSynthesis) return false;
     speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(t); u.lang = 'ja-JP'; u.rate = rate || 0.85;
+    var u = new SpeechSynthesisUtterance(t); u.lang = 'ja-JP'; u.rate = rate || (window.MN_STORE && MN_STORE.set().kec === 'pelan' ? 0.6 : 0.85);
     if (onend) { u.onend = onend; u.onerror = onend; }
     try { var v = speechSynthesis.getVoices().filter(function (x) { return /^ja/i.test(x.lang); })[0]; if (v) u.voice = v; } catch (e) { /* pakai suara bawaan */ }
     speechSynthesis.speak(u); return true;
@@ -492,5 +505,5 @@
     };
   }
 
-  window.MN_IX = { render: render, sayJa: sayJa, blocks: blocksFor, para: para };
+  window.MN_IX = { render: render, sayJa: sayJa, blocks: blocksFor, para: para, roWrap: roWrap };
 })();

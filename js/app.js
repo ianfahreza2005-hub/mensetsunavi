@@ -48,7 +48,7 @@
     curAudio = a;
     a.addEventListener('error', function () {
       if (curAudio !== a || !window.speechSynthesis || !text) return;
-      var u = new SpeechSynthesisUtterance(text.replace(/[「」]/g, '')); u.lang = 'id-ID'; u.rate = 1;
+      var u = new SpeechSynthesisUtterance(text.replace(/[「」]/g, '')); u.lang = 'id-ID'; u.rate = ST.set().kec === 'pelan' ? 0.8 : 1;
       speechSynthesis.speak(u);
     });
     a.play().catch(function () {});
@@ -113,11 +113,22 @@
     if (!s.visual) return '';
     return '<details class="visual-note"><summary><b>Rencana visual (storyboard)</b></summary>' + esc(s.visual) + '</details>';
   }
+  /* GLB-02: tombol Romaji dan Arti (bawaan menyala) berlaku di semua slide; kelasnya dipasang di <body> */
+  function setClasses() { var t = ST.set(); return (t.ro ? '' : ' no-ro') + (t.ar ? '' : ' no-ar'); }
+  function gtog() {
+    var t = ST.set();
+    return '<span class="gtog" role="group" aria-label="Tampilan Romaji dan Arti"><button class="gt' + (t.ro ? ' on' : '') + '" data-g="ro" aria-pressed="' + t.ro + '">Romaji</button>' +
+      '<button class="gt' + (t.ar ? ' on' : '') + '" data-g="ar" aria-pressed="' + t.ar + '">Arti</button></span>';
+  }
+  function setG(g, on) {
+    var t = ST.set(); t[g] = on; ST.save(); document.body.classList.toggle('no-' + g, !on);
+    view.querySelectorAll('.gt[data-g="' + g + '"]').forEach(function (x) { x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+  }
   function show(html, opts) {
     stopVoice();
     rakEl.hidden = true; if (window.MN_RAK) window.MN_RAK.hide();
     view.hidden = false;
-    document.body.className = (opts && opts.dark) ? 'sim' : '';
+    document.body.className = ((opts && opts.dark) ? 'sim' : '') + setClasses();
     view.innerHTML = html;
     window.scrollTo(0, 0);
     view.querySelectorAll('[data-menu]').forEach(function (b) { b.addEventListener('click', openMenu); });
@@ -222,13 +233,14 @@
         '<a class="btn full" href="#/kuis/' + n + '">' + (st.best ? 'Ulangi kuis' : 'Mulai kuis') + ic('next') + '</a>' + naviSay(code, 'Siap? Kalau belum mencapai 80, kamu bisa mengulang dengan soal yang berbeda.', 'pose_semangat') + '</div>';
     } else {
       var pj = /^P(\d)/.exec(s.pel || ''), lesson = pj ? 'Pelajaran ' + pj[1] + ' · ' + (b.lessons[pj[1] - 1] || '') : (s.pel || '');
-      inner = '<div class="body"><span class="chip">' + esc(lesson) + '</span><h2 class="slide-h">' + esc(s.title.replace(/^Aktivitas:\s*/, '')) + '</h2>' +
+      inner = '<div class="body"><div class="gt-row"><span class="chip">' + esc(lesson) + '</span>' + gtog() + '</div><h2 class="slide-h">' + esc(s.title.replace(/^Aktivitas:\s*/, '')) + '</h2>' +
         (/^Aktivitas/.test(s.title) ? '<span class="act-tag">Aktivitas</span>' : '') +
         '<div class="card' + (ix ? ' ix-slide' : '') + '">' + (ix ? ix.html : blocks(s.screen, code)) + '</div>' +
         naviSay(code, s.narasi, 'exp_senang') + devNote(s) + '</div>';
     }
     show('<div class="with-side" style="--c:' + b.col + ';--cl:' + b.colL + '">' + side(b, k) + '<div class="screen">' + topbar(sub, s.title, pct, b.col) + inner +
       bottombar(k > 0 ? root + (k - 1) : '#/rak', (k + 1) + ' / ' + b.slides.length, k < last ? root + (k + 1) : null, k === 0 ? 'Mulai ' + b.label : 'Lanjut', gate) + '</div></div>');
+    view.querySelectorAll('.gt').forEach(function (b) { b.addEventListener('click', function () { setG(b.dataset.g, !ST.set()[b.dataset.g]); }); });
     if (ix) ix.bind(view, function () {
       if (!ST.isSeen(n, code)) { ST.seen(n, code, k); toast('Bagus! Slide ini selesai.'); }
       var nx = view.querySelector('.bottombar .btn[aria-disabled]');
@@ -447,10 +459,23 @@
     var S = ST.get();
     show('<div class="screen">' + topbar('Pengaturan', 'Data dan mode uji', 1) + '<div class="body">' +
       '<label class="field">Nama panggilan<input id="nm" value="' + esc(S.name) + '" maxlength="20"></label>' +
+      '<div class="card"><b>Tampilan dan suara</b>' +
+      '<label class="switch-row" style="margin-top:10px"><span><b>Romaji</b><span class="mini">Cara baca huruf Latin di samping tulisan Jepang. Matikan untuk melatih membaca.</span></span><input type="checkbox" role="switch" class="switch" id="set-ro" ' + (ST.set().ro ? 'checked' : '') + '></label>' +
+      '<label class="switch-row" style="margin-top:10px"><span><b>Arti</b><span class="mini">Terjemahan bahasa Indonesia di samping tulisan Jepang.</span></span><input type="checkbox" role="switch" class="switch" id="set-ar" ' + (ST.set().ar ? 'checked' : '') + '></label>' +
+      '<div style="margin-top:12px"><b>Kecepatan suara</b><div class="kv-chips" style="margin-top:6px"><button class="kv-chip' + (ST.set().kec === 'normal' ? ' on' : '') + '" data-kec="normal" aria-pressed="' + (ST.set().kec === 'normal') + '">Normal</button><button class="kv-chip' + (ST.set().kec === 'pelan' ? ' on' : '') + '" data-kec="pelan" aria-pressed="' + (ST.set().kec === 'pelan') + '">Pelan</button></div></div></div>' +
       '<label class="card switch-row"><span><b>Mode uji tim</b><span class="mini">Buka semua bab dan evaluasi tanpa syarat, dan tampilkan catatan storyboard. Matikan sebelum dipakai peserta.</span></span><input type="checkbox" role="switch" class="switch" id="ua" ' + (S.unlockAll ? 'checked' : '') + '></label>' +
       '<div class="card"><b>Data tersimpan di perangkat ini saja.</b><p class="mini">Progres, jawaban, dan nilai disimpan di peramban HP/laptop ini dan tidak dikirim ke mana pun.</p><button class="btn ghost" id="rs">Hapus semua progres</button></div>' +
       '</div>' + bottombar('#/rak', '', null) + '</div>');
     document.getElementById('nm').addEventListener('change', function (e) { S.name = e.target.value.trim(); ST.save(); });
+    document.getElementById('set-ro').addEventListener('change', function (e) { setG('ro', e.target.checked); });
+    document.getElementById('set-ar').addEventListener('change', function (e) { setG('ar', e.target.checked); });
+    view.querySelectorAll('.kv-chip[data-kec]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        ST.set().kec = b.dataset.kec; ST.save();
+        view.querySelectorAll('.kv-chip[data-kec]').forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+        if (window.MN_IX) MN_IX.sayJa('よろしくお願いします。');
+      });
+    });
     document.getElementById('ua').addEventListener('change', function (e) { S.unlockAll = e.target.checked; ST.save(); toast(S.unlockAll ? 'Mode uji aktif.' : 'Mode uji dimatikan.'); });
     document.getElementById('rs').addEventListener('click', function () {
       var b = this; if (b.dataset.sure) { ST.reset(); toast('Progres dihapus.'); go('#/mulai'); } else { b.dataset.sure = 1; b.textContent = 'Ketuk sekali lagi untuk menghapus'; }
@@ -484,6 +509,7 @@
     view.hidden = true; view.innerHTML = ''; document.body.className = '';
     rakEl.hidden = false;
     if (window.MN_RAK) window.MN_RAK.show();
+    if (!ST.ok() && !window.__tanpaSimpan) { window.__tanpaSimpan = true; toast('Peramban menolak penyimpanan. Progresmu hanya bertahan sampai halaman ditutup.'); }
   }
   window.MN_APP = {
     toast: function (m) { toast(m); },

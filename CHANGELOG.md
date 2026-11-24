@@ -12,6 +12,12 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 - Pengaturan "Kurangi gerak" (mengikuti setelan perangkat bila tidak diaktifkan).
 
 ### Diubah
+- Aktivitas pilih jawaban (B5-10 Jujur Itu Nilai Plus, B5-12, B6-09 tahap B) dirapikan:
+  - satu situasi per tab, dengan tanda centang setelah selesai;
+  - pertanyaan tampil sebagai gelembung pewawancara berwarna bab (dengan tombol dengar);
+  - jawaban tampil sebagai kartu putih berhuruf A/B/C, dengan baris terpisah untuk Jepang, romaji, dan arti, jadi soal dan jawaban tidak lagi tercampur;
+  - umpan balik berikon dan otomatis tergulir ke layar;
+  - catatan penilaian di sel jawaban (mis. "terlalu singkat") baru muncul setelah dipilih.
 - Gerak di seluruh aplikasi mengikuti prinsip 60 fps: hanya transform/opacity yang beranimasi per frame. Meteran level suara, durasi rekaman, dan indikator Kepercayaan memakai scaleX; titik aktif pita berdenyut lewat pseudo-elemen; hover tombol/pilihan tidak lagi menganimasikan bayangan.
 - Kartu lipat membuka dan menutup halus (grid 0fr → 1fr), isinya memudar masuk.
 - Susun langkah (T11): langkah yang benar meluncur dari tempatnya ke slot (FLIP).

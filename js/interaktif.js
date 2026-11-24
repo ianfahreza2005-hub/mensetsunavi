@@ -9,18 +9,32 @@
   var CJK = /[぀-ヿ一-鿿]/;
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  function md(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); }
+  /* GLB-02: pola 「日本語」 (romaji, "arti") dibungkus agar tombol Romaji/Arti bisa menyembunyikan bagiannya.
+     Bentuk: (romaji, "arti"[, catatan]) · (romaji. Arti tanpa kutip, dikenali dari kata awal bahasa Indonesia) · (romaji saja).
+     Saat keduanya menyala, teks identik dengan aslinya. */
+  var ARTI_AWAL = /^([\s\S]*?[.?!])\s+((?:Saya|Jika|Tidak|Kalau|Apa|Bolehkah|Nama|Mohon|Silakan|Terima|Maaf|Selamat|Boleh|Kamu|Permisi)\b[\s\S]*)$/;
+  function roWrap(h) {
+    return h.replace(/(」)(\s*)\(([A-Za-z…][^()]*)\)/g, function (m, k, sp, inner) {
+      var q = /^([\s\S]*?)([,.]?\s+)(?:&quot;|“)([\s\S]+?)(?:&quot;|”)([\s\S]*)$/.exec(inner);
+      if (q) return k + sp + '<span class="gro">(<span class="r">' + q[1] + '</span><span class="s">' + q[2] + '</span><span class="a">“' + q[3] + '”</span>' + q[4] + ')</span>';
+      var u = ARTI_AWAL.exec(inner);
+      if (u) return k + sp + '<span class="gro">(<span class="r">' + u[1] + '</span><span class="s"> </span><span class="a">' + u[2] + '</span>)</span>';
+      return k + sp + '<span class="gro ro-only">(<span class="r">' + inner + '</span>)</span>';
+    });
+  }
+  function md(s) { return roWrap(esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')); }
   function plain(s) { return String(s || '').replace(/\*\*/g, ''); }
   function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   function hdr(t, re) { for (var i = 0; i < t[0].length; i++) if (re.test(t[0][i])) return i; return -1; }
 
   /* suara Jepang: rekaman bila kelak ada, sementara suara bawaan perangkat (ja-JP) */
-  function sayJa(text) {
+  function sayJa(text, rate, onend) {
     var t = String(text || '').replace(/[「」]/g, '').replace(/[〇○]+/g, '').replace(/\(.*?\)|（.*?）/g, '').trim();
     if (!t || !window.speechSynthesis) return false;
     speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(t); u.lang = 'ja-JP'; u.rate = 0.85;
-    var v = speechSynthesis.getVoices().filter(function (x) { return /^ja/i.test(x.lang); })[0]; if (v) u.voice = v;
+    var u = new SpeechSynthesisUtterance(t); u.lang = 'ja-JP'; u.rate = rate || (window.MN_STORE && MN_STORE.set().kec === 'pelan' ? 0.6 : 0.85);
+    if (onend) { u.onend = onend; u.onerror = onend; }
+    try { var v = speechSynthesis.getVoices().filter(function (x) { return /^ja/i.test(x.lang); })[0]; if (v) u.voice = v; } catch (e) { /* pakai suara bawaan */ }
     speechSynthesis.speak(u); return true;
   }
   var SPK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>';
@@ -48,7 +62,13 @@
       return '<aside class="callout ' + kind + '"><b class="ct">' + esc(m[1]) + '</b><p>' + md(cap(p.slice(m[0].length))) + '</p></aside>';
     }
     if ((m = /^Tips:\s*/.exec(p))) return '<aside class="callout tip"><b class="ct">Tips</b><p>' + md(cap(p.slice(m[0].length))) + '</p></aside>';
-    if ((m = /^(Kalimat kunci|Kata Mutiara):\s*/.exec(p))) return '<blockquote class="kunci">' + md(p.slice(m[0].length).replace(/\*\*/g, '').replace(/^"|"$/g, '')) + '</blockquote>';
+    if ((m = /^(Kalimat kunci|Kata Mutiara):\s*/.exec(p))) {
+      var kt = p.slice(m[0].length).replace(/\*\*/g, '').replace(/^"|"$/g, '');
+      /* GLB-07: Kata Mutiara = kartu bergambar Navi; ketuk untuk mendengar (app.js .km) */
+      if (m[1] === 'Kata Mutiara') return '<blockquote class="kunci km" role="button" tabindex="0" data-bab="' + esc((/^B(\d)/.exec(code) || [0, ''])[1]) + '" data-say="' + esc(kt) + '"><img class="km-navi" src="assets/navi/exp_senang.webp" alt="Navi">' +
+        '<span class="km-body"><span class="km-q">' + md(kt) + '</span><span class="km-say">' + SPK + 'Dengarkan Navi</span></span></blockquote>';
+      return '<blockquote class="kunci">' + md(kt) + '</blockquote>';
+    }
     if ((m = /^(Keterangan kecil|Keterangan|Catatan kecil|Catatan kosakata|Catatan):\s*/.exec(p))) return '<p class="note"><b>' + esc(m[1].replace(/ kecil$/, '')) + ':</b> ' + md(p.slice(m[0].length)) + '</p>';
     return '<p>' + md(p) + '</p>';
   }
@@ -267,6 +287,28 @@
     };
   };
 
+  /* T03: daftar langkah bernomor, tampil satu per satu (stepper) */
+  W.steps = function (items) {
+    var n = items.length;
+    return {
+      html: '<div class="ix-steps"><ol>' + items.map(function (b, i) {
+        return '<li' + (i ? ' hidden' : ' class="cur"') + '><span class="ix-sn">' + (i + 1) + '</span><span class="ix-st">' + md(b.li) + '</span></li>';
+      }).join('') + '</ol><div class="ix-sbar"><span class="ix-count" aria-live="polite"></span><button class="btn soft ix-more">Berikutnya</button></div></div>',
+      bind: function (el, done) {
+        var lis = el.querySelectorAll('li'), b = el.querySelector('.ix-more'), c = el.querySelector('.ix-count'), at = 0;
+        function upd() {
+          c.textContent = (at + 1) + ' / ' + n;
+          lis.forEach(function (li, i) { li.classList.toggle('cur', i === at); li.classList.toggle('past', i < at); });
+          if (at === n - 1) { b.hidden = true; c.textContent = n + ' / ' + n + ' · lengkap'; done(); }
+        }
+        b.addEventListener('click', function () {
+          if (at < n - 1) { at++; lis[at].hidden = false; lis[at].classList.add('ix-in'); upd(); try { lis[at].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { /* peramban lama */ } }
+        });
+        upd();
+      }
+    };
+  };
+
   /* T02: pemantik, pilih dulu lalu penjelasan terbuka */
   W.choice = function (opts) {
     return {
@@ -410,6 +452,10 @@
         if (hdr(t, /cara baca|romaji/i) >= 0 && t.slice(1).some(function (r) { return r.some(function (c) { return CJK.test(c); }); })) return add(W.phrase(t));
         if (tpl === 'T04') return add(W.reveal(t));
         if (tpl === 'T02' && t[0].length >= 3) { parts.push(staticTable(t)); choiceAt = parts.length; return; }
+        if (tpl === 'T16' && /^blok$/i.test(t[0][0]) && window.MN_JIKO) {
+          var jw = window.MN_JIKO.widget({ sayJa: sayJa, spk: SPK, md: md, esc: esc });
+          if (jw) return add(jw);
+        }
         if (/^T0[3678]$|^T16$/.test(tpl)) {
           var lc = [0]; if (t[0].length >= 4 && t.slice(1).every(function (r) { return String(r[1]).length < 40; })) lc = [0, 1];
           if (/pertanyaan/i.test(t[0][1]) && /^no$/i.test(t[0][0])) lc = [1];
@@ -418,6 +464,8 @@
         return parts.push(staticTable(t));
       }
       if (g.li) {
+        /* B4-15, B5-13: daftar langkah storyboard (Persiapan, Lapis 1–3) tidak ditampilkan; widget lisan menggantikannya */
+        if (tpl === 'T15' && window.MN_LISAN && window.MN_LISAN.KONF[code]) return;
         var lab = tpl === 'T02' && labeledCards(g.li);
         if (lab) { parts.push(staticLi(g.li)); choiceAt = parts.length; choiceLabels = lab.map(function (c) { return c.label.replace(/\s*\(.*\)$/, ''); }); return; }
         if (tpl === 'T02' && g.li.length >= 2 && g.li.length <= 5 && g.li.every(function (b) { return (b.lvl || 0) === 0; })) {
@@ -426,6 +474,7 @@
         }
         var cards = /^T0[3567]$|^T15$/.test(tpl) ? labeledCards(g.li) : null;
         if (cards) return add(W.open(cards));
+        if (tpl === 'T03' && g.li.length >= 3 && g.li.every(function (b) { return (b.lvl || 0) === 0 && b.num; })) return add(W.steps(g.li));
         return parts.push(staticLi(g.li));
       }
       /* paragraf */
@@ -442,7 +491,10 @@
       var w = W.choice(cand); var id = ws.length; ws.push(w);
       parts.push('<div class="ix" data-w="' + id + '">' + w.html + '</div>');
     }
-    if (tpl === 'T15') add(W.record());
+    if (tpl === 'T15') {
+      var lw = window.MN_LISAN && window.MN_LISAN.KONF[code] ? window.MN_LISAN.widget(code, { sayJa: sayJa, spk: SPK, esc: esc, toast: function (m) { if (window.MN_APP && window.MN_APP.toast) window.MN_APP.toast(m); } }) : null;
+      add(lw || W.record());
+    }
     if (tpl === 'T09' && !ws.length) return null;
     if (/Kepercayaan/.test((s.screen[0] || {}).p || '')) parts.unshift('<div class="ix-trust" aria-label="Indikator kepercayaan"><span>信頼 Kepercayaan</span><b><i style="width:50%"></i></b></div>');
     if (!ws.length) return null;
@@ -459,5 +511,5 @@
     };
   }
 
-  window.MN_IX = { render: render, sayJa: sayJa, blocks: blocksFor, para: para };
+  window.MN_IX = { render: render, sayJa: sayJa, blocks: blocksFor, para: para, roWrap: roWrap };
 })();

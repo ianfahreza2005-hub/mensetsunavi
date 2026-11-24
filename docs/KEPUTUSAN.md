@@ -60,7 +60,7 @@ Catatan keputusan yang sudah dikunci. Semua dokumen T1/T2 harus mengikuti ini.
 - Template interaktif (v0.3, 54 slide): kartu buka T03/T06/T08/T16; kartu ungkapan + suara Jepang + tombol Romaji/Arti T05/T15; tabel bertahap T04; pemantik pilih-dulu T02; kelompokkan T10; kasus bercabang + indikator Kepercayaan dan pilih jawaban terbaik T13; urutkan + lengkapi ungkapan T11; penggeser ojigi T09; cocokkan kartu T12; rekam suara + daftar periksa T15. Syarat selesai per slide: Lanjut aktif setelah aktivitas tuntas (mode uji melewati).
 - Tampilan v0.4: arahan storyboard disembunyikan/ditulis ulang (js/data/tampilan.js); kotak Tahukah kamu/Hindari/Tips/Kalimat kunci bergaya; kode slide & treatment hanya di Mode uji; sampul bab berisi capaian + jalur pelajaran; pembuka dua kolom di laptop; pengantar Simulasi baru.
 - Suara: tombol Dengarkan memutar assets/audio/narasi/<KODE>.mp3 bila ada, jika belum pakai suara bawaan peramban; ungkapan Jepang memakai suara ja-JP perangkat sampai rekaman ada.
-- Berikutnya: video T07/T08, T14 Dengar & Tebak, gambar panel komik T13, analisis otomatis Lapis 1 T15, T16 penyusun jikoshoukai berisian; fitur global (kartu hafalan, latihan pertanyaan acak); aset audio/video.
+- Berikutnya: video T07/T08, T14 Dengar & Tebak, gambar panel komik T13, analisis otomatis Lapis 1 T15; fitur global (latihan pertanyaan acak GLB-04); aset audio/video.
 
 ## Pola penyajian LMS
 - Kursus → Modul → Pelajaran (3–5 per bab) → Slide berkode → Layer/kartu; prasyarat, syarat selesai, progres, remedial, stempel/Kata Mutiara/rapor.
@@ -107,6 +107,14 @@ Catatan keputusan yang sudah dikunci. Semua dokumen T1/T2 harus mengikuti ini.
 - Web: uji coba internal tim di HP, kumpulkan temuan.
 - Rak bab: masukan tim atas gerak; Beranda di canvas (03 & D1) diganti rak, storyboard GLB-01 disesuaikan.
 - Interface: ganti maskot sementara di canvas dengan Navi; masukan tim atas v2; lalu ekspor gambar ke dokumen T2.
+- Konfirmasi SME tambahan (T16): cara baca 十八歳 juuhassai, 十九歳 juukyuusai, dan 四年 yonen di penyusun B4-14 (二十歳 hatachi sudah ada di glosarium Bab 4).
+- Bank Kosakata (GLB-03): glosarium naskah = 77 baris / **68 istilah unik** (spesifikasi menyebut ±75). Naskah belum punya kategori (ditetapkan di `tools/gen_data.py`; kategori "angka dan usia" baru berisi 歳) dan contoh kalimat per istilah (belum tampil). Rekaman audio istilah belum ada (memakai suara bawaan perangkat).
+- Latihan Pertanyaan Acak (GLB-04): ambang analisis Lapis 1 di `js/suara.js` adalah perkiraan sementara (naskah hanya menetapkan target durasi 10–30 dtk, B5-13): jeda = diam ≥ 1 dtk (panjang ≥ 2,5 dtk), volume pelan/cukup/keras dari level mikrofon, "mulai lambat" > 3 dtk. Perlu dikonfirmasi SME/dosen dan dikalibrasi di beberapa HP. Contoh jawaban soal varian/serupa memakai jawaban soal inti; soal 23 (mesin berhenti) memakai contoh B2-10 (prinsip 報告) karena naskah belum punya contoh khusus.
+- Latihan lisan (B4-15, B5-13): **daftar periksa 7 butir B4-15 adalah DRAF** (naskah hanya menyebut "7 butir"; prototipe penilaian lisan tidak ada di repo), diturunkan dari lima blok dan daftar "Hindari" Bab 4. Lembar rubrik (.txt) dan kriteria skor instruktur 1–4 juga draf. Ambang Lapis 1 sama dengan GLB-04 (perkiraan). Perlu dicek SME/dosen.
+- Tips & Trik (GLB-05): spesifikasi menyebut "alasan singkat" di tiap kartu, tetapi tabel naskah hanya berisi Tahap, No, Tips, Acuan. Kartu kini menampilkan tips + judul slide acuan + tombol Pelajari. Bila tim menambah kolom "Alasan" di dokumen Fitur Global, ekspor ulang lalu jalankan `gen_data.py`; alasan tampil otomatis.
+- GLB-07 / Mode Latihan: tombol Petunjuk Navi menunjuk "slide terkait" yang **dihitung otomatis** (naskah hanya menyebut "menunjuk slide terkait", tanpa daftar). Aktivitas: B1-10→B1-09, B2-08→B2-07, B3-12→B3-03, B4-11→B4-10, B4-13→B4-12, B6-09→B6-03; pemantik (B3-02) menunjuk slide berikutnya. Tim boleh menggantinya bila ada acuan yang lebih tepat. Di Mode Latihan simulasi petunjuk memakai kolom Acuan tiap momen.
+- GLB-02: pembungkus romaji/arti inline mengenali arti tanpa tanda kutip lewat kata awal bahasa Indonesia (Saya, Jika, Tidak, Kalau, …); bila kelak ada pola penulisan baru di naskah, cek tampilannya dengan tombol Romaji/Arti dimatikan.
+- Kata Mutiara: kartu terbuka per stempel bab (spesifikasi: "enam kartu terbuka seiring stempel"); suara Navi memakai suara bawaan peramban sampai ada rekaman.
 - Konfirmasi SME (13 butir di doc storyboard): sudut ojigi, 参りました vs 来ました, ucapan keluar ruangan, ungkapan simulasi, bank 25 pertanyaan GLB-04; dosen: bobot 50:50.
 - Default Claude: Bab 1–6 bebas setelah pre-test; slide dalam bab berurutan.
 - Diisi tim: pembagian tugas anggota di T1; di storyboard: tanggal terbit, SME, klien, PM, DI, nota validasi.

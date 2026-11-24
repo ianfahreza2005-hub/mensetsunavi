@@ -15,6 +15,7 @@
   var D = window.MN_DATA, ST = window.MN_STORE;
   var view = document.getElementById('view');
   var rakEl = document.getElementById('rak');
+  var saranEl = document.getElementById('navi-saran');
 
   /* ------------------------------------------------------------ util */
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -42,17 +43,20 @@
   /* ------------------------------------------------------------ suara: rekaman bila ada, jika tidak suara bawaan peramban */
   var curAudio = null;
   function stopVoice() { if (curAudio) { curAudio.pause(); curAudio = null; } if (window.speechSynthesis) speechSynthesis.cancel(); }
-  function speak(code, text) {
+  function speak(code, text, dir) {
     stopVoice();
-    var a = new Audio('assets/audio/narasi/' + code + '.mp3');
+    var a = new Audio('assets/audio/' + (dir || 'narasi') + '/' + code + '.mp3');
     curAudio = a;
     a.addEventListener('error', function () {
       if (curAudio !== a || !window.speechSynthesis || !text) return;
-      var u = new SpeechSynthesisUtterance(text.replace(/[「」]/g, '')); u.lang = 'id-ID'; u.rate = 1;
+      var u = new SpeechSynthesisUtterance(text.replace(/[「」]/g, '')); u.lang = 'id-ID'; u.rate = ST.set().kec === 'pelan' ? 0.8 : 1;
       speechSynthesis.speak(u);
     });
     a.play().catch(function () {});
   }
+
+  /* GLB-07: Kata Mutiara diucapkan Navi (assets/audio/mutiara/B<bab>.mp3 bila ada, jika belum suara bawaan peramban) */
+  function sayMutiara(bab, teks) { speak('B' + bab, teks, 'mutiara'); }
 
   /* ------------------------------------------------------------ bagian bersama */
   function blocks(list, code) {
@@ -75,10 +79,16 @@
     flush();
     return html;
   }
-  function naviSay(code, text, pose) {
+  /* "B3-04" -> { href, judul, bab, k } untuk tautan Pelajari / Petunjuk; null bila kode tidak dikenal */
+  function slideLink(kode) {
+    var sl = D.slides[kode]; if (!sl) return null;
+    for (var n = 0; n < D.bab.length; n++) { var k = D.bab[n].slides.indexOf(kode); if (k >= 0) return { href: '#/bab/' + D.bab[n].no + '/' + k, judul: sl.title.replace(/^Aktivitas:\s*/, ''), bab: D.bab[n].no, k: k }; }
+    return /^GLB/.test(kode) ? { href: '#/hal/' + kode, judul: sl.title, bab: 0, k: -1 } : null;
+  }
+  function naviSay(code, text, pose, nobtn) {
     if (!text || /^tidak ada/i.test(text)) return '';
     return '<div class="navi-say"><img src="' + navi(pose || 'exp_senang') + '" alt="Navi"><div class="bubble">' + esc(text) +
-      '<div><button class="btn soft" data-speak="' + esc(code) + '">' + ic('speaker') + 'Dengarkan</button></div></div></div>';
+      (nobtn ? '' : '<div><button class="btn soft" data-speak="' + esc(code) + '">' + ic('speaker') + 'Dengarkan</button></div>') + '</div></div>';
   }
   function bindSpeak(root) {
     root.querySelectorAll('[data-speak]').forEach(function (b) {
@@ -107,11 +117,23 @@
     if (!s.visual) return '';
     return '<details class="visual-note"><summary><b>Rencana visual (storyboard)</b></summary>' + esc(s.visual) + '</details>';
   }
+  /* GLB-02: tombol Romaji dan Arti (bawaan menyala) berlaku di semua slide; kelasnya dipasang di <body> */
+  function setClasses() { var t = ST.set(); return (t.ro ? '' : ' no-ro') + (t.ar ? '' : ' no-ar'); }
+  function gtog() {
+    var t = ST.set();
+    return '<span class="gtog" role="group" aria-label="Tampilan Romaji dan Arti"><button class="gt' + (t.ro ? ' on' : '') + '" data-g="ro" aria-pressed="' + t.ro + '">Romaji</button>' +
+      '<button class="gt' + (t.ar ? ' on' : '') + '" data-g="ar" aria-pressed="' + t.ar + '">Arti</button></span>';
+  }
+  function setG(g, on) {
+    var t = ST.set(); t[g] = on; ST.save(); document.body.classList.toggle('no-' + g, !on);
+    view.querySelectorAll('.gt[data-g="' + g + '"]').forEach(function (x) { x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+  }
   function show(html, opts) {
     stopVoice();
     rakEl.hidden = true; if (window.MN_RAK) window.MN_RAK.hide();
+    saranEl.hidden = true;
     view.hidden = false;
-    document.body.className = (opts && opts.dark) ? 'sim' : '';
+    document.body.className = ((opts && opts.dark) ? 'sim' : '') + setClasses();
     view.innerHTML = html;
     window.scrollTo(0, 0);
     view.querySelectorAll('[data-menu]').forEach(function (b) { b.addEventListener('click', openMenu); });
@@ -216,13 +238,24 @@
         '<a class="btn full" href="#/kuis/' + n + '">' + (st.best ? 'Ulangi kuis' : 'Mulai kuis') + ic('next') + '</a>' + naviSay(code, 'Siap? Kalau belum mencapai 80, kamu bisa mengulang dengan soal yang berbeda.', 'pose_semangat') + '</div>';
     } else {
       var pj = /^P(\d)/.exec(s.pel || ''), lesson = pj ? 'Pelajaran ' + pj[1] + ' · ' + (b.lessons[pj[1] - 1] || '') : (s.pel || '');
-      inner = '<div class="body"><span class="chip">' + esc(lesson) + '</span><h2 class="slide-h">' + esc(s.title.replace(/^Aktivitas:\s*/, '')) + '</h2>' +
+      inner = '<div class="body"><div class="gt-row"><span class="chip">' + esc(lesson) + '</span>' + gtog() + '</div><h2 class="slide-h">' + esc(s.title.replace(/^Aktivitas:\s*/, '')) + '</h2>' +
         (/^Aktivitas/.test(s.title) ? '<span class="act-tag">Aktivitas</span>' : '') +
         '<div class="card' + (ix ? ' ix-slide' : '') + '">' + (ix ? ix.html : blocks(s.screen, code)) + '</div>' +
+        (ix && /^(T08|T10|T11|T12)$/.test(s.tpl) && window.MN_NAVI ? '<div class="navi-hint"><button class="btn soft" id="navi-hint">' + ic('bulb') + 'Petunjuk Navi</button><div id="navi-hint-box"></div></div>' : '') +
         naviSay(code, s.narasi, 'exp_senang') + devNote(s) + '</div>';
     }
     show('<div class="with-side" style="--c:' + b.col + ';--cl:' + b.colL + '">' + side(b, k) + '<div class="screen">' + topbar(sub, s.title, pct, b.col) + inner +
       bottombar(k > 0 ? root + (k - 1) : '#/rak', (k + 1) + ' / ' + b.slides.length, k < last ? root + (k + 1) : null, k === 0 ? 'Mulai ' + b.label : 'Lanjut', gate) + '</div></div>');
+    var nh = document.getElementById('navi-hint');   /* Petunjuk Navi: hanya di aktivitas slide materi (tidak di kuis, pre/post-test, Simulasi resmi) */
+    if (nh) nh.addEventListener('click', function () {
+      document.getElementById('navi-hint-box').innerHTML = '<div class="navi-say"><img src="' + navi('exp_berpikir') + '" alt="Navi"><div class="bubble">' + MN_NAVI.hint(code, b, k, slideLink, esc) + '</div></div>';
+      nh.hidden = true;
+    });
+    view.querySelectorAll('.km').forEach(function (c) {
+      function putar() { sayMutiara(c.dataset.bab, c.dataset.say); }
+      c.addEventListener('click', putar); c.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); putar(); } });
+    });
+    view.querySelectorAll('.gt').forEach(function (b) { b.addEventListener('click', function () { setG(b.dataset.g, !ST.set()[b.dataset.g]); }); });
     if (ix) ix.bind(view, function () {
       if (!ST.isSeen(n, code)) { ST.seen(n, code, k); toast('Bagus! Slide ini selesai.'); }
       var nx = view.querySelector('.bottombar .btn[aria-disabled]');
@@ -250,6 +283,7 @@
           var j = b.slides.indexOf(c); var s = D.slides[c];
           return j < 0 ? '' : '<div><a href="#/bab/' + n + '/' + j + '">' + esc(c + ' · ' + s.title) + '</a></div>';
         }).join('') + '</div></div>' : '') +
+        (score >= 80 ? naviSay('', 'Hebat, kamu lulus ' + b.label + '! Stempelnya sudah di rak.', 'pose_jempol', true) : naviSay('', 'Belum lulus, tidak apa-apa. Baca lagi slide di atas, lalu coba kuis dengan soal yang berbeda. Kamu pasti bisa!', 'pose_semangat', true)) +
         '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button class="btn ghost" id="ulang">Ulangi kuis</button><a class="btn" href="#/rak">Ke rak bab' + ic('next') + '</a></div>' +
         (stamp && ST.stamps() === 6 ? '<p class="chip">Enam stempel lengkap — Simulasi terbuka!</p>' : '') + '</div></div>');
     }
@@ -280,44 +314,78 @@
     if (ST.status(7) === 'locked') { toast('Simulasi terbuka setelah enam stempel bab.'); return go('#/rak'); }
     var M = D.sim;
     if (i === 0 || !sim) {
-      sim = { pts: [], pick: [], trust: 50, order: M.map(function (m) { return shuffle([0, 1, 2]); }) };
+      sim = { mode: 'resmi', pts: [], pick: [], trust: 50, order: M.map(function (m) { return shuffle([0, 1, 2]); }) };
       if (i !== 0) return go('#/sim/0');
       var s0 = D.slides['SIM-00'];
-      return show('<div class="screen"><div class="sim-scene sim-intro" style="background-image:url(assets/bg/ruang_wawancara.webp)">' +
+      show('<div class="screen"><div class="sim-scene sim-intro" style="background-image:url(assets/bg/ruang_wawancara.webp)">' +
         '<div class="sim-card"><span class="jp">さくら食品 · 人事部</span><b class="jp">田中さん</b><span>Tanaka-san, pewawancara</span></div></div><div class="body">' +
         '<span class="chip" style="background:#2C4479;color:#fff">Bagian dari nilai akhir (50%)</span><h2 class="slide-h">Hari wawancaramu tiba</h2>' +
         '<p class="sim-lead">Kamu melamar ke <span class="jp">さくら食品</span> (Sakura Shokuhin), pabrik makanan. Dari depan gedung sampai keluar ruangan, setiap keputusanmu dinilai.</p>' +
         '<div class="rules">' +
         '<div><b>13</b><span>momen keputusan</span></div><div><b>20<small> dtk</small></b><span>per momen; habis = 0 poin</span></div>' +
         '<div><b>3</b><span>pilihan tindakan</span></div><div><b class="jp">信頼度</b><span>Trust Meter mulai 50</span></div></div>' +
-        '<p class="mini sim-note">Ucapan Tanaka-san tampil dalam bahasa Jepang dan romaji, tanpa arti, seperti wawancara sungguhan.</p></div>' +
+        '<p class="mini sim-note">Ucapan Tanaka-san tampil dalam bahasa Jepang dan romaji, tanpa arti, seperti wawancara sungguhan. Tekan tombol suara untuk mendengarnya.</p>' +
+        '<a class="btn ghost full sim-lat" href="#/sim/1">Coba Mode Latihan dulu</a><p class="mini sim-note">Mode Latihan: tanpa timer dan tanpa nilai, dengan Petunjuk Navi. Tidak memengaruhi nilai akhir.</p></div>' +
         bottombar('#/rak', '', '#/sim/1', 'Mulai simulasi') + '</div>', { dark: true });
+      view.querySelector('.sim-lat').addEventListener('click', function () { sim.mode = 'latihan'; });
+      return;
     }
     if (i > M.length) return scrSimEnd(i);
+    var lat = sim.mode === 'latihan';
     var m = M[i - 1], picked = sim.pick[i - 1];
     var bg = i <= 2 ? 'kantor_eksterior' : i <= 5 ? 'koridor' : 'ruang_wawancara';
     var jpLine = (m.sit.match(/「[^」]+」/) || [''])[0];
+    function sayJa(t) { return window.MN_IX ? MN_IX.sayJa(t) : false; }
+    function acuanLinks(txt) {
+      return (String(txt).match(/B\d-\d\d/g) || []).map(function (c) { var l = slideLink(c); return l ? '<a href="' + l.href + '">' + esc(l.judul) + '</a>' : ''; }).filter(Boolean).join(' · ');
+    }
     show('<div class="screen"><div class="sim-scene" style="background-image:url(assets/bg/' + bg + '.webp)">' +
-      '<div class="sim-hud"><span class="pill">Momen ' + i + '/13</span><span class="pill"><span class="jp">信頼度</span><span class="trust"><i style="width:' + sim.trust + '%"></i></span>' + sim.trust + '</span>' +
-      '<span class="timer" id="tm" style="--p:100%"><span id="tmn">20</span></span></div>' +
-      (jpLine ? '<div class="speech">' + esc(jpLine) + '</div>' : '') + '</div>' +
-      '<div class="body"><p class="q-stem">' + esc(m.sit) + '</p><div class="opts">' +
+      '<div class="sim-hud"><span class="pill">' + (lat ? 'Latihan ' : '') + 'Momen ' + i + '/13</span><span class="pill"><span class="jp">信頼度</span><span class="trust"><i style="width:' + sim.trust + '%"></i></span>' + sim.trust + '</span>' +
+      (lat ? '' : '<span class="timer" id="tm" style="--p:100%"><span id="tmn">20</span></span>') + '</div>' +
+      (jpLine ? '<div class="speech"><span>' + esc(jpLine) + '</span><button class="ix-sp sim-say" aria-label="Dengarkan ucapan Tanaka-san">' + ic('speaker') + '</button></div>' : '') + '</div>' +
+      '<div class="body"><p class="q-stem">' + esc(m.sit) + '</p>' +
+      (lat ? '<button class="btn soft" id="hint" style="align-self:flex-start">Petunjuk Navi</button><div id="hintbox"></div>' : '') + '<div class="opts">' +
       sim.order[i - 1].map(function (o, k) {
         var L = 'ABC'[k], cls = picked !== undefined ? (picked === o ? ' sel' : '') : '';
         return '<button class="opt' + cls + '" data-o="' + o + '"' + (picked !== undefined ? ' disabled' : '') + '><span class="L">' + L + '</span><span>' + esc(m.opts[o][0]) + '</span></button>';
       }).join('') + '</div><div id="react"></div></div></div>', { dark: true });
+    function lanjut() { go('#/sim/' + (i + 1)); }
+    function reaksi(o, pts) { return '<div class="reaction">' + (o == null ? 'Waktu habis…' : pts === 10 ? '田中さん mengangguk.' : pts === 5 ? '田中さん mencatat dengan ragu.' : '田中さん mengernyit.') + '</div>'; }
+    function umpanLatihan(pts) {
+      var cls = pts === 10 ? 'ok' : pts === 5 ? 'mid' : 'no';
+      return reaksi(0, pts) + '<div class="card" style="color:var(--ink);margin-top:10px"><span class="tag ' + cls + '">' + pts + ' poin (tidak dicatat)</span> <b>Tindakan terbaik:</b> ' + esc(m.opts[0][0]) +
+        '<p class="mini">Pelajari: ' + (acuanLinks(m.acuan) || esc(m.acuan)) + '</p><a class="btn full" href="#/sim/' + (i + 1) + '">' + (i >= M.length ? 'Selesai latihan' : 'Lanjut') + '</a></div>';
+    }
     function choose(o) {
       stopTimer();
       var pts = o == null ? 0 : m.opts[o][1];
       sim.pick[i - 1] = o == null ? -1 : o; sim.pts[i - 1] = pts;
       sim.trust = Math.max(0, Math.min(100, sim.trust + (pts === 10 ? 10 : pts === 0 ? -10 : 0)));
       view.querySelectorAll('.opt').forEach(function (b) { b.disabled = true; if (+b.dataset.o === o) b.classList.add('sel'); });
-      document.getElementById('react').innerHTML = '<div class="reaction">' + (o == null ? 'Waktu habis…' : pts === 10 ? '田中さん mengangguk.' : pts === 5 ? '田中さん mencatat dengan ragu.' : '田中さん mengernyit.') + '</div>';
-      simNext = setTimeout(function () { go('#/sim/' + (i + 1)); }, 1300);
+      var rx = document.getElementById('react'), hb = document.getElementById('hint'); if (hb) hb.hidden = true;
+      if (lat) { rx.innerHTML = umpanLatihan(pts); return; }
+      rx.innerHTML = reaksi(o, pts);
+      if (m.code === 'SIM-06' && window.MN_SIMREK) {   /* rekaman opsional, tidak dinilai */
+        var box = document.createElement('div'); box.style.marginTop = '12px'; rx.appendChild(box);
+        window.MN_SIMREK.mount(box, { esc: esc, ic: ic, toast: toast, lanjut: lanjut });
+        return;
+      }
+      simNext = setTimeout(lanjut, 1300);
+    }
+    var sb = view.querySelector('.sim-say'); if (sb) sb.addEventListener('click', function () { if (!sayJa(jpLine)) toast('Suara Jepang belum tersedia di perangkat ini.'); });
+    if (jpLine && picked === undefined) setTimeout(function () { if (document.getElementById('react')) sayJa(jpLine); }, 450);   /* suara pewawancara otomatis */
+    if (lat) {
+      var hint = document.getElementById('hint');
+      if (hint) hint.addEventListener('click', function () {
+        var l = acuanLinks(m.acuan);
+        document.getElementById('hintbox').innerHTML = '<div class="navi-say" style="color:var(--ink)"><img src="' + navi('exp_berpikir') + '" alt="Navi"><div class="bubble">Petunjuk: ' + (l ? 'coba buka lagi ' + l + '.' : 'buka lagi bab yang terkait di rak.') + '</div></div>';
+        hint.hidden = true;
+      });
+      if (picked !== undefined) document.getElementById('react').innerHTML = umpanLatihan(sim.pts[i - 1] || 0);
     }
     if (picked === undefined) {
       var t0 = Date.now(), T = 20000;
-      simTimer = setInterval(function () {
+      if (!lat) simTimer = setInterval(function () {
         var left = Math.max(0, T - (Date.now() - t0));
         var el = document.getElementById('tm'); if (!el) return stopTimer();
         el.style.setProperty('--p', (left / T * 100) + '%'); document.getElementById('tmn').textContent = Math.ceil(left / 1000);
@@ -326,7 +394,20 @@
       view.querySelectorAll('.opt').forEach(function (b) { b.addEventListener('click', function () { choose(+b.dataset.o); }); });
     }
   }
+  /* Mode Latihan: tidak ada nilai, tidak menulis S.sim, tidak membuka Post-test */
+  function scrSimLatEnd() {
+    var M = D.sim, tepat = sim.pts.filter(function (p) { return p === 10; }).length;
+    var rows = M.map(function (m, k) {
+      var p = sim.pts[k] || 0, cls = p === 10 ? 'ok' : p === 5 ? 'mid' : 'no';
+      return '<div style="flex-direction:column;align-items:flex-start"><span><b>' + esc(m.code) + '</b> <span class="tag ' + cls + '">' + (p === 10 ? 'tepat' : p === 5 ? 'kurang tepat' : 'perlu dipelajari') + '</span></span><span class="mini">Tindakan terbaik: ' + esc(m.opts[0][0]) + ' · Acuan ' + esc(m.acuan) + '</span></div>';
+    }).join('');
+    show('<div class="screen"><div class="body" style="color:var(--ink)"><div class="card" style="text-align:center"><span class="chip">Mode Latihan selesai</span>' +
+      '<p>Kamu memilih tindakan terbaik di <b>' + tepat + ' dari 13</b> momen.</p><p class="mini">Tidak ada nilai yang dicatat dan nilai akhirmu tidak berubah.</p></div>' +
+      '<div class="card"><b>Pembahasan 13 momen</b><div class="row-list" style="margin-top:10px">' + rows + '</div></div>' +
+      '<a class="btn full" href="#/sim/0">Kembali ke pengantar (mulai simulasi resmi)</a></div>' + bottombar('#/rak', '', null) + '</div>', { dark: true });
+  }
   function scrSimEnd(i) {
+    if (sim.mode === 'latihan') return scrSimLatEnd();
     var M = D.sim, tot = sim.pts.reduce(function (a, b) { return a + (b || 0); }, 0);
     var kom = 0, eti = 0;
     M.forEach(function (m, k) { if (KOM.indexOf(m.code) >= 0) kom += sim.pts[k] || 0; else eti += sim.pts[k] || 0; });
@@ -345,6 +426,16 @@
   }
 
   /* ------------------------------------------------------------ rapor */
+  /* Profil Kesiapan Lisan di rapor (formatif, tidak masuk kelulusan): angka dari rekaman terakhir B4-15 dan B5-13 */
+  function profilLisan(S) {
+    var L = S.lisan; if (!L || (!L.jiko && !L.sim06 && !(L.jawab && L.jawab.length))) return '';
+    var baris = function (r) { return (r.durasi != null ? 'durasi ' + r.durasi + ' dtk · ' + r.jeda + ' jeda · volume ' + r.volume + ' · ' : '') + 'daftar periksa ' + r.cek + '/' + r.total; };
+    var out = [];
+    if (L.jiko) out.push('<div><b>Jikoshoukai (B4-15)</b><br>' + esc(baris(L.jiko)) + '</div>');
+    if (L.sim06) out.push('<div><b>Jikoshoukai di Simulasi (SIM-06)</b><br>' + esc(baris(Object.assign({ cek: 0, total: 0 }, L.sim06)).replace(/ · daftar periksa 0\/0$/, '')) + '</div>');
+    (L.jawab || []).forEach(function (r, i) { out.push('<div><b>Jawaban ' + (i + 1) + ' (B5-13)</b><br>' + esc(baris(r)) + '</div>'); });
+    return '<div class="card"><b>Profil Kesiapan Lisan</b><p class="mini">Formatif, tidak masuk batas lulus. Analisis otomatis berupa perkiraan.</p><div class="row-list" style="margin-top:8px">' + out.join('') + '</div></div>';
+  }
   function scrRapor() {
     var S = ST.get();
     if (!S.post || !S.sim) { toast('Rapor terbuka setelah Simulasi dan Post-test.'); return go('#/rak'); }
@@ -359,6 +450,7 @@
       '<div class="mini" style="color:#DCE5F6">50% Simulasi (' + S.sim.score + ') + 50% Post-test (' + S.post.score + ')</div><p><span class="tag ' + kat[1] + '">' + kat[0] + '</span></p></div></div>' +
       '<div class="grid2">' + g('Komunikasi', S.sim.kom, 'var(--pri)') + g('Etika & Budaya Kerja', S.sim.etika, 'var(--good)') + '</div>' +
       '<div class="card"><b>Stempel bab</b><div class="stamps" style="margin-top:10px">' + [1, 2, 3, 4, 5, 6].map(function (n) { return '<span class="' + (S.bab[n] && S.bab[n].stamp ? 'on' : '') + '">済</span>'; }).join('') + '</div></div>' +
+      profilLisan(S) +
       '<div class="card"><b>Peningkatan</b><p>Pre-test ' + pre + ' → Post-test ' + S.post.score + ' · N-gain ' + ng + '</p></div>' +
       '<div class="card"><b>Rekomendasi</b><div class="row-list" style="margin-top:8px">' + (rek.length ? rek.map(function (r) { return '<div>' + esc(r) + '</div>'; }).join('') : '<div>Semua momen simulasi sudah tepat. Lanjutkan dengan praktik bersama instruktur LPK.</div>') + '</div></div>' +
       naviSay('RAP-03', 'Mensetsu Navi adalah persiapan. Lanjutkan dengan latihan wawancara langsung bersama instruktur LPK-mu. Ganbatte!', 'pose_semangat') +
@@ -368,6 +460,14 @@
   /* ------------------------------------------------------------ fitur global & pengaturan */
   function scrHal(code) {
     var s = D.slides[code]; if (!s) return go('#/rak');
+    var FITUR = { 'GLB-03': ['MN_KOSA', 'Bank Kosakata', '#B0436A', '#FBE6EE'], 'GLB-04': ['MN_LATIH', 'Latihan Pertanyaan Acak', '#5B46A8', '#ECE7FA'], 'GLB-05': ['MN_TIPS', 'Tips & Trik', '#A8650F', '#FBEEDA'], 'GLB-07': ['MN_NAVI', 'Kata Mutiara', '#2A4B8D', '#E4EBF8'] }[code];
+    if (FITUR && window[FITUR[0]]) {
+      show('<div class="screen" style="--c:' + FITUR[2] + ';--cl:' + FITUR[3] + '">' + topbar('Sumber belajar', FITUR[1], 1, FITUR[2]) + '<div class="body"><h2 class="slide-h">' + esc(s.title) + '</h2><div id="fitur"></div></div>' + bottombar('#/rak', '', null) + '</div>');
+      window[FITUR[0]].mount(document.getElementById('fitur'), { esc: esc, ic: ic, naviSay: naviSay, bindSpeak: bindSpeak, toast: toast, sayMutiara: sayMutiara, status: function (n) { return ST.status(n); },
+        sayJa: function (t, rate, onend) { return window.MN_IX ? MN_IX.sayJa(t, rate, onend) : false; } });
+      bindSpeak(view);
+      return;
+    }
     show('<div class="screen">' + topbar('Fitur', s.title, 1) + '<div class="body"><span class="chip soon">Sedang disiapkan</span><h2 class="slide-h">' + esc(s.title) + '</h2>' +
       (ST.get().unlockAll ? '<div class="card">' + blocks(s.screen, code) + '</div>' : '') + naviSay(code, s.narasi, 'pose_dagu') + devNote(s) + '</div>' + bottombar('#/rak', '', null) + '</div>');
   }
@@ -375,10 +475,23 @@
     var S = ST.get();
     show('<div class="screen">' + topbar('Pengaturan', 'Data dan mode uji', 1) + '<div class="body">' +
       '<label class="field">Nama panggilan<input id="nm" value="' + esc(S.name) + '" maxlength="20"></label>' +
+      '<div class="card"><b>Tampilan dan suara</b>' +
+      '<label class="switch-row" style="margin-top:10px"><span><b>Romaji</b><span class="mini">Cara baca huruf Latin di samping tulisan Jepang. Matikan untuk melatih membaca.</span></span><input type="checkbox" role="switch" class="switch" id="set-ro" ' + (ST.set().ro ? 'checked' : '') + '></label>' +
+      '<label class="switch-row" style="margin-top:10px"><span><b>Arti</b><span class="mini">Terjemahan bahasa Indonesia di samping tulisan Jepang.</span></span><input type="checkbox" role="switch" class="switch" id="set-ar" ' + (ST.set().ar ? 'checked' : '') + '></label>' +
+      '<div style="margin-top:12px"><b>Kecepatan suara</b><div class="kv-chips" style="margin-top:6px"><button class="kv-chip' + (ST.set().kec === 'normal' ? ' on' : '') + '" data-kec="normal" aria-pressed="' + (ST.set().kec === 'normal') + '">Normal</button><button class="kv-chip' + (ST.set().kec === 'pelan' ? ' on' : '') + '" data-kec="pelan" aria-pressed="' + (ST.set().kec === 'pelan') + '">Pelan</button></div></div></div>' +
       '<label class="card switch-row"><span><b>Mode uji tim</b><span class="mini">Buka semua bab dan evaluasi tanpa syarat, dan tampilkan catatan storyboard. Matikan sebelum dipakai peserta.</span></span><input type="checkbox" role="switch" class="switch" id="ua" ' + (S.unlockAll ? 'checked' : '') + '></label>' +
       '<div class="card"><b>Data tersimpan di perangkat ini saja.</b><p class="mini">Progres, jawaban, dan nilai disimpan di peramban HP/laptop ini dan tidak dikirim ke mana pun.</p><button class="btn ghost" id="rs">Hapus semua progres</button></div>' +
       '</div>' + bottombar('#/rak', '', null) + '</div>');
     document.getElementById('nm').addEventListener('change', function (e) { S.name = e.target.value.trim(); ST.save(); });
+    document.getElementById('set-ro').addEventListener('change', function (e) { setG('ro', e.target.checked); });
+    document.getElementById('set-ar').addEventListener('change', function (e) { setG('ar', e.target.checked); });
+    view.querySelectorAll('.kv-chip[data-kec]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        ST.set().kec = b.dataset.kec; ST.save();
+        view.querySelectorAll('.kv-chip[data-kec]').forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+        if (window.MN_IX) MN_IX.sayJa('よろしくお願いします。');
+      });
+    });
     document.getElementById('ua').addEventListener('change', function (e) { S.unlockAll = e.target.checked; ST.save(); toast(S.unlockAll ? 'Mode uji aktif.' : 'Mode uji dimatikan.'); });
     document.getElementById('rs').addEventListener('click', function () {
       var b = this; if (b.dataset.sure) { ST.reset(); toast('Progres dihapus.'); go('#/mulai'); } else { b.dataset.sure = 1; b.textContent = 'Ketuk sekali lagi untuk menghapus'; }
@@ -394,7 +507,7 @@
       '<a href="#/rak">' + ic('home') + 'Rak bab (beranda)</a><div class="sec">Bab</div>' +
       D.bab.map(function (b) { var st = ST.status(b.no); return '<a href="#/bab/' + b.no + '/' + (ST.bab(b.no).last || 0) + '"' + (h.indexOf('#/bab/' + b.no + '/') === 0 ? ' class="cur"' : '') + '>' + (st === 'done' ? '<span class="jp" style="color:var(--hanko);font-weight:900">済</span>' : st === 'locked' ? ic('lock') : '<b style="color:' + b.col + '">' + b.no + '</b>') + '<span>' + esc(b.title) + '<br><span class="mini">' + Math.round(ST.progress(b.no) * 100) + '%</span></span></a>'; }).join('') +
       '<div class="sec">Evaluasi</div><a href="#/sim/0">' + ic('chat') + 'Simulasi Mensetsu</a><a href="#/rapor">' + ic('trophy') + 'Rapor Kesiapan</a>' +
-      '<div class="sec">Sumber belajar</div><a href="#/hal/GLB-03">' + ic('book') + 'Bank Kosakata</a><a href="#/hal/GLB-04">' + ic('chat') + 'Latihan Pertanyaan Acak</a><a href="#/hal/GLB-05">' + ic('bulb') + 'Tips & Trik</a><a href="#/atur">' + ic('gear') + 'Pengaturan</a></nav></aside>';
+      '<div class="sec">Sumber belajar</div><a href="#/hal/GLB-03">' + ic('book') + 'Bank Kosakata</a><a href="#/hal/GLB-07">' + ic('bulb') + 'Kata Mutiara</a><a href="#/hal/GLB-04">' + ic('chat') + 'Latihan Pertanyaan Acak</a><a href="#/hal/GLB-05">' + ic('bulb') + 'Tips & Trik</a><a href="#/atur">' + ic('gear') + 'Pengaturan</a></nav></aside>';
     document.body.appendChild(wrap);
     function close() { wrap.remove(); }
     wrap.querySelector('.drawer-bg').addEventListener('click', close);
@@ -405,6 +518,16 @@
   window.MN_MENU = openMenu;
 
   /* ------------------------------------------------------------ rak */
+  /* GLB-07: Navi di beranda menyarankan bagian berikutnya; kartu bisa ditutup (diingat selama sesi untuk saran yang sama) */
+  function tampilSaran() {
+    if (!window.MN_NAVI) return;
+    var sr = MN_NAVI.saran(), kunci = 'mn-saran-tutup', tutup = ''; try { tutup = sessionStorage.getItem(kunci) || ''; } catch (e) { /* diblokir */ }
+    if (tutup === sr.t) { saranEl.hidden = true; return; }
+    saranEl.innerHTML = '<img src="' + navi(sr.pose) + '" alt="Navi"><div class="sr-isi"><p>' + esc(sr.t) + '</p><div class="sr-aksi"><a class="btn" href="' + sr.href + '">' + esc(sr.label) + '</a>' +
+      '<a class="sr-kol" href="#/hal/GLB-07">Kata Mutiara ' + MN_NAVI.terbuka() + '/' + MN_NAVI.total() + '</a></div></div><button class="sr-x" aria-label="Tutup saran Navi">' + ic('x') + '</button>';
+    saranEl.hidden = false;
+    saranEl.querySelector('.sr-x').addEventListener('click', function () { try { sessionStorage.setItem(kunci, sr.t); } catch (e) { /* diblokir */ } saranEl.hidden = true; });
+  }
   function scrRak() {
     var S = ST.get();
     if (!S.name) return go('#/mulai');
@@ -412,8 +535,12 @@
     view.hidden = true; view.innerHTML = ''; document.body.className = '';
     rakEl.hidden = false;
     if (window.MN_RAK) window.MN_RAK.show();
+    tampilSaran();
+    if (!ST.ok() && !window.__tanpaSimpan) { window.__tanpaSimpan = true; toast('Peramban menolak penyimpanan. Progresmu hanya bertahan sampai halaman ditutup.'); }
   }
   window.MN_APP = {
+    toast: function (m) { toast(m); },
+    slideLink: slideLink,
     status: function (no) { return ST.status(no); },
     progress: function (no) { return ST.progress(no); },
     stamps: function () { return ST.stamps(); },

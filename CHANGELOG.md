@@ -2,6 +2,30 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 
+## [Belum dirilis]
+
+### Ditambah
+- T16 Penyusun Jikoshoukai (B4-14): lima blok isian, kalimat Jepang + romaji + arti dirangkai dari naskah B4-06–B4-09, panduan katakana, perkiraan durasi (ideal 30–60 dtk), dengarkan/salin/unduh, isian tersimpan di perangkat.
+- GLB-03 Bank Kosakata dan Kartu Hafalan: daftar 68 istilah (cari, filter bab/kategori, bintang, Romaji/Arti, tautan ke slide) dan kartu hafalan Leitner 3 kotak (sesi 10 kartu).
+- `gen_data.py` membaca glosarium tiap bab ke `D.bab[i].glos`.
+- GLB-04 Latihan Pertanyaan Acak: bank 25 soal dengan contoh jawaban dari slide; mode Dengar (tebak topik) dan Jawab-rekam (hitung mundur 5 dtk, rekam maks. 60 dtk, analisis Lapis 1 durasi/jeda/volume + gelombang). `gen_data.py` membaca bank ke `D.latih`.
+- `js/suara.js`: perekam suara dan analisis Lapis 1 (durasi, jeda, volume, gelombang).
+- T15 Latihan Lisan 3 lapis di B4-15 (jikoshoukai, target 30–60 dtk) dan B5-13 (tiga pertanyaan acak, target 10–30 dtk): analisis Lapis 1, daftar periksa Lapis 2, profil + Unduh rekaman + Unduh lembar rubrik (Lapis 3). Profil Kesiapan Lisan tampil di rapor.
+- `gen_data.py` membaca soal B5-13 ke `D.lisan5`.
+- GLB-05 Tips & Trik: 8 kartu geser dalam tiga tahap (Sebelum/Saat/Sesudah), tab lompat, tombol Pelajari ke slide acuan. `gen_data.py` membaca tabel ke `D.tips`.
+- Stepper untuk daftar langkah bernomor T03 (B3-03, B6-03, B6-08).
+
+- Mode Latihan simulasi (tanpa timer dan nilai, dengan Petunjuk Navi), suara pewawancara (suara bawaan perangkat), dan rekaman opsional jikoshoukai setelah SIM-06 (masuk Profil Kesiapan Lisan).
+- GLB-02/06: tombol Romaji/Arti global di slide dan Pengaturan, kecepatan suara Normal/Pelan, pesan bila penyimpanan ditolak peramban.
+- GLB-07: Petunjuk Navi di aktivitas, saran Navi di beranda, reaksi Navi di hasil kuis, kartu Kata Mutiara di rangkuman dan halaman koleksi (`D.mutiara`).
+
+### Diperbaiki
+- Analisis suara: bicara terus tanpa diam tidak lagi dianggap hening (ambang relatif terhadap puncak suara).
+- Daftar langkah storyboard B4-15 dan B5-13 tidak lagi tampil sebagai kartu buka.
+- `tampilan.js`: entri ganda B4-14 dibersihkan.
+- Bilah Kembali/Lanjut naik di slide pendek pada HP (`.with-side` tidak mengisi tinggi layar).
+- `store.js` tidak lagi crash pada data `localStorage` lama atau tidak lengkap.
+
 ## [0.4.0] — Tampilan dirapikan
 
 ### Diubah

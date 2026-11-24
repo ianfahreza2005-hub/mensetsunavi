@@ -17,7 +17,8 @@ Awalan nama: `exp_` ekspresi, `pose_` pose seluruh badan, `act_` aktivitas. Bila
 |---|---|---|
 | Narasi narator (ID) | `assets/audio/narasi/` | `B3-08.mp3` |
 | Ungkapan Jepang penutur asli | `assets/audio/jp/` | `B3-08_01.mp3` (kode + nomor urut) |
-| Ucapan pewawancara simulasi | `assets/audio/sim/` | `SIM-04.mp3` |
+| Ucapan pewawancara simulasi | `assets/audio/sim/` | `SIM-04.mp3` (belum diputar aplikasi; sementara suara bawaan perangkat) |
+| Kata Mutiara diucapkan Navi | `assets/audio/mutiara/` | `B1.mp3` … `B6.mp3` (sudah dicoba aplikasi lebih dulu; jika tidak ada, suara bawaan) |
 | Video peragaan | `assets/video/` | `B3-05_benar.mp4`, `B3-05_salah1.mp4` |
 
 Format disarankan: MP3 mono 64–96 kbps, video MP4 H.264 720p. Setelah menambah file, jalankan `python tools/build_sw.py`.

@@ -28,7 +28,6 @@ window.MN_TAMPIL = {
   'B4-11': { 0: null },
   'B4-12': { 0: 'Enam tips pelafalan:' },
   'B4-13': { 0: 'Empat rekaman jikoshoukai. Ketuk setiap rekaman untuk melihat kesalahan utamanya.' },
-  'B4-14': { 0: 'Susun jikoshoukai-mu lima langkah. Lihat contoh isian dan kalimat yang dihasilkan di setiap blok.', 2: null },
   'B4-15': { 0: 'Rekam jikoshoukai-mu, dengarkan ulang, lalu periksa dengan daftar di bawah.' },
   'B5-02': {
     0: 'Pewawancara berbicara cepat dan kamu tidak menangkap pertanyaannya. Apa yang kamu lakukan?',
@@ -38,6 +37,9 @@ window.MN_TAMPIL = {
   'B5-10': { 0: 'Dua situasi. Pilih jawaban jujur atau jawaban "menyelamatkan diri", lalu lihat akibatnya.' },
   'B5-12': { 0: 'Empat pertanyaan pewawancara. Pilih jawaban yang paling tepat.' },
   'B5-13': { 0: 'Jawab pertanyaan pewawancara dengan suaramu sendiri memakai pola **Jawab → Alasan → Semangat**.' },
+  'B4-15': { 0: 'Latihan ini tidak masuk batas lulus. Rekam jikoshoukai-mu, lihat analisisnya, bandingkan dengan contoh Rani, lalu periksa dirimu sendiri.' },
+  'B5-13': { 0: 'Tiga pertanyaan acak dari Bab 5. Jawab dengan suaramu memakai pola Jawab → Alasan → Semangat. Latihan ini tidak masuk batas lulus.' },
+  'B4-14': { 0: 'Isi lima blok di bawah. Kalimat Jepangnya dirangkai dari materi Bab 4, lengkap dengan romaji dan arti.', 2: null },
   'B6-02': { 0: 'Dimas selesai wawancara. Ia berdiri tanpa salam, menutup pintu keras, lalu di lorong menghela napas, melonggarkan dasi, dan langsung menelepon temannya sambil tertawa.' },
   'B6-03': { 0: 'Lima langkah dari kursi ke pintu:' },
   'B6-09': { 0: null, 1: '**Tahap A:** susun lima langkah keluar ruangan.', 2: '**Tahap B:** pilih ungkapan yang tepat untuk langkah 2–4.' },

@@ -1,5 +1,11 @@
 # Menerbitkan Mensetsu Navi ke GitHub Pages setiap ada push ke main.
 # Aktifkan di GitHub: Settings → Pages → Source: GitHub Actions.
+#
+# Dua job (unggah → terbit) dan satu kali coba ulang otomatis.
+# Alasannya: API artefak GitHub butuh beberapa saat sebelum artefak baru terlihat. Saat unggah dan terbit
+# berada dalam satu job, langkah terbit menanyakan artefak ±0,2 detik setelah diunggah dan sering mendapat
+# "No artifacts named github-pages" (run #10, #14, #15). Job terpisah memberi jeda alami; coba ulang menangani sisanya.
+# Bila tetap gagal: pakai "Re-run failed jobs" (aman, hanya job terbit yang diulang) atau "Run workflow".
 name: Deploy ke GitHub Pages
 
 on:
@@ -17,16 +23,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  unggah:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .
-      - id: deployment
+
+  terbit:
+    needs: unggah
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.kedua.outputs.page_url || steps.pertama.outputs.page_url }}
+    steps:
+      - id: pertama
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - name: Tunggu sebelum mencoba lagi
+        if: steps.pertama.outcome == 'failure'
+        run: sleep 45
+      - id: kedua
+        if: steps.pertama.outcome == 'failure'
         uses: actions/deploy-pages@v4

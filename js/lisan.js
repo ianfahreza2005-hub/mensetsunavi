@@ -76,8 +76,8 @@
           if (kode === 'B5-13') return '<div class="ls-pola"><span>Jawab</span>→<span>Alasan</span>→<span>Semangat</span></div>';
           var mine = S.jiko && S.jiko.hasil, isi;
           if (st.mode === 'blok') isi = '<div class="ls-pola">' + BLOK.map(function (b, i) { return '<span>' + (i + 1) + '. ' + b + '</span>'; }).join('→') + '</div>';
-          else if (mine) isi = '<div class="card ls-teks"><b>Jikoshoukai-mu (dari B4-14)</b><p class="jp lt-jp">' + esc(mine.jp) + '</p><p class="ix-ro">' + esc(mine.ro) + '</p></div>';
-          else isi = '<div class="card ls-teks"><b>Contoh Rani</b><p class="mini">Belum ada jikoshoukai dari B4-14, jadi teks contoh Rani dipakai. Kamu boleh membacanya.</p>' +
+          else if (mine) isi = '<div class="card ls-teks"><b>Jikoshoukai-mu (dari slide “Susun Jikoshoukai-mu”)</b><p class="jp lt-jp">' + esc(mine.jp) + '</p><p class="ix-ro">' + esc(mine.ro) + '</p></div>';
+          else isi = '<div class="card ls-teks"><b>Contoh Rani</b><p class="mini">Kamu belum menyusun jikoshoukai di slide <a href="#/bab/4/13">“Susun Jikoshoukai-mu”</a>, jadi teks contoh Rani dipakai. Kamu boleh membacanya.</p>' +
             rani.map(function (b) { return '<p class="jp lt-jp">' + esc(b.jp) + '</p>'; }).join('') + '</div>';
           return '<div class="lt-opt"><b>Mode panduan</b><div class="kv-chips"><button class="kv-chip' + (st.mode === 'teks' ? ' on' : '') + '" data-mode="teks" aria-pressed="' + (st.mode === 'teks') + '">Teks penuh</button>' +
             '<button class="kv-chip' + (st.mode === 'blok' ? ' on' : '') + '" data-mode="blok" aria-pressed="' + (st.mode === 'blok') + '">Hanya nama blok</button></div></div>' + isi;

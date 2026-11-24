@@ -20,12 +20,12 @@ Awalan nama: `exp_` ekspresi, `pose_` pose seluruh badan, `act_` aktivitas. Bila
 | Ucapan pewawancara simulasi | `assets/audio/sim/` | `SIM-04.mp3` (belum diputar aplikasi; sementara suara bawaan perangkat) |
 | Kata Mutiara diucapkan Navi | `assets/audio/mutiara/` | `B1.mp3` … `B6.mp3` (sudah dicoba aplikasi lebih dulu; jika tidak ada, suara bawaan) |
 | Video peragaan | `assets/video/` | `B3-05_benar.mp4`, `B3-05_salah1.mp4` |
-| Video animasi (motion graphic) | `assets/video/` + sumber di `sumber/video/<kode>/` | `B2-09.mp4` + poster `B2-09.jpg` (sudah ada: contoh telepon renraku) |
+| Video animasi (motion graphic) | `assets/video/` + sumber di `sumber/video/<kode>/` | `B2-09.mp4` + poster `B2-09.jpg` (contoh telepon renraku), `B5-09.mp4` + `B5-09.jpg` (saat tidak paham) |
 
 Format disarankan: MP3 mono 64–96 kbps, video MP4 H.264 720p. Setelah menambah file, jalankan `python tools/build_sw.py`.
 
 **Video animasi** dibuat dengan Remotion (React → MP4) di `sumber/video/<kode>/`; README di folder itu menjelaskan cara membuat ulang.
-Ekspor web: H.264 1080p 60 fps, CRF 26, `-movflags +faststart` (B2-09: 42 dtk, 7,8 MB). Video tidak di-precache service worker;
+Ekspor web: H.264 1080p 60 fps, CRF 26, `-movflags +faststart` (B2-09: 42 dtk, 7,8 MB; B5-09: 51 dtk, 9,6 MB). Video tidak di-precache service worker;
 salinan utuhnya disimpan saat pertama diputar sehingga bisa diputar offline. Daftarkan video baru di `VIDEO` (`js/interaktif.js`).
 Suara Jepang memakai VOICEVOX; kredit "VOICEVOX:<nama karakter>" wajib tampil (kartu akhir video + keterangan pemutar).
 

@@ -5,6 +5,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 ## [Belum dirilis]
 
 ### Ditambah
+- B5-09 Saat Tidak Paham, Jangan Diam: video animasi 51 detik (1080p, 60 fps, suara VOICEVOX:雀松朱司) menggantikan blok langkah, "Hindari", dan "Gugup". Isinya: bertanya dua kali dengan ungkapan penyelamat, empat hal yang dihindari dicap ✕ lalu dibuang, "jujur dengan sopan" + 申し訳ありません。まだ分からないところがあります。, napas saat gugup + 少し考えてもいいですか。, dan pesan "Jangan diam." Teks aslinya tetap ada di lipatan "Lihat teks lengkap".
 - Adegan bergambar "Temukan kesalahan" untuk B3-02 (masuk ruangan) dan B6-02 (setelah wawancara): latar koridor/ruang wawancara, titik ! berdenyut, kesalahan + umpan balik muncul di adegan dan tersusun di daftar temuan, pindah adegan bergeser halus. B6-02 diawali pertanyaan Ya/Tidak.
 - B4-13: kartu rekaman jikoshoukai; peserta memilih kesalahan utama tiap rekaman (chip), umpan balik membuka halus; rekaman berteks Jepang bisa diputar (suara perangkat) dengan gelombang suara bergerak.
 - B3-08 Tiga Jenis Ojigi: figur SVG tampak samping, badan atas berputar di pinggul dengan gerak pegas, busur sudut tergambar mengikuti, tanda 15°/30°/45°, jejak samar tiap jenis yang sudah dilihat, tombol cepat per jenis, menempel ke sudut terdekat saat dilepas.
@@ -18,6 +19,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 - Gerak dikurangi secara bertingkat: geser/membesar/melayang/denyut dibuang, kemunculan isi menjadi pudar singkat, pindah slide menjadi pudar.
 
 ### Diperbaiki
+- Kode slide di teks naskah (mis. "pakai ungkapan di B5-09" di B5-08) dan di latihan lisan/simulasi rekam ("dari B4-14") tidak lagi tampil ke peserta; diganti judul slidenya.
 - Tombol Lanjut tidak lagi kehilangan efek denyut (dua @keyframes bernama "denyut" saling menimpa).
 - Pengantar B6-02 tidak lagi membocorkan kesalahan Dimas sebelum peserta menemukannya.
 

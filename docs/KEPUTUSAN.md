@@ -70,6 +70,15 @@ Catatan keputusan yang sudah dikunci. Semua dokumen T1/T2 harus mengikuti ini.
 - Suara dialog: VOICEVOX:雀松朱司 (sintetis, bukan penutur asli; kredit wajib). Bila nanti ada rekaman penutur asli, ganti
   `public/audio/k1–k4.wav` di `sumber/video/b2-09/` lalu render ulang; animasi mengikuti waktu frasa.
 
+## Video animasi B5-09 (24 Nov)
+- Paragraf "Langkah bila tetap tidak paham…", kotak "Hindari", dan kotak "Gugup di tengah wawancara?" di B5-09 diganti video
+  motion graphic 51 detik (1080p, 60 fps) dengan gaya gerak yang sama seperti B2-09, atas permintaan pemilik repo. Tabel ungkapan
+  penyelamat di atasnya tetap. Teks yang diganti tetap ada di bawah video ("Lihat teks lengkap"). Menonton tidak diwajibkan.
+- Isi tanpa tambahan materi: dua ungkapan dari tabel B5-09 (bertanya dua kali), empat hal yang dihindari, kalimat
+  申し訳ありません。まだ分からないところがあります。, langkah saat gugup + 少し考えてもいいですか。, narasi Navi, dan judul slide.
+  Ucapan pewawancara digambarkan sebagai celoteh tanpa makna (tidak tertangkap), bukan kalimat Jepang baru.
+- Warna aksen ungu Bab 5. Suara: VOICEVOX:雀松朱司 (kredit wajib). Sumber dan cara membuat ulang: `sumber/video/b5-09/`.
+
 ## Prinsip gerak (24 Nov)
 - Gerak = umpan balik dan kesinambungan, bukan hiasan. Respons klik 100–250 ms; masuk melambat (ease-out), keluar cepat (ease-in).
 - Hanya transform dan opacity yang beranimasi per frame (60 fps). Ukuran berubah → scaleX/FLIP; tinggi isi → grid 0fr → 1fr.

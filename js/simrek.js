@@ -19,7 +19,7 @@
     function kepala() {
       return '<div class="card sr" style="color:var(--ink)"><span class="chip">Opsional · tidak dinilai</span><h3 class="kv-sum">Ucapkan jikoshoukai-mu</h3>' +
         '<p class="mini">Rekamanmu hanya untuk latihan. Hasilnya masuk Profil Kesiapan Lisan di rapor; rekaman tidak disimpan.</p>' +
-        (mine ? '<details class="sr-teks"><summary>Lihat jikoshoukai-mu (dari B4-14)</summary><p class="jp lt-jp">' + esc(mine.jp) + '</p><p class="ix-ro">' + esc(mine.ro) + '</p></details>' : '');
+        (mine ? '<details class="sr-teks"><summary>Lihat jikoshoukai-mu (dari slide “Susun Jikoshoukai-mu”)</summary><p class="jp lt-jp">' + esc(mine.jp) + '</p><p class="ix-ro">' + esc(mine.ro) + '</p></details>' : '');
     }
     function siap() {
       var bisa = SU && SU.bisa();

@@ -1,0 +1,95 @@
+{
+ "t1": {
+  "durasi": 2.891,
+  "frasa": [
+   {
+    "mulai": 0.124,
+    "selesai": 0.872
+   },
+   {
+    "mulai": 1.22,
+    "selesai": 1.834
+   },
+   {
+    "mulai": 1.834,
+    "selesai": 2.192
+   },
+   {
+    "mulai": 2.192,
+    "selesai": 2.683
+   }
+  ]
+ },
+ "t2": {
+  "durasi": 3.403,
+  "frasa": [
+   {
+    "mulai": 0.123,
+    "selesai": 0.879
+   },
+   {
+    "mulai": 1.172,
+    "selesai": 1.673
+   },
+   {
+    "mulai": 1.673,
+    "selesai": 2.121
+   },
+   {
+    "mulai": 2.121,
+    "selesai": 3.196
+   }
+  ]
+ },
+ "j1": {
+  "durasi": 1.664,
+  "frasa": [
+   {
+    "mulai": 0.126,
+    "selesai": 0.801
+   },
+   {
+    "mulai": 0.801,
+    "selesai": 1.453
+   }
+  ]
+ },
+ "j2": {
+  "durasi": 2.165,
+  "frasa": [
+   {
+    "mulai": 0.121,
+    "selesai": 0.394
+   },
+   {
+    "mulai": 0.394,
+    "selesai": 0.944
+   },
+   {
+    "mulai": 0.944,
+    "selesai": 1.432
+   },
+   {
+    "mulai": 1.432,
+    "selesai": 1.962
+   }
+  ]
+ },
+ "g1": {
+  "durasi": 1.995,
+  "frasa": [
+   {
+    "mulai": 0.121,
+    "selesai": 0.491
+   },
+   {
+    "mulai": 0.491,
+    "selesai": 1.149
+   },
+   {
+    "mulai": 1.149,
+    "selesai": 1.793
+   }
+  ]
+ }
+}

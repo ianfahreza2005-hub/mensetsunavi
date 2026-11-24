@@ -5,6 +5,16 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 ## [Belum dirilis]
 
 ### Diubah
+- Rapor Kesiapan bergaya dasbor: kartu utama (nilai sumatif, cincin Komunikasi/Etika, Navi sesuai kategori), stempel per bab dengan nama dan skor terbaik, batang pre-test → post-test + N-gain, jejak 13 momen simulasi berwarna, daftar momen yang perlu dilatih dengan tautan slide.
+- Hasil kuis bab dua kolom: skor + stempel + pesan Navi di kiri; ringkasan jawaban, "Pelajari lagi", dan tombol lanjut ke bab berikutnya di kanan.
+- Simulasi: jalur 13 momen dan label situasi di panel kanan, pintasan A–C, reaksi Tanaka-san sebagai gelembung bertanda warna; hasil simulasi dua kolom (ringkasan + jejak momen | pembahasan).
+- Layar laptop pendek (tinggi ≤ 760 px): pita bab satu baris (±57 px, sebelumnya ±119 px) dan judul slide lebih kecil agar isi aktivitas lebih banyak terlihat.
+
+### Diperbaiki
+- Kode slide (SIM-xx, Bx-xx) tidak lagi tampil ke peserta di Rapor, hasil Simulasi (resmi & latihan), teks pilihan Simulasi, dan Profil Kesiapan Lisan; diganti nomor momen dan judul slide.
+- Tombol "Ulangi kuis" di layar hasil kuis sekarang berfungsi.
+- "Enam stempel lengkap" hanya muncul saat stempel ke-6 baru saja didapat; bila stempel bab sudah dimiliki, hasil kuis yang rendah tidak lagi berkata "Butuh skor 80 untuk stempel".
+
 - Layar soal: "Kosakata di soal ini" di bawah panel soal (khusus kuis bab; istilah yang artinya ada di pilihan benar dilewati, soal yang menanyakan arti kata tidak diberi kotak ini) dan jalur soal di bawah kedua kolom. Kuis bab: kotak ✓/✗ per soal, skor sementara, meteran menuju 80 dan stempel 済 yang makin terisi. Pre/post-test: status dijawab tanpa nilai, kotak soal yang sudah dijawab bisa diklik.
 - Perbaikan: isi slide tidak lagi berkedip dua kali setelah transisi geser.
 - Layar soal (kuis bab, pre-test, post-test) dua kolom: panel soal berwarna bab di kiri (nomor soal, titik progres, Navi; bagian Jepang dengan huruf Jepang, romaji/arti lebih ringan), pilihan dan umpan balik di kanan. Pintasan keyboard A–D untuk memilih, → untuk lanjut; pindah soal kuis bergeser halus.

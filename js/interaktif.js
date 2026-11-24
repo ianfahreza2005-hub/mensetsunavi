@@ -302,27 +302,95 @@
     });
     return found || cell;
   }
+  /* sel "「JP」 (romaji. "arti")catatan" → bagian terpisah; null bila sel bukan kalimat Jepang */
+  function pecahJp(cell) {
+    var m = /^「([^」]+)」\s*\(([^()]*)\)\s*([\s\S]*)$/.exec(String(cell || '').trim());
+    if (!m) return null;
+    var ro = m[2], ar = '', ekor = '';
+    var q = /^([\s\S]*?)\s*["“]([\s\S]+?)["”]\s*(?:,\s*([\s\S]*))?$/.exec(m[2]);
+    if (q) { ro = q[1]; ar = q[2]; ekor = q[3] || ''; }
+    var cat = [ekor, m[3].replace(/^[:,;]\s*/, '')].filter(function (x) { return x && x.trim(); }).join(', ');
+    return { jp: '「' + m[1] + '」', ro: ro.replace(/,\s*$/, '').trim(), ar: ar, cat: cat };
+  }
+  var IKON_PW = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="15" r="7" fill="currentColor"/><path d="M6 36c1.5-8 7-12 14-12s12.5 4 14 12z" fill="currentColor"/></svg>';
+  var CENTANG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  var SILANG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+  /* T13 pilihan dengan kolom benar/salah (B5-10 jujur/tidak jujur, B5-12 Tepat/Kurang tepat/Salah, B6-09 lewat W.fill).
+     Satu situasi sekali waktu (tab). Pertanyaan = gelembung pewawancara; jawaban = kartu berhuruf dengan Jepang, romaji,
+     dan arti di baris sendiri, sehingga soal dan pilihan tidak tercampur. */
   W.pick = function (t) {
     var head = t[0], rows = t.slice(1).map(function (r) { return r.map(function (c, i) { return i ? resolveRef(c, r[0]) : c; }); });
     var good = hdr(t, /^tepat$|^jawaban jujur/i), why = hdr(t, /mengapa/i);
     var optCols = head.map(function (_, i) { return i; }).filter(function (i) { return i > 0 && i !== why; });
+    var label = String(head[0] || 'Situasi');
+    /* kolom Tepat/Kurang tepat/Salah: catatan di sel ("terlalu singkat", "tidak jujur") adalah penilaian, jadi baru tampil setelah dipilih.
+       B5-10 (jujur/tidak jujur): catatannya fakta situasi ("padahal belum pernah"), tetap tampil. */
+    var catNanti = good >= 0 && /^tepat$/i.test(head[good]);
+    function opsi(cell) {
+      var p = pecahJp(cell);
+      if (!p) return '<span class="pk-teks">' + md(cell) + '</span>';
+      return '<span class="jp pk-jp">' + esc(p.jp) + '</span>' + (p.ro ? '<span class="pk-ro">' + esc(p.ro) + '</span>' : '') +
+        (p.ar ? '<span class="pk-ar">“' + esc(p.ar) + '”</span>' : '') + (p.cat ? '<span class="pk-cat' + (catNanti ? ' nanti' : '') + '">' + esc(cap(p.cat)) + '</span>' : '');
+    }
+    function tanya(cell) {
+      var p = pecahJp(cell);
+      if (!p) return '<div class="pk-tanya polos"><span class="pk-siapa">' + esc(label) + '</span><p class="pk-qteks">' + md(cell) + '</p></div>';
+      return '<div class="pk-tanya"><span class="pk-ava">' + IKON_PW + '</span><div class="pk-gel"><span class="pk-siapa">Pewawancara bertanya</span>' +
+        '<div class="pk-jrow"><p class="jp pk-qjp">' + esc(p.jp) + '</p><button class="ix-sp pk-sp" type="button" data-say="' + esc(p.jp) + '" aria-label="Dengarkan pertanyaan">' + SPK + '</button></div>' +
+        (p.ro ? '<p class="ix-ro">' + esc(p.ro) + '</p>' : '') + (p.ar ? '<p class="ix-ar">“' + esc(p.ar) + '”</p>' : '') + '</div></div>';
+    }
+    function namaTab(r, i) { return pecahJp(r[0]) ? label + ' ' + (i + 1) : label + ' ' + plain(r[0]); }
     return {
-      html: '<div class="ix-sort">' + rows.map(function (r, i) {
-        return '<div class="ix-sc" data-i="' + i + '"><p class="ix-q">' + md(r[0]) + '</p><div class="ix-opts col">' + shuffle(optCols).map(function (c) { return '<button class="ix-o" data-c="' + c + '">' + md(r[c]) + '</button>'; }).join('') + '</div><p class="ix-fb" hidden></p></div>';
-      }).join('') + '<p class="ix-hint">Pilih jawaban terbaik. <span class="ix-count"></span></p></div>',
+      html: '<div class="pk">' + (rows.length > 1 ? '<div class="pk-tabs">' + rows.map(function (r, i) {
+        return '<button class="pk-tab' + (i ? '' : ' on') + '" type="button" data-i="' + i + '"><b>' + (i + 1) + '</b><span>' + esc(namaTab(r, i)) + '</span></button>';
+      }).join('') + '</div>' : '') + rows.map(function (r, i) {
+        return '<div class="pk-panel" data-i="' + i + '"' + (i ? ' hidden' : '') + '>' + tanya(r[0]) + '<p class="pk-label">Pilih jawabanmu</p><div class="pk-opsi">' +
+          shuffle(optCols).map(function (c, k) {
+            return '<button class="ix-o pk-o" type="button" data-c="' + c + '"><span class="pk-L">' + 'ABCD'.charAt(k) + '</span><span class="pk-isi">' + opsi(r[c]) + '</span></button>';
+          }).join('') + '</div><div class="pk-fb" hidden></div></div>';
+      }).join('') + '<div class="pk-kaki"><span class="pk-hit"></span><button class="btn soft pk-next" type="button" hidden>' + esc(label) + ' berikutnya</button></div></div>',
       bind: function (el, done) {
-        var ok = {}, cnt = el.querySelector('.ix-count');
-        function upd() { var k = Object.keys(ok).length; cnt.textContent = k + '/' + rows.length; if (k === rows.length) done(); }
-        el.querySelectorAll('.ix-sc').forEach(function (card) {
-          var r = rows[+card.dataset.i], f = card.querySelector('.ix-fb');
-          card.querySelectorAll('.ix-o').forEach(function (b) {
+        var ok = {}, hit = el.querySelector('.pk-hit'), next = el.querySelector('.pk-next'), kini = 0;
+        var tabs = el.querySelectorAll('.pk-tab'), panels = el.querySelectorAll('.pk-panel');
+        function buka(i) {
+          kini = i;
+          panels.forEach(function (p, k) { p.hidden = k !== i; if (k === i) { p.classList.remove('ix-in'); void p.offsetWidth; p.classList.add('ix-in'); } });
+          tabs.forEach(function (b, k) { b.classList.toggle('on', k === i); });
+          upd();
+        }
+        function sisa() { for (var k = 1; k <= rows.length; k++) { var j = (kini + k) % rows.length; if (!ok[j]) return j; } return -1; }
+        function upd() {
+          var n = Object.keys(ok).length;
+          hit.textContent = n + ' dari ' + rows.length + ' selesai';
+          next.hidden = !(ok[kini] && sisa() >= 0);
+          if (n === rows.length) done();
+        }
+        tabs.forEach(function (b) { b.addEventListener('click', function () { buka(+b.dataset.i); }); });
+        next.addEventListener('click', function () { var j = sisa(); if (j >= 0) buka(j); });
+        el.querySelectorAll('.pk-sp').forEach(function (b) { b.addEventListener('click', function () { sayJa(b.dataset.say); }); });
+        el.querySelectorAll('.ix-ro,.ix-ar').forEach(function (d) { d.addEventListener('click', function () { d.classList.toggle('peek'); }); });
+        panels.forEach(function (panel) {
+          var i = +panel.dataset.i, r = rows[i], f = panel.querySelector('.pk-fb');
+          panel.querySelectorAll('.pk-o').forEach(function (b) {
             b.addEventListener('click', function () {
-              if (ok[card.dataset.i]) return;
-              var c = +b.dataset.c, right = c === good, lab = head[c].replace(/^jawaban /i, '');
-              b.classList.add(right ? 'good' : /kurang/i.test(lab) ? 'mid' : 'bad');
-              f.hidden = false; f.className = 'ix-fb ' + (right ? 'good' : 'bad');
-              f.innerHTML = '<b>' + esc(lab.charAt(0).toUpperCase() + lab.slice(1)) + '.</b> ' + (why >= 0 ? md(r[why]) : right ? '' : 'Coba lagi.');
-              if (right) { ok[card.dataset.i] = 1; card.classList.add('done'); card.querySelectorAll('.ix-o').forEach(function (x) { x.disabled = true; }); upd(); }
+              if (ok[i] || b.disabled) return;
+              var c = +b.dataset.c, right = c === good, lab = head[c].replace(/^jawaban /i, ''), mid = /kurang/i.test(lab);
+              b.classList.add(right ? 'good' : mid ? 'mid' : 'bad');
+              b.querySelector('.pk-L').innerHTML = right ? CENTANG : SILANG;
+              f.hidden = false; f.className = 'pk-fb ix-in ' + (right ? 'good' : mid ? 'mid' : 'bad');
+              f.innerHTML = '<span class="pk-fbi">' + (right ? CENTANG : SILANG) + '</span><p><b>' + esc(cap(lab)) + '.</b> ' +
+                (why >= 0 && r[why] ? md(r[why]) : right ? '' : 'Coba pilih jawaban lain.') + '</p>';
+              var kurang = document.documentElement.classList.contains('gerak-kurang');
+              setTimeout(function () { f.scrollIntoView({ block: 'nearest', behavior: kurang ? 'auto' : 'smooth' }); }, 60);
+              if (right) {
+                ok[i] = 1; panel.classList.add('done');
+                panel.querySelectorAll('.pk-o').forEach(function (x) { x.disabled = true; });
+                if (tabs[i]) { tabs[i].classList.add('ok'); tabs[i].querySelector('b').innerHTML = CENTANG; }
+                upd();
+              } else {
+                b.disabled = true; b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
+              }
             });
           });
         });

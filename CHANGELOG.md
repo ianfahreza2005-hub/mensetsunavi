@@ -4,6 +4,23 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 
 ## [Belum dirilis]
 
+### Ditambah
+- Adegan bergambar "Temukan kesalahan" untuk B3-02 (masuk ruangan) dan B6-02 (setelah wawancara): latar koridor/ruang wawancara, titik ! berdenyut, kesalahan + umpan balik muncul di adegan dan tersusun di daftar temuan, pindah adegan bergeser halus. B6-02 diawali pertanyaan Ya/Tidak.
+- B4-13: kartu rekaman jikoshoukai; peserta memilih kesalahan utama tiap rekaman (chip), umpan balik membuka halus; rekaman berteks Jepang bisa diputar (suara perangkat) dengan gelombang suara bergerak.
+- B3-08 Tiga Jenis Ojigi: figur SVG tampak samping, badan atas berputar di pinggul dengan gerak pegas, busur sudut tergambar mengikuti, tanda 15°/30°/45°, jejak samar tiap jenis yang sudah dilihat, tombol cepat per jenis, menempel ke sudut terdekat saat dilepas.
+- Pengaturan "Kurangi gerak" (mengikuti setelan perangkat bila tidak diaktifkan).
+
+### Diubah
+- Gerak di seluruh aplikasi mengikuti prinsip 60 fps: hanya transform/opacity yang beranimasi per frame. Meteran level suara, durasi rekaman, dan indikator Kepercayaan memakai scaleX; titik aktif pita berdenyut lewat pseudo-elemen; hover tombol/pilihan tidak lagi menganimasikan bayangan.
+- Kartu lipat membuka dan menutup halus (grid 0fr → 1fr), isinya memudar masuk.
+- Susun langkah (T11): langkah yang benar meluncur dari tempatnya ke slot (FLIP).
+- Perpindahan antarhalaman ber-sidebar memudar singkat; centang sidebar memantul saat slide selesai; toast masuk melambat dan keluar cepat; tombol Romaji/Arti dan sakelar memantul saat ditekan.
+- Gerak dikurangi secara bertingkat: geser/membesar/melayang/denyut dibuang, kemunculan isi menjadi pudar singkat, pindah slide menjadi pudar.
+
+### Diperbaiki
+- Tombol Lanjut tidak lagi kehilangan efek denyut (dua @keyframes bernama "denyut" saling menimpa).
+- Pengantar B6-02 tidak lagi membocorkan kesalahan Dimas sebelum peserta menemukannya.
+
 ### Diubah
 - Rapor Kesiapan bergaya dasbor: kartu utama (nilai sumatif, cincin Komunikasi/Etika, Navi sesuai kategori), stempel per bab dengan nama dan skor terbaik, batang pre-test → post-test + N-gain, jejak 13 momen simulasi berwarna, daftar momen yang perlu dilatih dengan tautan slide.
 - Hasil kuis bab dua kolom: skor + stempel + pesan Navi di kiri; ringkasan jawaban, "Pelajari lagi", dan tombol lanjut ke bab berikutnya di kanan.

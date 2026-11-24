@@ -35,8 +35,8 @@
           '<div class="lt-meter" aria-hidden="true"><i></i></div><div class="lt-wkt">0:00</div><button class="btn full sr-stop">■ Berhenti</button></div>';
         var meter = root.querySelector('.lt-meter i'), waktu = root.querySelector('.lt-wkt'), bar = root.querySelector('.ls-zone i');
         rec = SU.rekam(stream, { maks: MAKS, target: TARGET,
-          onLevel: function (v) { if (meter) meter.style.width = Math.round(v * 100) + '%'; },
-          onDetik: function (d) { if (waktu) waktu.textContent = Math.floor(d / 60) + ':' + ('0' + Math.floor(d % 60)).slice(-2); if (bar) bar.style.width = Math.min(100, d / MAKS * 100) + '%'; },
+          onLevel: function (v) { if (meter) meter.style.transform = 'scaleX(' + Math.min(1, v).toFixed(3) + ')'; },
+          onDetik: function (d) { if (waktu) waktu.textContent = Math.floor(d / 60) + ':' + ('0' + Math.floor(d % 60)).slice(-2); if (bar) bar.style.transform = 'scaleX(' + Math.min(1, d / MAKS).toFixed(3) + ')'; },
           onSelesai: function (h) { stream.getTracks().forEach(function (x) { x.stop(); }); rec = null; hasil(h); } });
         root.querySelector('.sr-stop').addEventListener('click', function () { if (rec) rec.stop(); });
       }, function () { api.toast('Izin mikrofon ditolak. Kamu bisa melewati langkah ini.'); siap(); });

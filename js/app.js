@@ -271,9 +271,12 @@
   }
   function titikSoal(n, i) { return '<div class="dots soal-dots">' + Array.apply(null, Array(n)).map(function (_, k) { return '<i' + (k < i ? ' class="on"' : k === i ? ' class="now"' : '') + '></i>'; }).join('') + '</div>'; }
   /* pindah antar-soal tanpa ganti alamat (kuis bab) tetap bergeser halus */
+  function gerakKurang() {
+    return document.documentElement.classList.contains('gerak-kurang') || !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
   function denganGeser(arah, fn) {
-    var diam = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!arah || diam || !document.startViewTransition) return fn();
+    if (arah && gerakKurang()) arah = 'pudar';   /* gerak dikurangi: tanpa geser, cukup pudar singkat */
+    if (!arah || !document.startViewTransition) return fn();
     var h = document.documentElement; h.setAttribute('data-geser', arah);
     var vt = document.startViewTransition(fn);
     vt.finished.then(selesai, selesai);
@@ -462,7 +465,7 @@
       if (!ST.isSeen(n, code)) { ST.seen(n, code, k); toast('Bagus! Slide ini selesai.'); }
       var nx = view.querySelector('.bottombar .btn[aria-disabled]');
       if (nx) { nx.removeAttribute('aria-disabled'); nx.removeAttribute('style'); nx.classList.add('pulse'); }
-      var ck = view.querySelector('.side a.cur .ck'); if (ck) ck.textContent = '✓';
+      var ck = view.querySelector('.side a.cur .ck'); if (ck) { ck.textContent = '✓'; ck.classList.add('baru'); }
     });
   }
 
@@ -748,12 +751,14 @@
       '<label class="switch-row" style="margin-top:10px"><span><b>Romaji</b><span class="mini">Cara baca huruf Latin di samping tulisan Jepang. Matikan untuk melatih membaca.</span></span><input type="checkbox" role="switch" class="switch" id="set-ro" ' + (ST.set().ro ? 'checked' : '') + '></label>' +
       '<label class="switch-row" style="margin-top:10px"><span><b>Arti</b><span class="mini">Terjemahan bahasa Indonesia di samping tulisan Jepang.</span></span><input type="checkbox" role="switch" class="switch" id="set-ar" ' + (ST.set().ar ? 'checked' : '') + '></label>' +
       '<div style="margin-top:12px"><b>Kecepatan suara</b><div class="kv-chips" style="margin-top:6px"><button class="kv-chip' + (ST.set().kec === 'normal' ? ' on' : '') + '" data-kec="normal" aria-pressed="' + (ST.set().kec === 'normal') + '">Normal</button><button class="kv-chip' + (ST.set().kec === 'pelan' ? ' on' : '') + '" data-kec="pelan" aria-pressed="' + (ST.set().kec === 'pelan') + '">Pelan</button></div></div></div>' +
+      '<label class="card switch-row"><span><b>Kurangi gerak</b><span class="mini">Matikan animasi geser, membesar, dan melayang. Pudar singkat tetap ada. Bila tidak diaktifkan, aplikasi mengikuti setelan perangkat.</span></span><input type="checkbox" role="switch" class="switch" id="set-gerak" ' + (ST.set().gerak === 'kurang' ? 'checked' : '') + '></label>' +
       '<label class="card switch-row"><span><b>Mode uji tim</b><span class="mini">Buka semua bab dan evaluasi tanpa syarat, dan tampilkan catatan storyboard. Matikan sebelum dipakai peserta.</span></span><input type="checkbox" role="switch" class="switch" id="ua" ' + (S.unlockAll ? 'checked' : '') + '></label>' +
       '<div class="card"><b>Data tersimpan di perangkat ini saja.</b><p class="mini">Progres, jawaban, dan nilai disimpan di peramban HP/laptop ini dan tidak dikirim ke mana pun.</p><button class="btn ghost" id="rs">Hapus semua progres</button></div>' +
       '</div>' + bottombar('#/rak', '', null) + '</div>');
     document.getElementById('nm').addEventListener('change', function (e) { S.name = e.target.value.trim(); ST.save(); });
     document.getElementById('set-ro').addEventListener('change', function (e) { setG('ro', e.target.checked); });
     document.getElementById('set-ar').addEventListener('change', function (e) { setG('ar', e.target.checked); });
+    document.getElementById('set-gerak').addEventListener('change', function (e) { ST.set().gerak = e.target.checked ? 'kurang' : 'ikut'; ST.save(); terapkanGerak(); toast(e.target.checked ? 'Gerak dikurangi.' : 'Gerak mengikuti setelan perangkat.'); });
     view.querySelectorAll('.kv-chip[data-kec]').forEach(function (b) {
       b.addEventListener('click', function () {
         ST.set().kec = b.dataset.kec; ST.save();
@@ -857,13 +862,19 @@
      isi lama bergeser keluar dan isi baru masuk dari arah yang sesuai (maju → dari kanan, mundur → dari kiri).
      Bilah atas, sidebar, dan bilah bawah diam. Peramban tanpa View Transitions atau dengan "kurangi gerak" langsung berganti. */
   var hashLalu = location.hash;
+  var KERANGKA = /^#\/(bab|kuis|pre|post|hal|atur|rapor)\b/;   /* layar ber-sidebar: antarhalaman memudar singkat */
   function arahGeser(a, b) {
     var ra = /^#\/(bab\/\d+|pre|post|sim)\/(\d+)/.exec(a || ''), rb = /^#\/(bab\/\d+|pre|post|sim)\/(\d+)/.exec(b || '');
     if (!ra || !rb || ra[1] !== rb[1] || ra[2] === rb[2]) return null;
     return +rb[2] > +ra[2] ? 'maju' : 'mundur';
   }
+  /* gerak dikurangi bila pengguna memilihnya di Pengaturan ATAU perangkat meminta (prefers-reduced-motion); berubah langsung tanpa muat ulang */
+  var mqGerak = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function terapkanGerak() { document.documentElement.classList.toggle('gerak-kurang', ST.set().gerak === 'kurang' || !!(mqGerak && mqGerak.matches)); }
+  terapkanGerak();
+  if (mqGerak && mqGerak.addEventListener) mqGerak.addEventListener('change', terapkanGerak);
   window.addEventListener('hashchange', function () {
-    var arah = arahGeser(hashLalu, location.hash); hashLalu = location.hash;
+    var arah = arahGeser(hashLalu, location.hash) || (KERANGKA.test(hashLalu) && KERANGKA.test(location.hash) ? 'pudar' : null); hashLalu = location.hash;
     denganGeser(arah, route);
   });
   route();

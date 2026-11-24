@@ -134,8 +134,8 @@
             h.fase = 'rekam'; draw();
             var meter = root.querySelector('.lt-meter i'), waktu = root.querySelector('.lt-wkt'), bar = root.querySelector('.ls-zone i');
             rec = SU.rekam(stream, { maks: K.maks, target: K.target,
-              onLevel: function (v) { if (meter) meter.style.width = Math.round(v * 100) + '%'; },
-              onDetik: function (d) { if (waktu) waktu.textContent = Math.floor(d / 60) + ':' + ('0' + Math.floor(d % 60)).slice(-2); if (bar) bar.style.width = Math.min(100, d / K.maks * 100) + '%'; },
+              onLevel: function (v) { if (meter) meter.style.transform = 'scaleX(' + Math.min(1, v).toFixed(3) + ')'; },
+              onDetik: function (d) { if (waktu) waktu.textContent = Math.floor(d / 60) + ':' + ('0' + Math.floor(d % 60)).slice(-2); if (bar) bar.style.transform = 'scaleX(' + Math.min(1, d / K.maks).toFixed(3) + ')'; },
               onSelesai: function (r) {
                 stream.getTracks().forEach(function (x) { x.stop(); }); rec = null;
                 if (h.rek && h.rek.url) URL.revokeObjectURL(h.rek.url);

@@ -70,6 +70,13 @@ Catatan keputusan yang sudah dikunci. Semua dokumen T1/T2 harus mengikuti ini.
 - Suara dialog: VOICEVOX:雀松朱司 (sintetis, bukan penutur asli; kredit wajib). Bila nanti ada rekaman penutur asli, ganti
   `public/audio/k1–k4.wav` di `sumber/video/b2-09/` lalu render ulang; animasi mengikuti waktu frasa.
 
+## Prinsip gerak (24 Nov)
+- Gerak = umpan balik dan kesinambungan, bukan hiasan. Respons klik 100–250 ms; masuk melambat (ease-out), keluar cepat (ease-in).
+- Hanya transform dan opacity yang beranimasi per frame (60 fps). Ukuran berubah → scaleX/FLIP; tinggi isi → grid 0fr → 1fr.
+- Gerak berulang dibatasi: ajakan (mis. panah adegan berikutnya) maksimal tiga kali; yang terus berulang hanya penanda kecil (titik aktif, titik kesalahan).
+- Kurangi gerak (Pengaturan atau prefers-reduced-motion): bertingkat — geser/membesar/melayang/denyut dibuang, kemunculan isi jadi pudar ≤ 200 ms, pindah slide jadi pudar.
+- Aktivitas "Temukan kesalahan" memakai latar foto yang ada (koridor, ruang wawancara) sampai video peragaan Bab 3/6 tersedia.
+
 ## Pemilihan bab = rak buku 3D (24 Nov)
 - Referensi tim: ThreeUI "Ashen Press" (Meng To, Three.js r181). Diambil gerak & interaksinya, bukan gambarnya; isi, sampul, dan warna dibuat ulang.
 - Prototipe: https://claude.ai/artifact/HcEfFzfnaz414uPJ3Wus6A (sumber: rak-bab-mensetsu-navi.html); versi produk = rak.html di repo.

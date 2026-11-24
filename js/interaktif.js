@@ -108,7 +108,7 @@
   W.open = function (cards, hint) {
     return {
       html: '<div class="ix-open" role="list">' + cards.map(function (c, i) {
-        return '<div class="ix-card" role="listitem"><button class="ix-head" aria-expanded="false" data-i="' + i + '"><span class="ix-n">' + (i + 1) + '</span><span class="ix-l">' + md(c.label) + '</span><span class="ix-ck" aria-hidden="true"></span></button><div class="ix-body" hidden>' + c.body + '</div></div>';
+        return '<div class="ix-card" role="listitem"><button class="ix-head" aria-expanded="false" data-i="' + i + '"><span class="ix-n">' + (i + 1) + '</span><span class="ix-l">' + md(c.label) + '</span><span class="ix-ck" aria-hidden="true"></span></button><div class="ix-lipat"><div class="ix-body">' + c.body + '</div></div></div>';
       }).join('') + '</div><p class="ix-hint">' + esc(hint || 'Ketuk setiap kartu untuk membukanya.') + ' <span class="ix-count"></span></p>',
       bind: function (el, done) {
         var seen = {}, n = cards.length, cnt = el.querySelector('.ix-count');
@@ -116,7 +116,7 @@
         el.querySelectorAll('.ix-head').forEach(function (b) {
           b.addEventListener('click', function () {
             var open = b.getAttribute('aria-expanded') !== 'true';
-            b.setAttribute('aria-expanded', open); b.nextElementSibling.hidden = !open;
+            b.setAttribute('aria-expanded', open);   /* .ix-lipat membuka/menutup lewat kelas .on (grid 0fr → 1fr) */
             b.parentNode.classList.toggle('on', open);
             if (open) { seen[b.dataset.i] = 1; b.parentNode.classList.add('seen'); upd(); }
           });
@@ -221,7 +221,7 @@
             f.hidden = false; f.className = 'ix-fb ' + (good ? 'good' : mid ? 'mid' : 'bad');
             f.innerHTML = '<b>' + md(res) + '.</b> ' + md(r[2]) + (good ? '' : ' <i>Coba pilihan lain.</i>');
             var meter = el.closest('.card') && el.closest('.card').querySelector('.ix-trust i');
-            if (meter) meter.style.width = Math.max(5, Math.min(100, parseFloat(meter.style.width || 50) + (good ? 12 : mid ? -4 : -12))) + '%';
+            if (meter) { var nv = Math.max(5, Math.min(100, (+meter.dataset.v || 50) + (good ? 12 : mid ? -4 : -12))); meter.dataset.v = nv; meter.style.transform = 'scaleX(' + nv / 100 + ')'; }
             if (good) done();
           });
         });
@@ -460,7 +460,12 @@
         function upd() { cnt.textContent = next + '/' + steps.length; if (next === steps.length) done(); }
         el.querySelectorAll('.ix-pool .ix-o').forEach(function (b) {
           b.addEventListener('click', function () {
-            if (+b.dataset.i === next) { slots[next].innerHTML = md(steps[next]); slots[next].className = 'ix-in'; b.remove(); next++; upd(); }
+            if (+b.dataset.i === next) {
+              var r0 = b.getBoundingClientRect(), slot = slots[next];
+              slot.innerHTML = md(steps[next]); slot.className = 'isi'; b.remove();
+              terbang(slot, r0);
+              next++; upd();
+            }
             else { b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake', 'bad'); setTimeout(function () { b.classList.remove('bad'); }, 600); }
           });
         });
@@ -478,25 +483,71 @@
 
   /* T09: penggeser sudut ojigi */
   W.ojigi = function (t) {
+    /* figur tampak samping (menghadap kanan), badan atas berputar di pinggul P(150,150); busur sudut berjari-jari 132 */
     var sd = hdr(t, /sudut/i), rows = t.slice(1).map(function (r) { return { deg: parseFloat(String(r[sd]).replace(/[^\d.]/g, '')), r: r }; });
+    var P = 'rotate(0 150 150)', R = 132;
+    var titik = function (d, r) { var a = d * Math.PI / 180; return [(150 + r * Math.sin(a)).toFixed(1), (150 - r * Math.cos(a)).toFixed(1)]; };
+    var busur = 'M150 ' + (150 - R) + ' A' + R + ' ' + R + ' 0 0 1 ' + titik(45, R).join(' ');
+    var atas = '<rect x="144" y="70" width="12" height="16" rx="4" fill="#F1CDB2"/>' +
+      '<rect x="128" y="82" width="44" height="76" rx="15" fill="#25345A"/>' +
+      '<path d="M140 84 L150 108 L160 84 Z" fill="#fff"/><path d="M150 92 L146 98 L150 120 L154 98 Z" fill="#B3282F"/>' +
+      '<rect x="159" y="92" width="13" height="62" rx="6.5" fill="#1B2744"/><circle cx="165.5" cy="157" r="6" fill="#F1CDB2"/>' +
+      '<circle cx="150" cy="54" r="22" fill="#F6D8C3"/><path d="M128 54 C126 30 150 24 164 34 C170 38 172 44 171 49 C160 44 148 46 140 52 C137 58 134 64 131 66 Z" fill="#45397A"/>' +
+      '<circle cx="162" cy="56" r="2.4" fill="#14171F"/>';
+    var hantu = rows.map(function (x) { return '<g class="oj-hantu" data-d="' + x.deg + '" transform="rotate(' + x.deg + ' 150 150)">' + atas + '</g>'; }).join('');
+    var tik = rows.map(function (x) {
+      var a = titik(x.deg, R - 9), b = titik(x.deg, R + 9), l = titik(x.deg, R + 26);
+      return '<line class="oj-tik" data-d="' + x.deg + '" x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '"/><text class="oj-tl" data-d="' + x.deg + '" x="' + l[0] + '" y="' + l[1] + '">' + x.deg + '°</text>';
+    }).join('');
     return {
-      html: '<div class="ix-oj"><svg viewBox="0 0 200 200" class="ix-fig" aria-hidden="true"><line x1="40" y1="190" x2="170" y2="190" stroke="var(--line)" stroke-width="4"/>' +
-        '<g class="legs"><line x1="100" y1="188" x2="100" y2="120" stroke="var(--ink)" stroke-width="12" stroke-linecap="round"/></g>' +
-        '<g class="torso" style="transform-origin:100px 120px"><line x1="100" y1="120" x2="100" y2="62" stroke="var(--c)" stroke-width="16" stroke-linecap="round"/><circle cx="100" cy="40" r="17" fill="var(--ink)"/></g></svg>' +
-        '<div class="ix-deg"><b>0°</b></div><input type="range" min="0" max="45" value="0" step="1" aria-label="Sudut ojigi"><div class="ix-ojc" hidden></div>' +
-        '<p class="ix-hint">Geser untuk membungkuk; berhenti di setiap jenis ojigi. <span class="ix-count"></span></p></div>',
+      html: '<div class="oj"><div class="oj-panggung"><svg viewBox="0 -24 340 286" class="oj-fig" aria-hidden="true">' +
+          '<path class="oj-jalur" d="' + busur + '"/><path class="oj-busur" d="' + busur + '" pathLength="45" stroke-dasharray="45" stroke-dashoffset="45"/>' + tik + hantu +
+          '<line x1="52" y1="238" x2="292" y2="238" class="oj-lantai"/>' +
+          '<rect x="136" y="148" width="15" height="86" rx="7" fill="#1B2744"/><rect x="149" y="148" width="15" height="86" rx="7" fill="#25345A"/>' +
+          '<ellipse cx="162" cy="235" rx="17" ry="6" fill="#14171F"/><ellipse cx="148" cy="235" rx="15" ry="5.5" fill="#14171F"/>' +
+          '<g class="oj-atas" transform="' + P + '">' + atas + '</g></svg>' +
+          '<div class="oj-baca"><b class="oj-deg">0°</b><span class="oj-jenis">Berdiri tegak</span></div></div>' +
+        '<div class="oj-kontrol"><input type="range" min="0" max="45" value="0" step="1" aria-label="Sudut ojigi">' +
+          '<div class="oj-pilih">' + rows.map(function (x) { return '<button class="ix-o" data-d="' + x.deg + '">' + md(x.r[0]) + ' · ' + x.deg + '°</button>'; }).join('') + '</div>' +
+          '<div class="oj-kartu"><p class="oj-kosong">Geser ke 15°, 30°, atau 45°, atau ketuk salah satu jenis di atas.</p></div>' +
+          '<p class="ix-hint">Lihat ketiga jenis ojigi. <span class="ix-count"></span></p></div></div>',
       bind: function (el, done) {
-        var inp = el.querySelector('input'), tor = el.querySelector('.torso'), deg = el.querySelector('.ix-deg b'), card = el.querySelector('.ix-ojc'), seen = {}, cnt = el.querySelector('.ix-count');
+        var inp = el.querySelector('input'), g = el.querySelector('.oj-atas'), bus = el.querySelector('.oj-busur'), deg = el.querySelector('.oj-deg'), jenis = el.querySelector('.oj-jenis');
+        var kartu = el.querySelector('.oj-kartu'), cnt = el.querySelector('.ix-count'), seen = {}, kini = 0, target = 0, jalan = false, aktif = null;
+        function gambar(v) {
+          g.setAttribute('transform', 'rotate(' + v.toFixed(2) + ' 150 150)');
+          bus.setAttribute('stroke-dashoffset', (45 - v).toFixed(2));
+          deg.textContent = Math.round(v) + '°';
+        }
+        /* pegas ringan: badan mengejar sudut sasaran dengan perlambatan, bukan melompat */
+        function langkah() {
+          var beda = target - kini;
+          if (Math.abs(beda) < 0.05 || gerakDikurangi()) { kini = target; gambar(kini); jalan = false; return; }
+          kini += beda * 0.2; gambar(kini); requestAnimationFrame(langkah);
+        }
         function upd() {
-          var v = +inp.value; tor.style.transform = 'rotate(' + v + 'deg)'; deg.textContent = v + '°';
-          var hit = rows.filter(function (x) { return Math.abs(x.deg - v) <= 2; })[0];
-          if (hit) {
-            seen[hit.deg] = 1; card.hidden = false;
-            card.innerHTML = '<b class="jp">' + md(hit.r[0]) + '</b> · ' + md(hit.r[sd]) + t[0].map(function (h, i) { return i > 1 ? '<p><b class="ix-k">' + md(h) + '</b> ' + md(hit.r[i]) + '</p>' : ''; }).join('');
-          } else card.hidden = true;
+          target = +inp.value;
+          if (!jalan) { jalan = true; requestAnimationFrame(langkah); }
+          var hit = rows.filter(function (x) { return Math.abs(x.deg - target) <= 2; })[0];
+          el.querySelectorAll('.oj-pilih .ix-o').forEach(function (b) { b.classList.toggle('sel', !!hit && +b.dataset.d === hit.deg); });
+          el.querySelectorAll('.oj-tik, .oj-tl').forEach(function (x) { x.classList.toggle('on', !!hit && +x.getAttribute('data-d') === hit.deg); });
+          jenis.innerHTML = hit ? md(hit.r[0]) : target === 0 ? 'Berdiri tegak' : 'Teruskan…';
+          if (hit && aktif !== hit.deg) {
+            aktif = hit.deg; seen[hit.deg] = 1;
+            var h = el.querySelector('.oj-hantu[data-d="' + hit.deg + '"]'); if (h) h.classList.add('on');
+            kartu.innerHTML = '<div class="oj-info"><b class="jp">' + md(hit.r[0]) + '</b><span class="oj-sudut">' + md(hit.r[sd]) + '</span>' +
+              t[0].map(function (hd, i) { return i > 1 ? '<p><b class="ix-k">' + md(hd) + '</b> ' + md(hit.r[i]) + '</p>' : ''; }).join('') + '</div>';
+          } else if (!hit && aktif !== null) { aktif = null; }
           var k = Object.keys(seen).length; cnt.textContent = k + '/' + rows.length; if (k === rows.length) done();
         }
-        inp.addEventListener('input', upd); upd();
+        inp.addEventListener('input', upd);
+        /* lepas di dekat salah satu sudut → menempel ke sudut itu */
+        inp.addEventListener('change', function () {
+          var v = +inp.value, dekat = rows.filter(function (x) { return Math.abs(x.deg - v) <= 4; })[0];
+          if (dekat && dekat.deg !== v) { inp.value = dekat.deg; upd(); }
+        });
+        el.querySelectorAll('.oj-pilih .ix-o').forEach(function (b) { b.addEventListener('click', function () { inp.value = b.dataset.d; upd(); }); });
+        upd();
       }
     };
   };
@@ -558,9 +609,156 @@
 
   /* ---------------------------------------------------- penyusun slide */
   var NOINT = ['T01', 'T17', 'T18', 'T19', 'T20', 'T21', ''];
+  /* FLIP: elemen tampak berangkat dari posisi lama (r0) lalu meluncur ke posisi barunya — hanya transform, halus 60 fps */
+  function terbang(el, r0) {
+    if (!el.animate || gerakDikurangi()) return;
+    var r1 = el.getBoundingClientRect();
+    el.animate([
+      { transformOrigin: 'top left', transform: 'translate(' + (r0.left - r1.left) + 'px,' + (r0.top - r1.top) + 'px) scale(' + (r0.width / r1.width) + ',' + (r0.height / r1.height) + ')' },
+      { transformOrigin: 'top left', transform: 'none' }
+    ], { duration: 380, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+  }
+  function gerakDikurangi() {
+    return document.documentElement.classList.contains('gerak-kurang') || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  /* T08 adegan bergambar ("Temukan kesalahan"): beberapa babak berlatar foto, satu titik kesalahan per babak.
+     Ketuk titik → kesalahan + umpan balik, tersusun di daftar temuan. cfg = { tanya?, babak: [{ bg, x, y, aksi, judul, isi?, efek? }] } */
+  W.adegan = function (cfg) {
+    var n = cfg.babak.length;
+    var babak = cfg.babak.map(function (b, i) {
+      return '<div class="adg-babak" data-k="' + i + '"' + (i ? ' hidden' : '') + '><div class="adg-bg" style="background-image:url(assets/bg/' + b.bg + '.webp)"></div>' +
+        (b.efek === 'ketuk' ? '<span class="adg-tok" style="left:' + (b.x + 6) + '%;top:' + (b.y - 16) + '%">tok</span><span class="adg-tok d2" style="left:' + (b.x + 11) + '%;top:' + (b.y - 6) + '%">tok</span>' : '') +
+        '<p class="adg-aksi"><span>Adegan ' + (i + 1) + ' dari ' + n + '</span>' + md(b.aksi) + '</p>' +
+        '<button class="adg-titik" style="left:' + b.x + '%;top:' + b.y + '%" aria-label="Periksa bagian ini (adegan ' + (i + 1) + ')"><span class="adg-cincin"></span><span class="adg-inti">!</span></button>' +
+        '<div class="adg-pop" role="status"><span class="adg-pop-l">Kesalahan ' + (i + 1) + '</span><b>' + md(b.judul) + '</b>' + (b.isi ? '<p>' + md(b.isi) + '</p>' : '') + '</div></div>';
+    }).join('');
+    return {
+      html: (cfg.tanya ? '<div class="adg-tanya"><p class="adg-q">' + md(cfg.tanya.teks) + '</p><div class="adg-opsi">' + cfg.tanya.opsi.map(function (o, i) { return '<button class="ix-o" data-i="' + i + '">' + md(o) + '</button>'; }).join('') +
+          '</div><p class="ix-hint adg-catat" hidden>' + md(cfg.tanya.catat) + '</p></div>' : '') +
+        '<div class="adg' + (cfg.tanya ? ' kunci' : '') + '"><div class="adg-layar">' + babak +
+        '<span class="adg-hitung" aria-live="polite">Ditemukan <b>0</b>/' + n + '</span>' +
+        '<button class="adg-nav kiri" aria-label="Adegan sebelumnya">‹</button><button class="adg-nav kanan" aria-label="Adegan berikutnya">›</button>' +
+        '<div class="adg-tutup"><span>Pilih jawabanmu dulu</span></div></div>' +
+        '<div class="adg-bawah"><span class="adg-dots">' + cfg.babak.map(function (_, i) { return '<button data-k="' + i + '" aria-label="Adegan ' + (i + 1) + '"></button>'; }).join('') + '</span>' +
+        '<span class="ix-hint">Ketuk tanda <b>!</b> di setiap adegan.</span></div><ol class="adg-temuan"></ol></div>',
+      bind: function (el, done) {
+        var at = 0, found = {}, root = el.querySelector('.adg'), list = el.querySelector('.adg-temuan'), hitung = el.querySelector('.adg-hitung b');
+        var bb = el.querySelectorAll('.adg-babak'), dots = el.querySelectorAll('.adg-dots button');
+        var kiri = el.querySelector('.adg-nav.kiri'), kanan = el.querySelector('.adg-nav.kanan');
+        function upd() {
+          kiri.disabled = at === 0; kanan.disabled = at === n - 1;
+          kanan.classList.toggle('ajak', !!found[at] && at < n - 1 && !found[at + 1]);
+          dots.forEach(function (d, k) { d.classList.toggle('on', k === at); d.classList.toggle('ok', !!found[k]); });
+          hitung.textContent = Object.keys(found).length;
+        }
+        function ke(i) {
+          if (i < 0 || i >= n || i === at) return;
+          var maju = i > at;
+          bb[at].hidden = true; bb[i].hidden = false;
+          bb[i].classList.remove('dari-kanan', 'dari-kiri'); void bb[i].offsetWidth; bb[i].classList.add(maju ? 'dari-kanan' : 'dari-kiri');
+          at = i; upd();
+        }
+        bb.forEach(function (b, k) {
+          b.querySelector('.adg-titik').addEventListener('click', function () {
+            if (found[k]) return;
+            found[k] = 1; b.classList.add('ketemu');
+            var c = cfg.babak[k], li = document.createElement('li'), sesudah = null;
+            li.className = 'adg-item'; li.dataset.k = k;
+            li.innerHTML = '<span class="adg-no">' + (k + 1) + '</span><span><b>' + md(c.judul) + '</b>' + (c.isi ? '<span>' + md(c.isi) + '</span>' : '') + '</span>';
+            list.querySelectorAll('.adg-item').forEach(function (x) { if (!sesudah && +x.dataset.k > k) sesudah = x; });
+            list.insertBefore(li, sesudah);
+            upd();
+            if (Object.keys(found).length === n) { root.classList.add('selesai'); done(); }
+          });
+        });
+        kiri.addEventListener('click', function () { ke(at - 1); });
+        kanan.addEventListener('click', function () { ke(at + 1); });
+        dots.forEach(function (d) { d.addEventListener('click', function () { ke(+d.dataset.k); }); });
+        if (cfg.tanya) el.querySelectorAll('.adg-opsi .ix-o').forEach(function (o) {
+          o.addEventListener('click', function () {
+            el.querySelectorAll('.adg-opsi .ix-o').forEach(function (x) { x.classList.toggle('sel', x === o); });
+            el.querySelector('.adg-catat').hidden = false; root.classList.remove('kunci');
+          });
+        });
+        upd();
+      }
+    };
+  };
+  /* konfigurasi adegan per slide; teks kesalahan diambil dari naskah slide (tabel B3-02, paragraf B6-02) */
+  var ADEGAN = {
+    'B3-02': function (s) {
+      var t = (s.screen.filter(function (b) { return b.table; })[0] || {}).table || [], r = t.slice(1);
+      if (r.length < 3) return null;
+      var isi = function (x) { return String(x).replace(/^"|"$/g, ''); };
+      return { babak: [
+        { bg: 'koridor', x: 47, y: 40, efek: 'ketuk', aksi: 'Dimas tiba di depan pintu ruang wawancara.', judul: r[0][1], isi: isi(r[0][2]) },
+        { bg: 'koridor', x: 55.5, y: 51, aksi: 'Dimas memegang gagang pintu.', judul: r[1][1], isi: isi(r[1][2]) },
+        { bg: 'ruang_wawancara', x: 50, y: 75, aksi: 'Dimas sudah berada di dalam ruangan.', judul: r[2][1], isi: isi(r[2][2]) }
+      ] };
+    },
+    'B6-02': function (s) {
+      var q = (s.screen[1] || {}).p || '', m = /\*\*"?(.+?)"?\*\*/.exec(q);
+      return {
+        tanya: { teks: m ? m[1] : 'Apakah penilaian sudah selesai saat Dimas keluar ruangan?', opsi: ['Ya', 'Tidak'], catat: 'Jawabannya dibahas di slide berikutnya. Sekarang temukan tiga hal yang dilakukan Dimas.' },
+        babak: [
+          { bg: 'ruang_wawancara', x: 50, y: 70, aksi: 'Wawancara baru saja selesai.', judul: 'Berdiri tanpa salam' },
+          { bg: 'koridor', x: 47, y: 42, aksi: 'Dimas keluar dari ruangan.', judul: 'Menutup pintu keras' },
+          { bg: 'koridor', x: 17, y: 60, aksi: 'Dimas berada di lorong.', judul: 'Di lorong menghela napas keras, melonggarkan dasi, lalu langsung menelepon temannya sambil tertawa' }
+        ]
+      };
+    }
+  };
+
+  /* T08 rekaman (B4-13): setiap rekaman → pilih kesalahan utamanya; umpan balik membuka halus. Rekaman berteks Jepang bisa diputar (suara perangkat). */
+  W.rekaman = function (t) {
+    var iI = hdr(t, /^isi$/i), iK = hdr(t, /kesalahan utama/i), iU = hdr(t, /umpan balik/i), rows = t.slice(1);
+    var opsi = rows.map(function (r) { return r[iK]; });
+    var gel = Array.apply(null, Array(14)).map(function (_, k) { return '<i style="--h:' + (0.3 + 0.7 * Math.abs(Math.sin(k * 1.7 + 0.4))).toFixed(2) + '"></i>'; }).join('');
+    return {
+      html: '<div class="rk">' + rows.map(function (r, i) {
+        var jp = (/「[^」]+」/.exec(r[iI]) || [''])[0];
+        return '<div class="rk-kartu" data-i="' + i + '"><div class="rk-kepala">' +
+          (jp ? '<button class="rk-putar" data-t="' + esc(jp) + '" aria-label="Putar rekaman ' + (i + 1) + '">' + PUTAR + '</button>' : '<span class="rk-putar rk-teks" aria-hidden="true">' + (i + 1) + '</span>') +
+          '<b>Rekaman ' + esc(r[0]) + '</b><span class="rk-gel" aria-hidden="true">' + gel + '</span></div>' +
+          '<p class="rk-isi">' + md(r[iI]) + '</p><p class="rk-tanya">Kesalahan utamanya?</p><div class="rk-opsi">' +
+          shuffle(opsi.map(function (_, k) { return k; })).map(function (k) { return '<button class="ix-o" data-k="' + k + '">' + md(opsi[k]) + '</button>'; }).join('') + '</div>' +
+          '<div class="rk-umpan"><div><p><b>Tepat.</b> ' + md(r[iU]) + '</p></div></div></div>';
+      }).join('') + '</div><p class="ix-hint">Pilih kesalahan utama setiap rekaman. <span class="ix-count"></span></p>',
+      bind: function (el, done) {
+        var ok = {}, cnt = el.querySelector('.ix-count');
+        function upd() { var k = Object.keys(ok).length; cnt.textContent = k + '/' + rows.length; if (k === rows.length) done(); }
+        el.querySelectorAll('.rk-kartu').forEach(function (kartu) {
+          var i = +kartu.dataset.i, putar = kartu.querySelector('button.rk-putar');
+          if (putar) putar.addEventListener('click', function () {
+            kartu.classList.add('main');
+            if (!sayJa(putar.dataset.t, null, function () { kartu.classList.remove('main'); })) { kartu.classList.remove('main'); if (window.MN_APP && MN_APP.toast) MN_APP.toast('Suara Jepang belum tersedia di perangkat ini.'); }
+          });
+          kartu.querySelectorAll('.rk-opsi .ix-o').forEach(function (b) {
+            b.addEventListener('click', function () {
+              if (ok[i]) return;
+              if (+b.dataset.k === i) {
+                ok[i] = 1; b.classList.add('good'); kartu.classList.add('beres');
+                kartu.querySelectorAll('.rk-opsi .ix-o').forEach(function (x) { if (x !== b) x.disabled = true; });
+                upd();
+              } else { b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake', 'bad'); setTimeout(function () { b.classList.remove('bad'); }, 700); }
+            });
+          });
+        });
+        upd();
+      }
+    };
+  };
+
   function render(code) {
     var s = D.slides[code], tpl = s.tpl || '', gs = groups(s.screen), parts = [], ws = [];
     if (NOINT.indexOf(tpl) >= 0) return null;
+    /* adegan bergambar (T08 B3-02, B6-02): pengantar + satu widget; paragraf/tabel naskah lainnya sudah ada di dalam widget */
+    var cfgAdegan = ADEGAN[code] && ADEGAN[code](s);
+    if (cfgAdegan) {
+      var wa = W.adegan(cfgAdegan), pengantar = gs.filter(function (g) { return g.p; }).slice(0, 1).map(function (g) { return para(code, g.i, g.p); }).join('');
+      return { html: pengantar + '<div class="ix" data-w="0">' + wa.html + '</div>', gated: true, bind: function (root, onDone) { wa.bind(root.querySelector('.ix[data-w="0"]'), onDone); } };
+    }
     function add(w) { var id = ws.length; ws.push(w); parts.push('<div class="ix" data-w="' + id + '">' + w.html + '</div>'); }
 
     var choiceAt = -1, choiceLabels = null, vsAt = -1, vidBuka = false;
@@ -592,6 +790,7 @@
           var jw = window.MN_JIKO.widget({ sayJa: sayJa, spk: SPK, md: md, esc: esc });
           if (jw) return add(jw);
         }
+        if (tpl === 'T08' && hdr(t, /kesalahan utama/i) >= 0 && hdr(t, /^isi$/i) >= 0) return add(W.rekaman(t));
         if (/^T0[3678]$|^T16$/.test(tpl)) {
           var lc = [0]; if (t[0].length >= 4 && t.slice(1).every(function (r) { return String(r[1]).length < 40; })) lc = [0, 1];
           if (/pertanyaan/i.test(t[0][1]) && /^no$/i.test(t[0][0])) lc = [1];
@@ -638,7 +837,7 @@
       add(lw || W.record());
     }
     if (tpl === 'T09' && !ws.length) return null;
-    if (/Kepercayaan/.test((s.screen[0] || {}).p || '')) parts.unshift('<div class="ix-trust" aria-label="Indikator kepercayaan"><span>信頼 Kepercayaan</span><b><i style="width:50%"></i></b></div>');
+    if (/Kepercayaan/.test((s.screen[0] || {}).p || '')) parts.unshift('<div class="ix-trust" aria-label="Indikator kepercayaan"><span>信頼 Kepercayaan</span><b><i data-v="50" style="transform:scaleX(.5)"></i></b></div>');
     if (!ws.length) return null;
     return {
       html: parts.join(''),

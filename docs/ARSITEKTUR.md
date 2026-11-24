@@ -178,3 +178,5 @@ Di bawah 1024px `appbar` dan `side` disembunyikan CSS, jadi tampilan HP tidak be
 - **`sidebar(cur)`**: Beranda, enam bab (badge warna bab, 済 bila selesai, % bila berjalan, gembok bila terkunci); bab aktif membuka daftar pelajaran (`pelajaran()`, per pelajaran, tanpa kode slide); Evaluasi (Simulasi, Post-test, Rapor; terkunci sesuai syarat); Sumber belajar; Pengaturan. `cur` = `{bab,k}` di slide, `{bab}` di kuis, `{page}` di layar lain (`curDariHash()`).
 - Tombol `.gt` (Romaji/Arti) diikat sekali di `show()` (header laptop dan baris di slide HP); jangan mengikatnya lagi di tempat lain agar tidak berubah dua kali.
 - Menu ☰ (HP) ikut tertutup saat halaman berganti (`route()`); ikon menu kini berukuran 22px.
+
+- **T02 tabel 3 kolom berkolom pertama kosong** (sekarang hanya B1-02) dirender `W.versus`: dua panel berdampingan (layar terbelah), kalimat "Pertanyaan: …" dipindah ke atas panel, pilihan di dalam panel membuka kunci Lanjut.

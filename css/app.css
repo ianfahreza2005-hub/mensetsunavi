@@ -894,3 +894,57 @@ a { color: var(--pri); text-underline-offset: 3px; text-decoration-thickness: 1.
   .rv-h { -webkit-mask-image: none; mask-image: none; }
   .btn, .opt, .icon-btn, .lessons li, .km-card, .side .sd-l, .side .sd-bab, .sd-les a { transition: none !important; transform: none !important; }
 }
+
+/* ---------- T02 perbandingan "versus" (B1-02): layar terbelah, sisi yang disentuh melebar ---------- */
+.vs { --wa: 1fr; --wb: 1fr; --split: 50%; position: relative; display: grid; grid-template-columns: var(--wa) var(--wb); grid-template-rows: repeat(var(--n), auto);
+  border-radius: var(--r-lg); overflow: hidden; isolation: isolate; box-shadow: 0 20px 40px -24px rgba(14, 42, 71, .55);
+  transition: grid-template-columns .7s var(--ease); }
+.vs[data-f="a"] { --wa: 1.55fr; --split: 60.8%; }
+.vs[data-f="b"] { --wb: 1.55fr; --split: 39.2%; }
+.vs-p { grid-row: 1 / -1; display: grid; grid-template-rows: subgrid; gap: 0; position: relative; color: #fff; padding: 20px 20px 18px; cursor: pointer;
+  background-color: var(--pc); background-image: var(--nami), radial-gradient(120% 90% at var(--gx, 30%) 0%, rgba(255, 255, 255, .16), transparent 60%);
+  background-size: 260px auto, cover; background-blend-mode: soft-light, normal; transition: filter .5s var(--ease), opacity .5s; }
+.vs-a { --pc: var(--ai); padding-right: 34px; animation: vsKiri .8s var(--ease) both; }
+.vs-b { --pc: var(--akane); --gx: 70%; padding-left: 34px; animation: vsKanan .8s var(--ease) both; }
+@keyframes vsKiri { from { transform: translateX(-30px); opacity: 0; } }
+@keyframes vsKanan { from { transform: translateX(30px); opacity: 0; } }
+.vs-h { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 104px; margin-bottom: 6px; }
+.vs-big { position: absolute; top: -18px; font: 800 clamp(96px, 13vw, 150px)/1 var(--head); color: rgba(255, 255, 255, .16); letter-spacing: -.06em; pointer-events: none;
+  transform: translate(calc(var(--px, 0) * 18px), calc(var(--py, 0) * 12px)) scale(1); transition: transform .6s var(--ease), color .5s; }
+.vs-a .vs-big { left: -6px; } .vs-b .vs-big { right: -6px; }
+.vs-b .vs-h, .vs-b .vs-r { text-align: right; }
+.vs-lab { position: relative; font: 700 clamp(19px, 2.6vw, 26px)/1.1 var(--head); letter-spacing: -.02em; }
+.vs-r { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-top: 1px solid rgba(255, 255, 255, .2); animation: muncul .6s var(--ease) both; animation-delay: calc(var(--d) * 90ms + 350ms); }
+.vs-r small { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .72; }
+.vs-r span { font-size: 15px; font-weight: 600; line-height: 1.4; transition: opacity .5s; }
+.vs-pilih { align-self: end; justify-self: start; margin-top: 10px; min-height: 44px; padding: 10px 18px; border: 0; border-radius: 999px; background: rgba(255, 255, 255, .95); color: var(--pc);
+  font: 700 14px/1 var(--head); box-shadow: 0 8px 18px -8px rgba(0, 0, 0, .45); transition: transform .35s var(--spring), background-color .2s, color .2s; }
+.vs-b .vs-pilih { justify-self: end; }
+.vs-pilih:hover { transform: translateY(-2px) scale(1.03); }
+.vs-pilih:active { transform: scale(.96); }
+.vs-pilih.sel { background: var(--tetsukon); color: #fff; box-shadow: 0 0 0 3px #fff, 0 10px 22px -8px rgba(0, 0, 0, .5); animation: letup .45s var(--spring); }
+.vs-knob { position: absolute; z-index: 2; top: 50%; left: var(--split); width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; background: #fff; color: var(--ink);
+  display: flex; align-items: center; justify-content: center; gap: 3px; font: 800 15px/1 var(--head); letter-spacing: -.02em; box-shadow: 0 0 0 6px rgba(255, 255, 255, .25), 0 12px 26px -8px rgba(0, 0, 0, .5);
+  transition: left .7s var(--ease); animation: knob .7s .55s var(--spring) both; pointer-events: none; }
+.vs-knob i { font-style: normal; font-size: 18px; color: var(--ink2); transition: transform .5s var(--spring), opacity .3s; }
+@keyframes knob { from { transform: scale(0) rotate(-90deg); } }
+.vs[data-f="a"] .vs-knob i:first-child, .vs[data-f="b"] .vs-knob i:last-child { opacity: .25; }
+.vs[data-f="a"] .vs-knob i:last-child { transform: translateX(3px); }
+.vs[data-f="b"] .vs-knob i:first-child { transform: translateX(-3px); }
+.vs[data-f="a"] .vs-a .vs-big, .vs[data-f="b"] .vs-b .vs-big { color: rgba(255, 255, 255, .26); transform: translate(calc(var(--px, 0) * 18px), calc(var(--py, 0) * 12px)) scale(1.12); }
+.vs[data-f="a"] .vs-b .vs-r span, .vs[data-f="b"] .vs-a .vs-r span { opacity: .72; }
+.vs[data-pilih="0"] .vs-b, .vs[data-pilih="1"] .vs-a { filter: saturate(.25) brightness(.85); }
+.vs-hint { text-align: center; }
+@media (max-width: 560px) {
+  .vs { grid-template-columns: var(--wa) var(--wb); }
+  .vs[data-f="a"] { --wa: 1.7fr; --split: 63%; } .vs[data-f="b"] { --wb: 1.7fr; --split: 37%; }
+  .vs-p { padding: 16px 12px 14px; } .vs-a { padding-right: 24px; } .vs-b { padding-left: 24px; }
+  .vs-h { min-height: 80px; } .vs-big { font-size: 92px; top: -10px; }
+  .vs-r span { font-size: 13.5px; }
+  .vs-knob { width: 48px; height: 48px; margin: -24px 0 0 -24px; font-size: 12px; } .vs-knob i { display: none; }
+  .vs-pilih { padding: 10px 16px; font-size: 13px; } .vs-pl { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vs, .vs-knob, .vs-big { transition: none !important; }
+  .vs-a, .vs-b, .vs-r, .vs-knob, .vs-pilih.sel { animation: none !important; }
+}

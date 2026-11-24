@@ -326,6 +326,53 @@
     };
   };
 
+  /* T02 tabel perbandingan 3 kolom (B1-02 "Siapa yang Lolos?"): dua panel berdampingan.
+     Sisi yang disentuh kursor/diketuk melebar (layar terbelah), baris muncul bergantian, peserta memilih di panelnya. */
+  W.versus = function (t) {
+    var rows = t.slice(1), sisi = [1, 2];
+    function huruf(l) { var m = /\s([A-Z0-9])$/.exec(l); return m ? m[1] : l.charAt(0); }
+    /* "Pilih Kandidat A"; di HP sempit kata depan disembunyikan menjadi "Pilih A" */
+    function pilihTeks(j) { var l = t[0][j + 1], h = huruf(l); return 'Pilih <span class="vs-pl">' + esc(l.slice(0, l.length - h.length)) + '</span>' + esc(h); }
+    function panel(k, j) {
+      var lab = t[0][k];
+      return '<div class="vs-p vs-' + (j ? 'b' : 'a') + '" data-s="' + j + '" style="--rows:' + (rows.length + 2) + '">' +
+        '<div class="vs-h"><span class="vs-big" aria-hidden="true">' + esc(huruf(lab)) + '</span><span class="vs-lab">' + md(lab) + '</span></div>' +
+        rows.map(function (r, i) { return '<div class="vs-r" style="--d:' + (i * 2 + j) + '"><small>' + md(r[0]) + '</small><span>' + md(r[k]) + '</span></div>'; }).join('') +
+        '<button class="vs-pilih" data-i="' + j + '">' + pilihTeks(j) + '</button></div>';
+    }
+    return {
+      html: '<div class="vs" style="--n:' + (rows.length + 2) + '">' + panel(1, 0) + '<span class="vs-knob" aria-hidden="true"><i>‹</i>VS<i>›</i></span>' + panel(2, 1) + '</div>' +
+        '<p class="ix-hint vs-hint">Arahkan kursor atau ketuk sisi kandidat untuk membandingkan, lalu pilih yang menurutmu lolos.</p>',
+      bind: function (el, done) {
+        var vs = el.querySelector('.vs'), hint = el.querySelector('.vs-hint'), jenis = 'mouse';
+        vs.addEventListener('pointerdown', function (e) { jenis = e.pointerType; });
+        function fokus(s) { if (vs.dataset.pilih == null) vs.dataset.f = s; }
+        el.querySelectorAll('.vs-p').forEach(function (p) {
+          var s = p.dataset.s === '0' ? 'a' : 'b';
+          p.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') fokus(s); });
+          /* sentuh: ketuk untuk melebarkan/menutup; mouse: sudah melebar lewat hover, klik tidak menutupnya */
+          p.addEventListener('click', function (e) { if (!e.target.closest('.vs-pilih')) fokus(jenis !== 'mouse' && vs.dataset.f === s ? '' : s); });
+          p.addEventListener('pointermove', function (e) {
+            if (e.pointerType !== 'mouse') return;
+            var r = p.getBoundingClientRect();
+            p.style.setProperty('--px', ((e.clientX - r.left) / r.width - .5).toFixed(3));
+            p.style.setProperty('--py', ((e.clientY - r.top) / r.height - .5).toFixed(3));
+          });
+        });
+        vs.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') fokus(''); });
+        el.querySelectorAll('.vs-pilih').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var j = +b.dataset.i;
+            vs.dataset.pilih = j; vs.dataset.f = j ? 'b' : 'a';
+            el.querySelectorAll('.vs-pilih').forEach(function (x) { x.classList.toggle('sel', x === b); x.innerHTML = x === b ? '✓ Pilihanmu' : pilihTeks(+x.dataset.i); });
+            hint.textContent = 'Kamu memilih ' + t[0][j + 1] + '. Lanjut ke slide berikutnya untuk melihat pembahasannya. Kamu masih bisa mengganti pilihan.';
+            done();
+          });
+        });
+      }
+    };
+  };
+
   /* T11 tahap A: urutkan langkah */
   W.order = function (steps) {
     var ord = shuffle(steps.map(function (_, i) { return i; }));
@@ -439,7 +486,7 @@
     if (NOINT.indexOf(tpl) >= 0) return null;
     function add(w) { var id = ws.length; ws.push(w); parts.push('<div class="ix" data-w="' + id + '">' + w.html + '</div>'); }
 
-    var choiceAt = -1, choiceLabels = null;
+    var choiceAt = -1, choiceLabels = null, vsAt = -1;
     gs.forEach(function (g, gi) {
       if (g.table) {
         var t = g.table, h = t[0].join('|');
@@ -451,6 +498,7 @@
         if (hdr(t, /^jawaban$/i) >= 0 && hdr(t, /umpan balik/i) >= 0) return add(W.sort(t));
         if (hdr(t, /cara baca|romaji/i) >= 0 && t.slice(1).some(function (r) { return r.some(function (c) { return CJK.test(c); }); })) return add(W.phrase(t));
         if (tpl === 'T04') return add(W.reveal(t));
+        if (tpl === 'T02' && t[0].length === 3 && !t[0][0]) { vsAt = parts.length; return add(W.versus(t)); }
         if (tpl === 'T02' && t[0].length >= 3) { parts.push(staticTable(t)); choiceAt = parts.length; return; }
         if (tpl === 'T16' && /^blok$/i.test(t[0][0]) && window.MN_JIKO) {
           var jw = window.MN_JIKO.widget({ sayJa: sayJa, spk: SPK, md: md, esc: esc });
@@ -485,6 +533,8 @@
         if (steps.length >= 3) add(W.order(steps));
       }
     });
+    /* perbandingan: kalimat "Pertanyaan: …" dipindah ke atas panel agar dibaca sebelum membandingkan */
+    if (vsAt >= 0) for (var pi = vsAt + 1; pi < parts.length; pi++) if (/Pertanyaan/.test(parts[pi]) && parts[pi].indexOf('class="ix"') < 0) { parts.splice(vsAt, 0, parts.splice(pi, 1)[0]); break; }
     if (choiceAt === -2) parts.push('</div>');
     if (choiceAt > 0) {
       var cand = choiceLabels || gs.filter(function (g) { return g.table; })[0].table[0].filter(Boolean);

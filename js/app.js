@@ -136,6 +136,15 @@
     document.body.className = ((opts && opts.dark) ? 'sim' : '') + setClasses();
     view.innerHTML = html;
     view.querySelectorAll('.screen').forEach(function (sc) { for (var c = sc.firstElementChild; c; c = c.nextElementSibling) if (c.classList.contains('bottombar')) { sc.classList.add('has-bar'); break; } });
+    var sc0 = view.firstElementChild;   /* layar isi (bukan pembuka/simulasi) dibungkus kerangka laptop */
+    if (!(opts && opts.dark) && sc0 && sc0.classList.contains('screen') && !sc0.classList.contains('start')) {
+      var wrap0 = document.createElement('div'); wrap0.className = 'with-side shell';
+      view.replaceChild(wrap0, sc0); wrap0.innerHTML = sidebar(curDariHash()); wrap0.appendChild(sc0);
+    }
+    view.querySelectorAll('.with-side').forEach(function (ws) { ws.insertAdjacentHTML('afterbegin', appbar(ws)); });
+    view.querySelectorAll('.gt').forEach(function (b) { b.addEventListener('click', function () { setG(b.dataset.g, !ST.set()[b.dataset.g]); }); });
+    var ab = view.querySelector('.ab-say');
+    if (ab) ab.addEventListener('click', function () { var sp = view.querySelector('.screen [data-speak]'); if (sp) sp.click(); else toast('Layar ini tidak punya audio narasi.'); });
     window.scrollTo(0, 0);
     view.querySelectorAll('[data-menu]').forEach(function (b) { b.addEventListener('click', openMenu); });
     bindSpeak(view);
@@ -206,12 +215,50 @@
   }
 
   /* ------------------------------------------------------------ slide bab */
-  function side(b, k) {
-    return '<aside class="side"><a href="#/rak">' + ic('home') + ' Rak bab</a><div class="mini" style="padding:10px">' + esc(b.label + ' · ' + b.title) + '</div>' +
-      b.slides.map(function (c, j) {
-        var s = D.slides[c], seen = ST.bab(b.no).seen.indexOf(c) >= 0;
-        return '<a href="#/bab/' + b.no + '/' + j + '"' + (j === k ? ' class="cur"' : '') + '><span class="ck">' + (seen ? '✓' : '') + '</span>' + esc(s.title.replace(/^Aktivitas:\s*/, '')) + '</a>';
-      }).join('') + '</aside>';
+  /* ---------- kerangka laptop (≥1024px): header penuh lebar + sidebar navigasi di semua layar isi (rancangan D2/D4) ---------- */
+  function bagianSelesai() {   /* "X dari 10 bagian": pre-test, 6 stempel, Simulasi, Post-test, Rapor dilihat */
+    var S = ST.get(); return (S.pre ? 1 : 0) + ST.stamps() + (S.sim && S.sim.done ? 1 : 0) + (S.post && S.post.done ? 1 : 0) + (S.raporLihat ? 1 : 0);
+  }
+  function pelajaran(b, k) {   /* daftar slide bab aktif, dikelompokkan per pelajaran (tanpa kode slide) */
+    var out = '<div class="sd-les" style="--c:' + b.col + ';--cl:' + b.colL + '">', pel = null;
+    b.slides.forEach(function (c, j) {
+      var s = D.slides[c], pj = /^P(\d)/.exec(s.pel || ''), lab = pj ? 'P' + pj[1] : (s.pel || '');
+      if (lab !== pel) { pel = lab; if (pj) out += '<div class="sd-pl">' + esc(b.lessons[pj[1] - 1] || '') + '</div>'; }
+      var seen = ST.bab(b.no).seen.indexOf(c) >= 0;
+      out += '<a' + (j === k ? ' class="cur"' : '') + ' href="#/bab/' + b.no + '/' + j + '"><span class="ck">' + (seen ? '✓' : '') + '</span><span>' + esc(s.title.replace(/^Aktivitas:\s*/, '')) + '</span></a>';
+    });
+    return out + '</div>';
+  }
+  function sidebar(cur) {   /* cur = { bab, k } di slide bab · { bab } di kuis · { page } di layar lain */
+    var S = ST.get(), L = function (href, icon, label, key, lock) {
+      return '<a class="sd-l' + (cur.page === key ? ' cur' : '') + (lock ? ' lock' : '') + '" href="' + href + '">' + ic(lock ? 'lock' : icon) + '<span>' + label + '</span></a>';
+    };
+    var h = '<aside class="side" aria-label="Navigasi">' + L('#/rak', 'home', 'Beranda · rak bab', 'rak') + '<div class="sd-sec">Bab</div>';
+    D.bab.forEach(function (b) {
+      var st = ST.status(b.no), pct = Math.round(ST.progress(b.no) * 100), on = cur.bab === b.no;
+      h += '<a class="sd-bab' + (on ? ' cur' : '') + (st === 'locked' ? ' lock' : '') + '" href="#/bab/' + b.no + '/' + (ST.bab(b.no).last || 0) + '" style="--c:' + b.col + ';--cl:' + b.colL + '">' +
+        '<span class="sd-n' + (st === 'done' ? ' done' : '') + '">' + (st === 'done' ? '<span class="jp">済</span>' : st === 'locked' ? ic('lock') : b.no) + '</span><span class="sd-t">' + esc(b.title) + '</span>' +
+        (st !== 'done' && pct ? '<small>' + pct + '%</small>' : '') + '</a>';
+      if (on && cur.k != null) h += pelajaran(b, cur.k);
+    });
+    h += '<div class="sd-sec">Evaluasi</div>' + L('#/sim/0', 'chat', 'Simulasi Mensetsu', 'sim', ST.status(7) === 'locked') + L('#/post/0', 'check', 'Post-test', 'post', ST.status(8) === 'locked') +
+      L('#/rapor', 'trophy', 'Rapor Kesiapan', 'rapor', !(S.post && S.sim)) +
+      '<div class="sd-sec">Sumber belajar</div>' + L('#/hal/GLB-03', 'book', 'Bank Kosakata', 'GLB-03') + L('#/hal/GLB-04', 'chat', 'Latihan Pertanyaan Acak', 'GLB-04') +
+      L('#/hal/GLB-05', 'bulb', 'Tips & Trik', 'GLB-05') + L('#/hal/GLB-07', 'bulb', 'Kata Mutiara', 'GLB-07') + L('#/atur', 'gear', 'Pengaturan', 'atur');
+    return h + '</aside>';
+  }
+  function curDariHash() {
+    var p = (location.hash || '').slice(2).split('/');
+    if (p[0] === 'kuis' || p[0] === 'bab') return { bab: +p[1] };
+    return { page: p[0] === 'hal' ? p[1] : p[0] };
+  }
+  function appbar(ws) {
+    var S = ST.get(), tb = ws.querySelector('.topbar'), sub = tb && tb.querySelector('.sub'), ti = tb && tb.querySelector('.title'), n = bagianSelesai();
+    return '<header class="appbar"><a class="ab-brand" href="#/rak"><b>Mensetsu Navi</b><span class="jp">面接ナビ</span></a>' +
+      '<div class="ab-crumb"><span>' + esc(sub ? sub.textContent : '') + '</span><b>' + esc(ti ? ti.textContent : '') + '</b></div>' +
+      '<div class="ab-prog" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="' + n + '" aria-label="Progres belajar"><i style="width:' + n * 10 + '%"></i></div><span class="ab-pn">' + n + '/10</span>' + gtog() +
+      '<button class="ab-say" aria-label="Putar audio slide">' + ic('speaker') + '</button>' +
+      '<a class="ab-user" href="#/atur"><span class="ab-av">' + esc((S.name || 'P').charAt(0).toUpperCase()) + '</span><span class="ab-nm">' + esc(S.name || 'Peserta') + '</span></a></header>';
   }
   function scrBab(n, k) {
     var b = D.bab[n - 1]; if (!b) return go('#/rak');
@@ -251,7 +298,7 @@
           return '<div class="rp-g"><span class="jp rp-jp">' + esc(g.jp) + '</span><button class="ix-sp rp-say" data-t="' + esc(g.jp) + '" aria-label="Dengarkan ' + esc(g.ro) + '">' + ic('speaker') + '</button>' +
             '<div class="ix-ro">' + esc(g.ro) + '</div><div class="ix-ar">' + esc(g.ar) + '</div></div>'; }).join('') + '</div>' : '') + '</aside>';
     }
-    show('<div class="with-side' + (panel ? ' has-rp' : '') + '" style="--c:' + b.col + ';--cl:' + b.colL + '">' + side(b, k) + '<div class="screen">' + topbar(sub, s.title, pct, b.col) + inner +
+    show('<div class="with-side' + (panel ? ' has-rp' : '') + '" style="--c:' + b.col + ';--cl:' + b.colL + '">' + sidebar({ bab: n, k: k }) + '<div class="screen">' + topbar(sub, s.title, pct, b.col) + inner +
       bottombar(k > 0 ? root + (k - 1) : '#/rak', (k + 1) + ' / ' + b.slides.length, k < last ? root + (k + 1) : null, k === 0 ? 'Mulai ' + b.label : 'Lanjut', gate) + '</div>' + panel + '</div>');
     view.querySelectorAll('.rp-say').forEach(function (bt) { bt.addEventListener('click', function () { if (window.MN_IX && !MN_IX.sayJa(bt.dataset.t)) toast('Suara Jepang belum tersedia di perangkat ini.'); }); });
     var nh = document.getElementById('navi-hint');   /* Petunjuk Navi: hanya di aktivitas slide materi (tidak di kuis, pre/post-test, Simulasi resmi) */
@@ -263,7 +310,6 @@
       function putar() { sayMutiara(c.dataset.bab, c.dataset.say); }
       c.addEventListener('click', putar); c.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); putar(); } });
     });
-    view.querySelectorAll('.gt').forEach(function (b) { b.addEventListener('click', function () { setG(b.dataset.g, !ST.set()[b.dataset.g]); }); });
     if (ix) ix.bind(view, function () {
       if (!ST.isSeen(n, code)) { ST.seen(n, code, k); toast('Bagus! Slide ini selesai.'); }
       var nx = view.querySelector('.bottombar .btn[aria-disabled]');
@@ -447,6 +493,7 @@
   function scrRapor() {
     var S = ST.get();
     if (!S.post || !S.sim) { toast('Rapor terbuka setelah Simulasi dan Post-test.'); return go('#/rak'); }
+    S.raporLihat = true; ST.save();
     var nilai = Math.round(0.5 * S.sim.score + 0.5 * S.post.score);
     var kat = nilai >= 85 ? ['Siap Wawancara', 'ok'] : nilai >= 75 ? ['Lulus, Perlu Penguatan', 'mid'] : ['Belum Lulus', 'no'];
     var pre = S.pre ? S.pre.score : 0, ng = pre >= 100 ? 0 : Math.round((S.post.score - pre) / (100 - pre) * 100) / 100;
@@ -561,6 +608,7 @@
 
   /* ------------------------------------------------------------ router */
   function route() {
+    var dw = document.querySelector('.drawer'); if (dw && dw.parentNode !== document.body) dw.parentNode.remove();   /* menu ☰ ikut tertutup saat halaman berganti */
     stopTimer(); stopVoice();
     var p = (location.hash || '#/').slice(2).split('/');
     var S = ST.get();

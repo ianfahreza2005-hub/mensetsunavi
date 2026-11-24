@@ -91,22 +91,22 @@ for sec in sb:
         order.append(c['code'])
 
 BAB = [
- dict(no=1, label='Bab 1', title='Mengenal Mensetsu', kj='面接', kjr='mensetsu · wawancara kerja', col='#2A4B8D', colL='#E4EBF8', dur='±8 menit',
+ dict(no=1, label='Bab 1', title='Mengenal Mensetsu', kj='面接', kjr='mensetsu · wawancara kerja', col='#0F4C81', colL='#E1EAF4', dur='±8 menit',
       lessons=['Apa Itu Mensetsu?', 'Yang Dinilai Pewawancara', 'Persiapan Sebelum Wawancara'],
       blurb='Sebelum berlatih perkenalan diri dan menjawab pertanyaan, kenali dulu seperti apa wawancara kerja di perusahaan Jepang dan apa yang dinilai pewawancara.'),
- dict(no=2, label='Bab 2', title='Hou-Ren-Sou', kj='報連相', kjr='hou · ren · sou', col='#0E7470', colL='#DDF2F0', dur='±12 menit',
+ dict(no=2, label='Bab 2', title='Hou-Ren-Sou', kj='報連相', kjr='hou · ren · sou', col='#17706B', colL='#DDEFEC', dur='±12 menit',
       lessons=['Mengenal Hou-Ren-Sou', 'Membedakan Ketiganya', 'Hou-Ren-Sou di Wawancara'],
       blurb='Hou-Ren-Sou (melapor, mengabari, berkonsultasi) adalah cara berkomunikasi yang sangat dihargai di tempat kerja Jepang dan sering muncul dalam pertanyaan wawancara.'),
- dict(no=3, label='Bab 3', title='Nyuushitsu & Ojigi', kj='入室', kjr='nyuushitsu · お辞儀 ojigi', col='#B0436A', colL='#FBE6EE', dur='±12 menit',
+ dict(no=3, label='Bab 3', title='Nyuushitsu & Ojigi', kj='入室', kjr='nyuushitsu · お辞儀 ojigi', col='#B3282F', colL='#F8E3E3', dur='±12 menit',
       lessons=['Langkah Masuk Ruangan', 'Ojigi', 'Duduk dan Latihan Gabungan'],
       blurb='Wawancara dimulai sejak kamu mengetuk pintu. Di bab ini kamu berlatih masuk ruangan, membungkuk, dan duduk dengan benar.'),
- dict(no=4, label='Bab 4', title='Jikoshoukai', kj='自己紹介', kjr='jikoshoukai · perkenalan diri', col='#A8650F', colL='#FBEEDA', dur='±18 menit',
+ dict(no=4, label='Bab 4', title='Jikoshoukai', kj='自己紹介', kjr='jikoshoukai · perkenalan diri', col='#9A5A12', colL='#F6EBDB', dur='±18 menit',
       lessons=['Fungsi Jikoshoukai', 'Lima Blok', 'Pelafalan dan Kesalahan Umum', 'Jikoshoukai-ku'],
       blurb='Setelah duduk, pewawancara hampir selalu memintamu memperkenalkan diri. Di bab inti ini kamu menyusun dan melatih jikoshoukai-mu sendiri.'),
- dict(no=5, label='Bab 5', title='Menjawab Pertanyaan', kj='質疑応答', kjr='shitsugi outou · tanya jawab', col='#5B46A8', colL='#ECE7FA', dur='±15 menit',
+ dict(no=5, label='Bab 5', title='Menjawab Pertanyaan', kj='質疑応答', kjr='shitsugi outou · tanya jawab', col='#5E4391', colL='#ECE6F4', dur='±15 menit',
       lessons=['Pola Menjawab', 'Pertanyaan Umum dan Tak Terduga', 'Tidak Paham dan Jujur', 'Bertanya Balik', 'Latihan Lisan'],
       blurb='Pewawancara akan bertanya lebih jauh tentang dirimu. Kamu belajar memahami pertanyaan, termasuk yang tak terduga, lalu menjawab dengan jelas dan jujur.'),
- dict(no=6, label='Bab 6', title='Taishitsu', kj='退室', kjr='taishitsu · keluar ruangan', col='#23784A', colL='#E1F3E8', dur='±8 menit',
+ dict(no=6, label='Bab 6', title='Taishitsu', kj='退室', kjr='taishitsu · keluar ruangan', col='#2D6A45', colL='#E2EFE6', dur='±8 menit',
       lessons=['Langkah Keluar Ruangan', 'Setelah Keluar Ruangan', 'Latihan'],
       blurb='Kesan terakhir sama pentingnya dengan kesan pertama. Di bab ini kamu belajar menutup wawancara dan keluar ruangan dengan baik.'),
 ]
@@ -142,9 +142,9 @@ for b in BAB:
     rows = [v for t, v in L[i:i + 4] if t == 'table'][0][1:]
     b['glos'] = [{'jp': r[0].strip(), 'ro': r[1].strip(), 'ar': r[2].strip(), 'kat': kategori(r[0].strip()), 'k': cari_slide(b, r[0].strip())} for r in rows]
 EVAL = [
- dict(no=7, id='sim', label='Evaluasi', title='Simulasi Mensetsu', kj='模擬面接', kjr='mogi mensetsu · simulasi', col='#1E2A47', colL='#E4E7EF', dur='±15 menit',
+ dict(no=7, id='sim', label='Evaluasi', title='Simulasi Mensetsu', kj='模擬面接', kjr='mogi mensetsu · simulasi', col='#0E2A47', colL='#E2E7EF', dur='±15 menit',
       lessons=['Fase A–E · 13 momen'], blurb='Wawancara utuh dengan Tanaka-san dari さくら食品: 13 momen, dari tiba di depan gedung sampai menutup wawancara.'),
- dict(no=8, id='post', label='Evaluasi', title='Post-test & Rapor', kj='修了', kjr='shuuryou · selesai', col='#7B3F2B', colL='#F6E6DF', dur='±15 menit',
+ dict(no=8, id='post', label='Evaluasi', title='Post-test & Rapor', kj='修了', kjr='shuuryou · selesai', col='#7E3420', colL='#F4E4DE', dur='±15 menit',
       lessons=['Post-test 20 soal', 'Rapor Kesiapan'], blurb='20 soal post-test, lalu Rapor Kesiapan berisi nilai sumatif, skor komunikasi dan etika, serta rekomendasi.'),
 ]
 # bank 25 pertanyaan GLB-04 (Latihan Pertanyaan Acak) dari dokumen Fitur Global + contoh jawaban dari slide

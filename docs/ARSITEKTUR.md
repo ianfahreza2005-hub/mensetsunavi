@@ -23,7 +23,7 @@ Aplikasi satu halaman tanpa framework dan tanpa *build step*: HTML, CSS, dan Jav
 
 - `bab[]`: identitas bab (judul, kanji, warna, pelajaran, daftar kode slide) dan `kuis` (10 soal: stem, 4 pilihan, kunci, umpan balik, slide remedial).
 - `slides{kode}`: judul, template (T01–T21), pelajaran, teks layar (`screen`), narasi, rencana visual.
-- `pre[]`: 20 soal pre/post-test. `sim[]`: 13 momen simulasi (situasi, 3 pilihan 10/5/0, jenis skor, acuan).
+- `pre[]`: bank 20 soal (post-test memakai semuanya). `preSub[]`: indeks 10 butir terpilih untuk pre-test (`PRE10` di gen_data.py); `scrTest` memakai `preSub` bila `kind === 'pre'`. N-gain di rapor dihitung pada butir yang sama (`skorSama()`). `sim[]`: 13 momen simulasi (situasi, 3 pilihan 10/5/0, jenis skor, acuan).
 
 File ini dibuat otomatis oleh `tools/gen_data.py` dari naskah Bab 1–6, Evaluasi Sumatif, dan storyboard. Ubah isi di dokumen naskah, lalu jalankan ulang skripnya; jangan mengedit `kursus.js` secara manual.
 

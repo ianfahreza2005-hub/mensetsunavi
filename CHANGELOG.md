@@ -19,6 +19,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 - GLB-07: Petunjuk Navi di aktivitas, saran Navi di beranda, reaksi Navi di hasil kuis, kartu Kata Mutiara di rangkuman dan halaman koleksi (`D.mutiara`).
 
 ### Diubah
+- **Pre-test dipersingkat jadi 10 soal** (dari bank 20): butir 1, 3, 5, 6, 8, 12, 13, 15, 16, 18; semua bab terwakili. Post-test tetap 20 soal; N-gain di rapor dihitung pada 10 butir yang sama.
 - **Kerangka laptop (≥1024px)** di semua layar isi: header penuh lebar (brand, breadcrumb, progres n/10, Romaji/Arti, audio, avatar) dan sidebar navigasi lengkap (semua bab dengan progres/stempel, bab aktif membuka daftar pelajaran, Evaluasi, Sumber belajar). Isi mengalir penuh di monitor besar (≥1600px).
 - Tata letak responsif mengikuti canvas v2: **HP landscape** (Lanjut/Kembali di kolom kanan, bilah atas dipipihkan, Simulasi dua kolom), **laptop** (panel kanan Navi + "Kosakata di slide ini" di ≥ 1280px, Rapor dua kolom, halaman fitur lebih lebar, Simulasi dua kolom), dan **tablet** (tegak: teks sedikit lebih besar; landscape: sidebar + Simulasi dua kolom).
 - Pintasan keyboard: ← → pindah slide, spasi memutar suara, 1–3 memilih tindakan di Simulasi.

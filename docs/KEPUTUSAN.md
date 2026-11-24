@@ -84,6 +84,13 @@ Catatan keputusan yang sudah dikunci. Semua dokumen T1/T2 harus mengikuti ini.
 - Hanya transform dan opacity yang beranimasi per frame (60 fps). Ukuran berubah → scaleX/FLIP; tinggi isi → grid 0fr → 1fr.
 - Gerak berulang dibatasi: ajakan (mis. panah adegan berikutnya) maksimal tiga kali; yang terus berulang hanya penanda kecil (titik aktif, titik kesalahan).
 - Kurangi gerak (Pengaturan atau prefers-reduced-motion): bertingkat — geser/membesar/melayang/denyut dibuang, kemunculan isi jadi pudar ≤ 200 ms, pindah slide jadi pudar.
+- Transisi halaman (View Transitions, `denganGeser()` di app.js + bagian "Transisi halaman" di app.css), pola pudar-lewat:
+  isi lama hilang dulu (±0,12 s), baru isi baru masuk, supaya teks lama dan baru tidak pernah tampil bertumpuk.
+  - antar-slide, antar-soal, dan antar-momen simulasi: isi bergeser; bilah atas, sidebar, pita bab, bilah bawah, dan foto adegan diam;
+  - antarhalaman bersidebar: pudar;
+  - dari rak: halaman mendekat; ke rak: halaman menjauh;
+  - pembuka dan awal/akhir simulasi: pudar silang (larut silang bila salah satu layar gelap, supaya tidak berkedip terang).
+- Tanpa `backdrop-filter` di bilah atas/bawah: blur kaca membuat geseran slide turun ke ±30 fps (diukur 24 Nov), padahal latarnya sudah 97 % padat.
 - Aktivitas "Temukan kesalahan" memakai latar foto yang ada (koridor, ruang wawancara) sampai video peragaan Bab 3/6 tersedia.
 
 ## Pemilihan bab = rak buku 3D (24 Nov)

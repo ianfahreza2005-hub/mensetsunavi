@@ -184,4 +184,6 @@ Di bawah 1024px `appbar` dan `side` disembunyikan CSS, jadi tampilan HP tidak be
 - **T08 adegan** (`W.adegan`, konfigurasi `ADEGAN` per kode slide di `js/interaktif.js`): babak berlatar `assets/bg/*.webp`, satu titik per babak (posisi dalam % gambar), teks kesalahan diambil dari naskah slide. Dipakai B3-02 dan B6-02 (dengan pertanyaan Ya/Tidak).
 - **T08 rekaman** (`W.rekaman`): tabel berkolom Isi | Kesalahan utama | Umpan balik → pilih kesalahan utama per rekaman (B4-13).
 - **T09 ojigi** (`W.ojigi`): figur SVG, badan atas `rotate(sudut 150 150)` diperbarui per frame dengan pegas ringan; busur `pathLength=45`.
-- **Gerak**: `gerakDikurangi()` (interaktif.js) dan `gerakKurang()` (app.js) membaca kelas `html.gerak-kurang` (Pengaturan atau prefers-reduced-motion). Pindah antarhalaman ber-sidebar memakai View Transitions `data-geser="pudar"`.
+- **Gerak**: `gerakDikurangi()` (interaktif.js) dan `gerakKurang()` (app.js) membaca kelas `html.gerak-kurang` (Pengaturan atau prefers-reduced-motion). Perpindahan alamat memakai View Transitions: `jenisPindah()` memilih maju/mundur/pudar/buka/tutup/silang, `denganGeser()` memasang
+  `html[data-geser]` (+ kelas `vt-isi` untuk transisi isi, `vt-larut` untuk layar gelap) dan `--vt-dx/--vt-dy` agar isi lama tetap di
+  posisi gulirnya. Nama transisi (isi, atas, samping, pita, bawah, panel, adegan) hanya dipasang selama transisi isi.

@@ -49,7 +49,7 @@ b, strong { font-weight: 800; }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; background: var(--cl); color: var(--c); font-size: 12px; font-weight: 800; }
 
 /* ---------- bingkai slide ---------- */
-.topbar { position: sticky; top: 0; z-index: 5; background: rgba(255, 255, 255, .96); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.topbar { position: sticky; top: 0; z-index: 5; background: rgba(255, 255, 255, .98); border-bottom: 1px solid var(--line); }
 .topbar .row { display: flex; align-items: center; gap: 10px; padding: 10px 14px 8px; }
 .topbar .tt { flex: 1; display: flex; flex-direction: column; }
 .topbar .sub { font-size: 11px; font-weight: 800; letter-spacing: .04em; color: var(--c); text-transform: uppercase; }
@@ -57,7 +57,7 @@ b, strong { font-weight: 800; }
 .bar { height: 6px; background: var(--line); }
 .bar i { display: block; height: 100%; background: var(--c); border-radius: 0 999px 999px 0; transition: width .5s var(--ease); }
 .body { flex: 1; padding: 18px 16px 24px; display: flex; flex-direction: column; gap: 14px; }
-.bottombar { position: sticky; bottom: 0; z-index: 5; display: flex; align-items: center; gap: 10px; padding: 10px 14px calc(12px + env(safe-area-inset-bottom)); background: rgba(255, 255, 255, .96); backdrop-filter: blur(8px); border-top: 1px solid var(--line); }
+.bottombar { position: sticky; bottom: 0; z-index: 5; display: flex; align-items: center; gap: 10px; padding: 10px 14px calc(12px + env(safe-area-inset-bottom)); background: rgba(255, 255, 255, .98); border-top: 1px solid var(--line); }
 .bottombar .no { flex: 1; text-align: center; font-size: 13px; font-weight: 800; color: var(--ink2); }
 
 /* ---------- isi slide ---------- */
@@ -668,7 +668,7 @@ b, strong { font-weight: 800; }
 
   .with-side { max-width: none; margin: 0; width: 100%; min-height: 100vh; grid-template-columns: var(--sbw) minmax(0, 1fr); grid-template-rows: 64px minmax(0, 1fr); align-items: start; }
   .with-side > .appbar { grid-column: 1 / -1; grid-row: 1; position: sticky; top: 0; z-index: 30; height: 64px; display: flex; align-items: center; gap: 14px; padding: 0 22px 0 0;
-    background: rgba(255, 255, 255, .97); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+    background: #fff; border-bottom: 1px solid var(--line); }
   .with-side > .side { grid-column: 1; grid-row: 2; top: 64px; height: calc(100vh - 64px); }
   .with-side > .screen { grid-column: 2; grid-row: 2; align-self: stretch; max-width: 900px; min-height: calc(100vh - 64px); }
   .with-side > .screen.wide, .with-side > .screen.fitur { max-width: 1040px; }
@@ -778,7 +778,8 @@ a { color: var(--pri); text-underline-offset: 3px; text-decoration-thickness: 1.
 .sorot { background-image: radial-gradient(320px circle at var(--mx, -400px) var(--my, -400px), color-mix(in srgb, var(--c) 9%, transparent), transparent 65%); }
 
 /* ---------- bilah atas & bawah (HP/tablet) ---------- */
-.topbar, .bottombar { background: rgba(255, 255, 255, .88); backdrop-filter: saturate(1.4) blur(12px); -webkit-backdrop-filter: saturate(1.4) blur(12px); }
+/* tanpa backdrop-filter: blur kaca dihitung ulang tiap frame saat isi di belakangnya bergerak, geseran slide turun ke ±30 fps */
+.topbar, .bottombar { background: rgba(255, 255, 255, .97); }
 .topbar .title { font-weight: 600; }
 .bar { height: 4px; background: rgba(20, 23, 31, .07); }
 .bar i, .ab-prog i, .dots i.on { background: linear-gradient(90deg, var(--c), color-mix(in srgb, var(--c) 70%, #fff)); }
@@ -989,7 +990,7 @@ html { min-width: 1024px; }
 .pb-lab:hover { text-decoration: underline; text-underline-offset: 3px; }
 /* versi sampul: pita tanpa kepala, menempel di bawah hero */
 .pita-hero { position: relative; z-index: 2; margin-top: 18px; padding: 0; background: none; box-shadow: none; max-width: calc(100% - 170px); }
-.pita-hero .pb-seg { background: rgba(0, 0, 0, .14); backdrop-filter: blur(4px); }
+.pita-hero .pb-seg { background: rgba(0, 0, 0, .18); }
 .pita-hero .pb-seg:hover { background: rgba(0, 0, 0, .24); }
 .cover-hero { padding-bottom: 54px; }
 .cover-hero .kj { transform: translate(calc(var(--px, 0) * -14px), calc(var(--py, 0) * -8px)); transition: transform .6s var(--ease); }
@@ -1030,30 +1031,86 @@ html { min-width: 1024px; }
 .ck-grid { grid-template-columns: 1fr; }
 
 /* =====================================================================================================
-   Pindah slide (View Transitions): isi bergeser, kerangka diam
+   Transisi halaman (View Transitions) — dipicu denganGeser() di js/app.js
+   Prinsip: hanya transform + opacity (dikerjakan GPU, 60 fps). Pola "pudar-lewat": isi lama hilang dulu (±0,12 s, mempercepat),
+   baru isi baru muncul dan melambat ke tempatnya. Isi lama dan baru tidak pernah tampil bertumpuk, jadi teks tidak kabur.
+   - maju / mundur : isi lama bergeser 24 px sambil hilang, isi baru masuk dari 40 px; bilah atas, sidebar, bilah bawah, dan foto adegan simulasi diam.
+   - pudar         : antarhalaman bersidebar; isi lama hilang, isi baru naik 10 px.
+   - buka          : dari rak; seluruh layar memudar silang, halaman baru mendekat dari 103,5 %.
+   - tutup         : ke rak; halaman menjauh ke 97 % sambil memudar ke rak.
+   - silang        : pembuka dan awal/akhir simulasi; pudar silang, layar baru naik 10 px.
    ===================================================================================================== */
-.with-side > .screen { view-transition-name: isi; }
-.with-side > .screen > .bottombar { view-transition-name: bawah; }
-.with-side > .rpanel { view-transition-name: panel; }
-.with-side > .side { view-transition-name: samping; }
-.with-side > .appbar { view-transition-name: atas; }
-::view-transition-old(root), ::view-transition-new(root),
-::view-transition-old(samping), ::view-transition-new(samping),
-::view-transition-old(atas), ::view-transition-new(atas),
-::view-transition-old(bawah), ::view-transition-new(bawah) { animation: none; }
-::view-transition-group(isi) { animation-duration: .5s; animation-timing-function: var(--ease); overflow: clip; }
-::view-transition-old(panel) { animation: vtPudar .25s ease both; }
-::view-transition-new(panel) { animation: vtMuncul .4s .1s var(--ease) both; }
-html[data-geser="maju"]::view-transition-old(isi) { animation: vtKeluarKiri .32s cubic-bezier(.4, 0, 1, 1) both; }
-html[data-geser="maju"]::view-transition-new(isi) { animation: vtMasukKanan .5s .06s var(--ease) both; }
-html[data-geser="mundur"]::view-transition-old(isi) { animation: vtKeluarKanan .32s cubic-bezier(.4, 0, 1, 1) both; }
-html[data-geser="mundur"]::view-transition-new(isi) { animation: vtMasukKiri .5s .06s var(--ease) both; }
-@keyframes vtKeluarKiri { to { opacity: 0; transform: translateX(-56px); } }
-@keyframes vtKeluarKanan { to { opacity: 0; transform: translateX(56px); } }
-@keyframes vtMasukKanan { from { opacity: 0; transform: translateX(72px); } }
-@keyframes vtMasukKiri { from { opacity: 0; transform: translateX(-72px); } }
+/* nama hanya dipasang selama transisi isi (kelas vt-isi), supaya di luar transisi tidak ada konteks tumpukan tambahan */
+.vt-isi .with-side > .screen, .vt-isi .screen.sim-split > .body { view-transition-name: isi; }
+.vt-isi .screen > .bottombar { view-transition-name: bawah; }
+.vt-isi .with-side > .rpanel { view-transition-name: panel; }
+.vt-isi .with-side > .side { view-transition-name: samping; }
+.vt-isi .with-side > .appbar { view-transition-name: atas; }
+.vt-isi .screen.sim-split > .sim-scene { view-transition-name: adegan; }
+.vt-isi .with-side > .screen .pita:not(.pita-hero) { view-transition-name: pita; }   /* pita bab di atas slide ikut diam */
+
+/* kerangka diam: keadaan baru langsung tampil, keadaan lama tidak ikut digambar (tanpa tumpuk, tanpa morf ukuran) */
+html.vt-isi::view-transition-group(root), html.vt-isi::view-transition-group(samping), html.vt-isi::view-transition-group(atas),
+html.vt-isi::view-transition-group(bawah), html.vt-isi::view-transition-group(pita) { animation: none; }
+html.vt-isi::view-transition-old(root), html.vt-isi::view-transition-old(samping), html.vt-isi::view-transition-old(atas),
+html.vt-isi::view-transition-old(bawah), html.vt-isi::view-transition-old(pita) { animation: none; opacity: 0; }
+html.vt-isi::view-transition-new(root), html.vt-isi::view-transition-new(samping), html.vt-isi::view-transition-new(atas),
+html.vt-isi::view-transition-new(bawah), html.vt-isi::view-transition-new(pita) { animation: none; mix-blend-mode: normal; }
+/* hanya ada di salah satu sisi (mis. sampul bab tanpa pita kecil): ikut pudar-lewat bersama isi */
+html.vt-isi::view-transition-old(pita):only-child, html.vt-isi::view-transition-old(bawah):only-child { opacity: 1; animation: vtPudar .12s cubic-bezier(.4, 0, 1, 1) both; }
+html.vt-isi::view-transition-new(pita):only-child, html.vt-isi::view-transition-new(bawah):only-child { animation: vtTampak .3s .1s cubic-bezier(0, 0, .2, 1) both; }
+
+/* isi: grup tidak dimorf; isi lama ditahan di posisi terakhirnya (--vt-dx/--vt-dy diisi app.js, termasuk saat halaman sudah digulir) */
+html.vt-isi::view-transition-group(isi) { animation: none; overflow: clip; }
+html.vt-isi::view-transition-old(isi) { inline-size: auto; block-size: auto; translate: var(--vt-dx, 0px) var(--vt-dy, 0px); mix-blend-mode: normal; }
+html.vt-isi::view-transition-new(isi) { mix-blend-mode: normal; }
+html[data-geser="maju"]::view-transition-old(isi) { animation: vtPudar .12s cubic-bezier(.4, 0, 1, 1) both, vtKeKiri .2s cubic-bezier(.4, 0, 1, 1) both; }
+html[data-geser="maju"]::view-transition-new(isi) { animation: vtDariKanan .52s .1s var(--ease) both, vtTampak .3s .1s cubic-bezier(0, 0, .2, 1) both; }
+html[data-geser="mundur"]::view-transition-old(isi) { animation: vtPudar .12s cubic-bezier(.4, 0, 1, 1) both, vtKeKanan .2s cubic-bezier(.4, 0, 1, 1) both; }
+html[data-geser="mundur"]::view-transition-new(isi) { animation: vtDariKiri .52s .1s var(--ease) both, vtTampak .3s .1s cubic-bezier(0, 0, .2, 1) both; }
+html[data-geser="pudar"]::view-transition-old(isi) { animation: vtPudar .1s cubic-bezier(.4, 0, 1, 1) both; }
+html[data-geser="pudar"]::view-transition-new(isi) { animation: vtNaik .44s .08s var(--ease) both, vtTampak .26s .08s cubic-bezier(0, 0, .2, 1) both; }
+
+/* panel kanan (layar ≥ 1240 px) dan foto adegan simulasi: pudar silang di tempat */
+html.vt-isi::view-transition-group(panel), html.vt-isi::view-transition-group(adegan) { animation: none; }
+html.vt-isi::view-transition-old(panel) { animation: vtPudar .1s cubic-bezier(.4, 0, 1, 1) both; mix-blend-mode: normal; }
+html.vt-isi::view-transition-new(panel) { animation: vtNaik .44s .1s var(--ease) both, vtTampak .28s .1s cubic-bezier(0, 0, .2, 1) both; mix-blend-mode: normal; }
+html.vt-isi::view-transition-old(adegan) { animation: vtPudar .4s ease-in-out both; }      /* plus-lighter bawaan + kurva sama = larut mulus */
+html.vt-isi::view-transition-new(adegan) { animation: vtTampak .4s ease-in-out both; }
+
+/* seluruh layar: buka (dari rak), tutup (ke rak), silang (pembuka, simulasi) */
+html[data-geser="buka"]::view-transition-old(root) { animation: vtPudar .18s cubic-bezier(.4, 0, 1, 1) both; }
+html[data-geser="buka"]::view-transition-new(root) { animation: vtMendekat .7s .12s var(--ease) both, vtTampak .36s .14s cubic-bezier(0, 0, .2, 1) both; }
+html[data-geser="tutup"]::view-transition-old(root) { animation: vtPudar .2s cubic-bezier(.4, 0, 1, 1) both, vtMenjauh .3s var(--ease) both; }
+html[data-geser="tutup"]::view-transition-new(root) { animation: vtTampak .4s .14s cubic-bezier(0, 0, .2, 1) both; }
+html[data-geser="silang"]::view-transition-old(root) { animation: vtPudar .16s cubic-bezier(.4, 0, 1, 1) both; }
+html[data-geser="silang"]::view-transition-new(root) { animation: vtNaik .5s .1s var(--ease) both, vtTampak .32s .12s cubic-bezier(0, 0, .2, 1) both; }
+/* salah satu sisi gelap (simulasi): pudar-lewat akan melintasi warna kertas dan berkedip terang, jadi larut silang
+   (kurva sama + plus-lighter bawaan = jumlah opacity selalu 1, tanpa lembah terang) */
+html.vt-larut[data-geser]::view-transition-old(root) { animation: vtPudar .4s ease-in-out both; }
+html.vt-larut[data-geser]::view-transition-new(root) { animation: vtTampak .4s ease-in-out both; }
+html.vt-larut[data-geser="buka"]::view-transition-new(root) { animation: vtTampak .4s ease-in-out both, vtMendekat .7s var(--ease) both; }
+html.vt-larut[data-geser="tutup"]::view-transition-old(root) { animation: vtPudar .4s ease-in-out both, vtMenjauh .5s var(--ease) both; }
+html.vt-larut[data-geser="silang"]::view-transition-new(root) { animation: vtTampak .4s ease-in-out both, vtNaik .5s var(--ease) both; }
+
+/* Kurangi gerak (Pengaturan atau perangkat): app.js mengubah geser/buka/tutup menjadi pudar/silang; di sini perpindahan dibuang */
+html.gerak-kurang[data-geser]::view-transition-new(isi), html.gerak-kurang[data-geser]::view-transition-new(panel) { animation: vtTampak .18s .06s ease-out both; }
+html.gerak-kurang[data-geser]::view-transition-old(root) { animation: vtPudar .1s ease-in both; }
+html.gerak-kurang[data-geser]::view-transition-new(root) { animation: vtTampak .18s .06s ease-out both; }
+html.gerak-kurang.vt-isi::view-transition-old(root) { animation: none; }
+html.gerak-kurang.vt-larut[data-geser]::view-transition-old(root) { animation: vtPudar .2s ease-in-out both; }
+html.gerak-kurang.vt-larut[data-geser]::view-transition-new(root) { animation: vtTampak .2s ease-in-out both; }
+html.gerak-kurang.vt-isi::view-transition-new(root) { animation: none; }
+
+@keyframes vtKeKiri { to { transform: translateX(-24px); } }
+@keyframes vtKeKanan { to { transform: translateX(24px); } }
+@keyframes vtDariKanan { from { transform: translateX(40px); } }
+@keyframes vtDariKiri { from { transform: translateX(-40px); } }
+@keyframes vtNaik { from { transform: translateY(10px); } }
+@keyframes vtMendekat { from { transform: scale(1.035); } }
+@keyframes vtMenjauh { to { transform: scale(.97); } }
+@keyframes vtTampak { from { opacity: 0; } }
 @keyframes vtPudar { to { opacity: 0; } }
-@keyframes vtMuncul { from { opacity: 0; transform: translateY(8px); } }
 @media (prefers-reduced-motion: reduce) {
   .pb-dot.cur { animation: none; } .pl-bar i { animation: none; }
   .pb-kj, .cover-hero .kj, .cover-hero > img { transform: none !important; translate: none !important; transition: none; }
@@ -1339,11 +1396,6 @@ a.jl-t:hover { transform: translateY(-2px); background: var(--cl); color: var(--
 .switch::after { transition: transform .3s var(--spring); }
 .icon-btn:active, .ab-say:active { transform: scale(.92); }
 
-/* perpindahan halaman lain (sidebar, sumber belajar, rapor): pudar singkat — keluar cepat, masuk melambat */
-html[data-geser="pudar"]::view-transition-old(isi) { animation: vtPudar .14s ease-in both; }
-html[data-geser="pudar"]::view-transition-new(isi) { animation: vtMunculPudar .24s .04s var(--ease) both; }
-@keyframes vtMunculPudar { from { opacity: 0; } }
-
 /* Mode "Kurangi gerak" (Pengaturan, atau prefers-reduced-motion perangkat) — bertingkat, bukan dimatikan total:
    T1 dibuang: geser, membesar, melayang, berputar, paralaks, denyut berulang.
    T2 dilunakkan: kemunculan isi jadi pudar ≤ 200 ms.  T3 tetap: pudar, perubahan warna, cincin fokus. */
@@ -1475,7 +1527,6 @@ html[data-geser="pudar"]::view-transition-new(isi) { animation: vtMunculPudar .2
 .oj-sudut { display: inline-block; margin: 6px 0; padding: 3px 10px; border-radius: 999px; background: var(--akane); color: #fff; font: 700 12px/1.4 var(--sans); }
 .oj-info p { margin: 4px 0 0; font-size: 14px; }
 .oj-kosong { margin: 0; font-size: 14px; color: var(--ink2); }
-html[data-geser="pudar"]::view-transition-new(panel) { animation: vtMunculPudar .24s .04s var(--ease) both; }
 
 /* ---------- T13 pilihan (B5-10, B5-12, B6-09): satu situasi per tab, pertanyaan = gelembung pewawancara berwarna bab,
    jawaban = kartu putih berhuruf (Jepang / romaji / arti di baris sendiri), umpan balik berikon ---------- */

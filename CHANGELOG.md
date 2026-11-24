@@ -12,6 +12,14 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 - Pengaturan "Kurangi gerak" (mengikuti setelan perangkat bila tidak diaktifkan).
 
 ### Diubah
+- Transisi halaman dirombak supaya mulus 60 fps:
+  - blur kaca (`backdrop-filter`) di bilah atas/bawah dihapus; inilah penyebab geseran slide tersendat di ±30 fps;
+  - pola pudar-lewat: isi lama hilang dulu, baru isi baru masuk, jadi teks tidak kabur bertumpuk;
+  - isi lama tetap di posisi gulirnya saat keluar (tidak melompat ke atas), dan grup transisi tidak lagi menganimasikan ukuran;
+  - pita bab ikut diam bersama bilah atas, sidebar, dan bilah bawah;
+  - transisi baru: buka (rak → halaman), tutup (halaman → rak), pudar silang (pembuka, simulasi), geser antar-momen simulasi dengan foto adegan yang larut;
+  - klik Lanjut beruntun tidak lagi meninggalkan penanda transisi yang salah;
+  - kemunculan bertahap isi layar tidak lagi memaksa tata letak dihitung ulang per elemen.
 - Aktivitas pilih jawaban (B5-10 Jujur Itu Nilai Plus, B5-12, B6-09 tahap B) dirapikan:
   - satu situasi per tab, dengan tanda centang setelah selesai;
   - pertanyaan tampil sebagai gelembung pewawancara berwarna bab (dengan tombol dengar);

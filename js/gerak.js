@@ -15,13 +15,19 @@
   function masuk() {
     if (diam()) return;
     var view = document.getElementById('view'); if (!view) return;
-    var dg = document.documentElement.getAttribute('data-geser'), n = 0, geser = !!dg && dg !== 'pudar';   /* saat pindah slide bergeser: isi tidak dimunculkan bertahap lagi */
-    Array.prototype.forEach.call(view.querySelectorAll(DAFTAR), function (el) {
-      if (geser || n > 18 || el.classList.contains('rv')) return;
+    var dg = document.documentElement.getAttribute('data-geser'), geser = dg === 'maju' || dg === 'mundur';   /* saat pindah slide bergeser: isi tidak dimunculkan bertahap lagi */
+    /* baca semua ukuran dulu, baru tulis kelas: membaca setelah menulis memaksa tata letak dihitung ulang per elemen (layout thrashing) */
+    var calon = [], batas = innerHeight + 40;
+    if (!geser) Array.prototype.some.call(view.querySelectorAll(DAFTAR), function (el) {
+      if (el.classList.contains('rv')) return false;
       var r = el.getBoundingClientRect();
-      if (r.top > innerHeight + 40 || r.height === 0) return;          /* di luar layar: tidak perlu dianimasikan */
-      if (getComputedStyle(el).animationName !== 'none') return;     /* elemen yang sudah punya animasi sendiri */
-      el.style.setProperty('--i', n++);
+      if (r.top > batas || r.height === 0) return false;              /* di luar layar: tidak perlu dianimasikan */
+      if (getComputedStyle(el).animationName !== 'none') return false; /* elemen yang sudah punya animasi sendiri */
+      calon.push(el);
+      return calon.length > 18;
+    });
+    calon.forEach(function (el, n) {
+      el.style.setProperty('--i', n);
       el.classList.add('rv');
       el.addEventListener('animationend', function h(e) { if (e.target === el) { el.classList.remove('rv'); el.removeEventListener('animationend', h); } });
     });

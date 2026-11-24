@@ -20,6 +20,7 @@ Keputusan desain yang sudah dikunci ada di **`docs/KEPUTUSAN.md`**. Baca itu seb
 | `js/gerak.js` | Gerak antarmuka v3: muncul bertahap, sorot kursor, riak tombol, hitung angka |
 | `sw.js`, `manifest.webmanifest` | PWA offline. `tools/build_sw.py` memperbarui daftar precache + VERSION |
 | `assets/` | Maskot Navi (`assets/navi/*.webp`), latar (`assets/bg/`), ikon, nanti `assets/audio/` dan video |
+| `tools/pratinjau.py` | Membangun pratinjau untuk Artifact claude.ai (panel kanan aplikasi Claude) |
 | `tools/xml.json`, `tools/sb.json` | Sumber naskah (ekspor doc Bab 1–6, Evaluasi, Fitur Global) dan data storyboard |
 | `tools/dokumen/conv.py` | Pengubah XML doc → Word (A4, TNR 12, MS Mincho) yang dipakai untuk paket Word |
 | `sumber/naskah/` | Naskah materi dalam Markdown (mudah dibaca), plus GBIM, JM, Pola Penyajian LMS |
@@ -49,6 +50,10 @@ Kalau deploy gagal dengan "No artifacts named github-pages", itu gangguan GitHub
 
 - **Terbit otomatis (permintaan pemilik repo):** setiap selesai mengerjakan permintaan, Claude langsung commit, buka PR ke `main`,
   dan merge tanpa menunggu persetujuan, lalu memantau deploy sampai hijau. Pengecekan sebelum commit di bawah tetap wajib.
+- **Pratinjau di aplikasi Claude:** setiap perubahan juga langsung diterbitkan ulang ke Artifact pratinjau yang sama
+  (https://claude.ai/artifact/KN3BvfafLor1JHkSz8iR5y), supaya pemilik bisa mengecek di panel kanan tanpa membuka browser lain.
+  Caranya: `python3 tools/pratinjau.py <folder-scratchpad>/pratinjau`, lalu publish `index.html` hasilnya dengan `files` dari
+  `files.json` ke URL itu (dari sesi lain: baca dulu artifact-nya, lalu publish dengan `url`). Tidak perlu persetujuan.
 - **Sebelum commit:** jalankan `tools/build_sw.py`, cek sintaks, lalu uji di browser ukuran HP (390×844) dan laptop (1440×900).
   Pastikan semua aktivitas slide tetap bisa diselesaikan dan tidak ada error di Console.
 - **Materi** hanya berubah dari masukan SME/dosen. Ubah naskahnya dulu (doc sumber → `tools/xml.json`), lalu `gen_data.py`.
@@ -75,6 +80,7 @@ Versi 0.4 (lihat `CHANGELOG.md`). Daftar kerja lengkap ada di `docs/ROADMAP.md` 
 
 ## Tautan dokumen (doc Claude, dibuka di claude.ai)
 
+Pratinjau langsung (Artifact): https://claude.ai/artifact/KN3BvfafLor1JHkSz8iR5y ·
 Canvas interface v2: https://claude.ai/artifact/8FStnVa3AWxDQ3a2inisis ·
 Prototipe rak 3D: https://claude.ai/artifact/HcEfFzfnaz414uPJ3Wus6A ·
 Tautan T1, GBIM, JM, Flowchart, Storyboard, Bab 1–6, Evaluasi, Fitur Global, Pola LMS ada di `docs/KEPUTUSAN.md` bagian Dokumen.

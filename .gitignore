@@ -20,3 +20,6 @@ npm-debug.log*
 *.story
 _raw/
 _export/
+
+# keluaran tools/pratinjau.py
+pratinjau/

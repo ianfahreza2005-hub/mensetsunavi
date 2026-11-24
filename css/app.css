@@ -1167,3 +1167,134 @@ a.jl-t:hover { transform: translateY(-2px); background: var(--cl); color: var(--
 .vid-teks[open] { padding-bottom: 12px; }
 .vid-teks p { margin: 0 0 8px; }
 @media (prefers-reduced-motion: reduce) { .vid-ikon, .vid-main { transition: none; } }
+
+/* =====================================================================================================
+   Simulasi: jalur 13 momen, label situasi, reaksi Tanaka-san
+   ===================================================================================================== */
+.sim-jalur { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.sj-label { font: 600 13px/1 var(--head); letter-spacing: .08em; text-transform: uppercase; color: #A9BCD6; white-space: nowrap; }
+.sj-label b { color: #fff; font-size: 17px; letter-spacing: 0; }
+.sj-titik { display: flex; gap: 4px; }
+.sj-titik i { width: 16px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.14); transition: background-color .4s, width .4s var(--ease); }
+.sj-titik i.isi { background: rgba(127, 209, 196, 0.8); }
+.sj-titik i.kini { width: 30px; background: #fff; box-shadow: 0 0 12px rgba(255, 255, 255, 0.45); }
+.sim-sit-l { align-self: flex-start; padding: 6px 12px; border-radius: 999px; background: rgba(127, 209, 196, 0.12); color: #7FD1C4; font: 700 11px/1 var(--sans); letter-spacing: .16em; text-transform: uppercase; }
+.sim-kbd { margin: 0; font-size: 12.5px; color: #A9BCD6; }
+.sim .kbd { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.22); box-shadow: 0 2px 0 rgba(255, 255, 255, 0.12); color: #fff; }
+.reaction { display: flex; align-items: center; gap: 12px; text-align: left; padding: 12px 16px; border-radius: 16px; background: rgba(255, 255, 255, 0.08); border-left: 4px solid rgba(255, 255, 255, 0.3); font-weight: 600; animation: muncul .45s var(--ease) both; }
+.reaction b { font-weight: 800; }
+.rx-av { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: var(--tetsukon); font-size: 18px; font-weight: 900; }
+.rx-ok { border-left-color: #7FD1A0; } .rx-mid { border-left-color: var(--gold); } .rx-no { border-left-color: #F0B9BC; }
+
+/* daftar momen simulasi (hasil simulasi & rapor), tanpa kode slide */
+.sm-list { display: flex; flex-direction: column; gap: 8px; }
+.sm-baris { display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px; border-radius: 14px; background: #F4F3F7; color: var(--ink); }
+.sm-no { flex: none; width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; color: #fff; background: var(--good); font: 700 13px/1 var(--head); }
+.sm-r-mid .sm-no { background: var(--warn); }
+.sm-r-no .sm-no { background: var(--bad); }
+.sm-isi { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.sm-sit { font-size: 14.5px; font-weight: 600; line-height: 1.45; }
+.sm-sit .tag { margin-left: 4px; vertical-align: 1px; }
+.sm-acuan a { font-weight: 700; }
+
+/* =====================================================================================================
+   Rapor Kesiapan (dasbor)
+   ===================================================================================================== */
+.rapor2 .body { gap: 16px; }
+.rp-hero { position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 28px; padding: 26px 30px 26px 34px; border-radius: 26px; color: #fff;
+  background-color: var(--tetsukon); background-image: var(--nami), radial-gradient(120% 120% at 0% 0%, #1A4D7C 0%, var(--tetsukon) 60%); background-size: 260px auto, cover; background-blend-mode: soft-light, normal;
+  box-shadow: 0 26px 50px -30px rgba(14, 42, 71, 0.8); }
+.rp-hero .sg { display: none; }
+.rp-nilai { position: relative; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.rp-eyebrow { font: 700 12px/1 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: #7FD1C4; }
+.rp-lbl { margin-top: 6px; font: 600 15px/1 var(--head); color: #C9D6E8; }
+.rp-nilai .big-num { font-size: 104px; line-height: .9; color: #fff; letter-spacing: -.04em; }
+.rp-nilai .tag { align-self: flex-start; font-size: 13px; padding: 6px 14px; }
+.rp-rumus { font-size: 13px; color: #A9BCD6; }
+.rp-rings { position: relative; display: flex; gap: 22px; }
+.rp-ring { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.rp-ring b { font-size: 13px; color: #C9D6E8; text-align: center; max-width: 140px; }
+.rp-ring .score-ring { width: 124px; height: 124px; margin: 0; background: conic-gradient(var(--c) var(--p), rgba(255, 255, 255, 0.12) 0); }
+.rp-ring .score-ring span { width: 98px; height: 98px; background: var(--tetsukon); color: #fff; font-size: 34px; }
+.rp-navi { position: relative; height: 210px; margin: -28px -6px -34px 0; filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.35)); animation: melayang 5.5s ease-in-out infinite; }
+.rp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.rp-lebar { grid-column: 1 / -1; }
+.rp-kartu .sec-h { margin-top: 0; }
+.rp-babs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.rp-bab { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 14px; background: #F4F3F7; color: var(--ink); text-decoration: none; transition: transform .35s var(--spring), background-color .25s; }
+.rp-bab:hover { transform: translateY(-2px); }
+.rp-bab.on { background: var(--cl); }
+.rp-kj { flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--c); color: #fff; font: 800 15px/1 var(--mincho); letter-spacing: -.08em; }
+.rp-bt { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
+.rp-bt small { font-size: 10.5px; font-weight: 700; color: var(--c); text-transform: uppercase; letter-spacing: .05em; }
+.rp-bt b { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rp-bt span { font-size: 11.5px; color: var(--ink2); }
+.rp-cap { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; border: 2px dashed var(--line); color: var(--hanko); font-size: 17px; font-weight: 900; }
+.rp-bab.on .rp-cap { border: 2.5px solid var(--hanko); background: #FFF7F6; rotate: -10deg; }
+.rp-batang { display: grid; grid-template-columns: 74px minmax(0, 1fr) 40px; align-items: center; gap: 12px; margin: 12px 0; }
+.rp-batang span { font-size: 13px; font-weight: 600; color: var(--ink2); }
+.rp-batang b { height: 16px; border-radius: 999px; background: #EFEDF3; overflow: hidden; }
+.rp-batang b i { display: block; height: 100%; width: var(--v); border-radius: 999px; background: #A9AEBB; transform-origin: left; animation: tumbuh 1s .2s var(--ease) both; }
+.rp-batang.post b i { background: linear-gradient(90deg, var(--ai), #3F7FBF); animation-delay: .45s; }
+.rp-batang em { font: 700 18px/1 var(--head); font-style: normal; text-align: right; }
+.rp-ng { margin: 8px 0 6px; } .rp-ng .tag { font-size: 13px; padding: 6px 12px; }
+.rp-jejak { display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 6px; }
+.rp-jejak i { height: 42px; border-radius: 10px; display: grid; place-items: center; color: #fff; font: 700 13px/1 var(--head); font-style: normal; animation: letup .45s var(--spring) both; }
+.rp-jejak i.ok { background: var(--good); } .rp-jejak i.mid { background: var(--warn); } .rp-jejak i.no { background: var(--bad); }
+.rp-leg { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.rp-leg span { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-left: 6px; }
+.rp-leg span:first-child { margin-left: 0; }
+.rp-leg .ok { background: var(--good); } .rp-leg .mid { background: var(--warn); } .rp-leg .no { background: var(--bad); }
+
+/* =====================================================================================================
+   Hasil kuis bab
+   ===================================================================================================== */
+.hasil-kuis .duo-skor { gap: 14px; }
+.hk-skor { position: relative; }
+.hk-skor .hanko { position: absolute; right: -78px; top: -10px; width: 88px; height: 88px; }
+.hk-kotak { margin: 2px 0 8px; }
+.hk-aksi { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.hk-semua { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--ink); border: 2px solid var(--hanko); background: #FFF7F6; }
+.hk-semua > .jp { flex: none; width: 48px; height: 48px; border-radius: 50%; border: 3px solid var(--hanko); color: var(--hanko); display: grid; place-items: center; font-size: 22px; font-weight: 900; rotate: -10deg; }
+.hk-semua > span:last-child { display: flex; flex-direction: column; }
+
+/* =====================================================================================================
+   Layar laptop pendek (≤ 760 px, mis. 1366×768 / Windows 150%): pita bab satu baris, judul lebih kecil
+   ===================================================================================================== */
+@media (max-height: 760px) {
+  .pita:not(.pita-hero) { flex-direction: row; align-items: center; gap: 14px; padding: 9px 14px; }
+  .pita:not(.pita-hero) .pb-t, .pita:not(.pita-hero) .pb-pct { display: none; }
+  .pita:not(.pita-hero) .pb-top { flex: none; }
+  .pita:not(.pita-hero) .pb-kj { font-size: 26px; }
+  .pita:not(.pita-hero) .pb-track { flex: 1; min-width: 0; }
+  .pita:not(.pita-hero) .pb-seg { padding: 5px 7px 4px; gap: 4px; }
+  .with-side .slide-h { font-size: 29px; }
+  .with-side > .screen > .body { gap: 12px; padding-top: 14px; }
+  .rp-nilai .big-num { font-size: 84px; }
+  .rp-navi { height: 180px; }
+}
+@media (prefers-reduced-motion: reduce) { .rp-navi, .rp-jejak i, .rp-batang b i { animation: none !important; } }
+
+/* hasil Simulasi (layar gelap): ringkasan di kiri, pembahasan 13 momen di kanan */
+.screen.sim-hasil { max-width: 1240px; }
+.sim-hasil > .body { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr); gap: 20px; align-items: start; padding: 28px 40px 24px; color: var(--ink); }
+.sh-kiri { position: sticky; top: 24px; }
+.sh-ringkas { display: flex; flex-direction: column; align-items: stretch; text-align: center; gap: 6px; }
+.sh-ringkas .score-ring { margin: 6px auto 0; }
+.sh-eval { margin: 0; color: var(--ink2); font-size: 15px; }
+.sh-lbl { margin: 2px 0 0; font: 600 14px/1 var(--head); color: var(--ink2); }
+.sh-wajah { margin: 6px 0 4px; font-size: 14px; }
+.sh-ringkas .rp-batang { margin: 6px 0; text-align: left; }
+.sh-ringkas .sec-h { text-align: left; margin: 12px 0 8px; }
+.sh-jejak { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.sh-jejak i { height: 34px; }
+.sh-kanan { max-height: calc(100vh - 150px); overflow: auto; }
+
+/* rapor: stempel bab mengambil dua pertiga lebar (nama bab tidak terpotong), kanji 3–4 huruf dipatah dua baris */
+.rp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.rp-grid > .rp-kartu:first-child { grid-column: span 2; }
+.rp-kj { font-size: 14px; line-height: 1.05; text-align: center; padding: 4px; word-break: break-all; letter-spacing: 0; }
+/* bilah bawah di layar gelap (hasil simulasi, mode latihan) */
+.sim .screen:not(.sim-split) > .bottombar { background: rgba(14, 42, 71, 0.92); border-top-color: rgba(255, 255, 255, 0.1); }
+.sim .screen:not(.sim-split) > .bottombar .no { color: #A9BCD6; }
+.sh-ringkas .rp-batang { grid-template-columns: 112px minmax(0, 1fr) 40px; }

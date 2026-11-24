@@ -75,6 +75,12 @@
     flush();
     return html;
   }
+  /* "B3-04" -> { href, judul, bab, k } untuk tautan Pelajari / Petunjuk; null bila kode tidak dikenal */
+  function slideLink(kode) {
+    var sl = D.slides[kode]; if (!sl) return null;
+    for (var n = 0; n < D.bab.length; n++) { var k = D.bab[n].slides.indexOf(kode); if (k >= 0) return { href: '#/bab/' + D.bab[n].no + '/' + k, judul: sl.title.replace(/^Aktivitas:\s*/, ''), bab: D.bab[n].no, k: k }; }
+    return /^GLB/.test(kode) ? { href: '#/hal/' + kode, judul: sl.title, bab: 0, k: -1 } : null;
+  }
   function naviSay(code, text, pose) {
     if (!text || /^tidak ada/i.test(text)) return '';
     return '<div class="navi-say"><img src="' + navi(pose || 'exp_senang') + '" alt="Navi"><div class="bubble">' + esc(text) +
@@ -280,44 +286,78 @@
     if (ST.status(7) === 'locked') { toast('Simulasi terbuka setelah enam stempel bab.'); return go('#/rak'); }
     var M = D.sim;
     if (i === 0 || !sim) {
-      sim = { pts: [], pick: [], trust: 50, order: M.map(function (m) { return shuffle([0, 1, 2]); }) };
+      sim = { mode: 'resmi', pts: [], pick: [], trust: 50, order: M.map(function (m) { return shuffle([0, 1, 2]); }) };
       if (i !== 0) return go('#/sim/0');
       var s0 = D.slides['SIM-00'];
-      return show('<div class="screen"><div class="sim-scene sim-intro" style="background-image:url(assets/bg/ruang_wawancara.webp)">' +
+      show('<div class="screen"><div class="sim-scene sim-intro" style="background-image:url(assets/bg/ruang_wawancara.webp)">' +
         '<div class="sim-card"><span class="jp">さくら食品 · 人事部</span><b class="jp">田中さん</b><span>Tanaka-san, pewawancara</span></div></div><div class="body">' +
         '<span class="chip" style="background:#2C4479;color:#fff">Bagian dari nilai akhir (50%)</span><h2 class="slide-h">Hari wawancaramu tiba</h2>' +
         '<p class="sim-lead">Kamu melamar ke <span class="jp">さくら食品</span> (Sakura Shokuhin), pabrik makanan. Dari depan gedung sampai keluar ruangan, setiap keputusanmu dinilai.</p>' +
         '<div class="rules">' +
         '<div><b>13</b><span>momen keputusan</span></div><div><b>20<small> dtk</small></b><span>per momen; habis = 0 poin</span></div>' +
         '<div><b>3</b><span>pilihan tindakan</span></div><div><b class="jp">信頼度</b><span>Trust Meter mulai 50</span></div></div>' +
-        '<p class="mini sim-note">Ucapan Tanaka-san tampil dalam bahasa Jepang dan romaji, tanpa arti, seperti wawancara sungguhan.</p></div>' +
+        '<p class="mini sim-note">Ucapan Tanaka-san tampil dalam bahasa Jepang dan romaji, tanpa arti, seperti wawancara sungguhan. Tekan tombol suara untuk mendengarnya.</p>' +
+        '<a class="btn ghost full sim-lat" href="#/sim/1">Coba Mode Latihan dulu</a><p class="mini sim-note">Mode Latihan: tanpa timer dan tanpa nilai, dengan Petunjuk Navi. Tidak memengaruhi nilai akhir.</p></div>' +
         bottombar('#/rak', '', '#/sim/1', 'Mulai simulasi') + '</div>', { dark: true });
+      view.querySelector('.sim-lat').addEventListener('click', function () { sim.mode = 'latihan'; });
+      return;
     }
     if (i > M.length) return scrSimEnd(i);
+    var lat = sim.mode === 'latihan';
     var m = M[i - 1], picked = sim.pick[i - 1];
     var bg = i <= 2 ? 'kantor_eksterior' : i <= 5 ? 'koridor' : 'ruang_wawancara';
     var jpLine = (m.sit.match(/「[^」]+」/) || [''])[0];
+    function sayJa(t) { return window.MN_IX ? MN_IX.sayJa(t) : false; }
+    function acuanLinks(txt) {
+      return (String(txt).match(/B\d-\d\d/g) || []).map(function (c) { var l = slideLink(c); return l ? '<a href="' + l.href + '">' + esc(l.judul) + '</a>' : ''; }).filter(Boolean).join(' · ');
+    }
     show('<div class="screen"><div class="sim-scene" style="background-image:url(assets/bg/' + bg + '.webp)">' +
-      '<div class="sim-hud"><span class="pill">Momen ' + i + '/13</span><span class="pill"><span class="jp">信頼度</span><span class="trust"><i style="width:' + sim.trust + '%"></i></span>' + sim.trust + '</span>' +
-      '<span class="timer" id="tm" style="--p:100%"><span id="tmn">20</span></span></div>' +
-      (jpLine ? '<div class="speech">' + esc(jpLine) + '</div>' : '') + '</div>' +
-      '<div class="body"><p class="q-stem">' + esc(m.sit) + '</p><div class="opts">' +
+      '<div class="sim-hud"><span class="pill">' + (lat ? 'Latihan ' : '') + 'Momen ' + i + '/13</span><span class="pill"><span class="jp">信頼度</span><span class="trust"><i style="width:' + sim.trust + '%"></i></span>' + sim.trust + '</span>' +
+      (lat ? '' : '<span class="timer" id="tm" style="--p:100%"><span id="tmn">20</span></span>') + '</div>' +
+      (jpLine ? '<div class="speech"><span>' + esc(jpLine) + '</span><button class="ix-sp sim-say" aria-label="Dengarkan ucapan Tanaka-san">' + ic('speaker') + '</button></div>' : '') + '</div>' +
+      '<div class="body"><p class="q-stem">' + esc(m.sit) + '</p>' +
+      (lat ? '<button class="btn soft" id="hint" style="align-self:flex-start">Petunjuk Navi</button><div id="hintbox"></div>' : '') + '<div class="opts">' +
       sim.order[i - 1].map(function (o, k) {
         var L = 'ABC'[k], cls = picked !== undefined ? (picked === o ? ' sel' : '') : '';
         return '<button class="opt' + cls + '" data-o="' + o + '"' + (picked !== undefined ? ' disabled' : '') + '><span class="L">' + L + '</span><span>' + esc(m.opts[o][0]) + '</span></button>';
       }).join('') + '</div><div id="react"></div></div></div>', { dark: true });
+    function lanjut() { go('#/sim/' + (i + 1)); }
+    function reaksi(o, pts) { return '<div class="reaction">' + (o == null ? 'Waktu habis…' : pts === 10 ? '田中さん mengangguk.' : pts === 5 ? '田中さん mencatat dengan ragu.' : '田中さん mengernyit.') + '</div>'; }
+    function umpanLatihan(pts) {
+      var cls = pts === 10 ? 'ok' : pts === 5 ? 'mid' : 'no';
+      return reaksi(0, pts) + '<div class="card" style="color:var(--ink);margin-top:10px"><span class="tag ' + cls + '">' + pts + ' poin (tidak dicatat)</span> <b>Tindakan terbaik:</b> ' + esc(m.opts[0][0]) +
+        '<p class="mini">Pelajari: ' + (acuanLinks(m.acuan) || esc(m.acuan)) + '</p><a class="btn full" href="#/sim/' + (i + 1) + '">' + (i >= M.length ? 'Selesai latihan' : 'Lanjut') + '</a></div>';
+    }
     function choose(o) {
       stopTimer();
       var pts = o == null ? 0 : m.opts[o][1];
       sim.pick[i - 1] = o == null ? -1 : o; sim.pts[i - 1] = pts;
       sim.trust = Math.max(0, Math.min(100, sim.trust + (pts === 10 ? 10 : pts === 0 ? -10 : 0)));
       view.querySelectorAll('.opt').forEach(function (b) { b.disabled = true; if (+b.dataset.o === o) b.classList.add('sel'); });
-      document.getElementById('react').innerHTML = '<div class="reaction">' + (o == null ? 'Waktu habis…' : pts === 10 ? '田中さん mengangguk.' : pts === 5 ? '田中さん mencatat dengan ragu.' : '田中さん mengernyit.') + '</div>';
-      simNext = setTimeout(function () { go('#/sim/' + (i + 1)); }, 1300);
+      var rx = document.getElementById('react'), hb = document.getElementById('hint'); if (hb) hb.hidden = true;
+      if (lat) { rx.innerHTML = umpanLatihan(pts); return; }
+      rx.innerHTML = reaksi(o, pts);
+      if (m.code === 'SIM-06' && window.MN_SIMREK) {   /* rekaman opsional, tidak dinilai */
+        var box = document.createElement('div'); box.style.marginTop = '12px'; rx.appendChild(box);
+        window.MN_SIMREK.mount(box, { esc: esc, ic: ic, toast: toast, lanjut: lanjut });
+        return;
+      }
+      simNext = setTimeout(lanjut, 1300);
+    }
+    var sb = view.querySelector('.sim-say'); if (sb) sb.addEventListener('click', function () { if (!sayJa(jpLine)) toast('Suara Jepang belum tersedia di perangkat ini.'); });
+    if (jpLine && picked === undefined) setTimeout(function () { if (document.getElementById('react')) sayJa(jpLine); }, 450);   /* suara pewawancara otomatis */
+    if (lat) {
+      var hint = document.getElementById('hint');
+      if (hint) hint.addEventListener('click', function () {
+        var l = acuanLinks(m.acuan);
+        document.getElementById('hintbox').innerHTML = '<div class="navi-say" style="color:var(--ink)"><img src="' + navi('exp_berpikir') + '" alt="Navi"><div class="bubble">Petunjuk: ' + (l ? 'coba buka lagi ' + l + '.' : 'buka lagi bab yang terkait di rak.') + '</div></div>';
+        hint.hidden = true;
+      });
+      if (picked !== undefined) document.getElementById('react').innerHTML = umpanLatihan(sim.pts[i - 1] || 0);
     }
     if (picked === undefined) {
       var t0 = Date.now(), T = 20000;
-      simTimer = setInterval(function () {
+      if (!lat) simTimer = setInterval(function () {
         var left = Math.max(0, T - (Date.now() - t0));
         var el = document.getElementById('tm'); if (!el) return stopTimer();
         el.style.setProperty('--p', (left / T * 100) + '%'); document.getElementById('tmn').textContent = Math.ceil(left / 1000);
@@ -326,7 +366,20 @@
       view.querySelectorAll('.opt').forEach(function (b) { b.addEventListener('click', function () { choose(+b.dataset.o); }); });
     }
   }
+  /* Mode Latihan: tidak ada nilai, tidak menulis S.sim, tidak membuka Post-test */
+  function scrSimLatEnd() {
+    var M = D.sim, tepat = sim.pts.filter(function (p) { return p === 10; }).length;
+    var rows = M.map(function (m, k) {
+      var p = sim.pts[k] || 0, cls = p === 10 ? 'ok' : p === 5 ? 'mid' : 'no';
+      return '<div style="flex-direction:column;align-items:flex-start"><span><b>' + esc(m.code) + '</b> <span class="tag ' + cls + '">' + (p === 10 ? 'tepat' : p === 5 ? 'kurang tepat' : 'perlu dipelajari') + '</span></span><span class="mini">Tindakan terbaik: ' + esc(m.opts[0][0]) + ' · Acuan ' + esc(m.acuan) + '</span></div>';
+    }).join('');
+    show('<div class="screen"><div class="body" style="color:var(--ink)"><div class="card" style="text-align:center"><span class="chip">Mode Latihan selesai</span>' +
+      '<p>Kamu memilih tindakan terbaik di <b>' + tepat + ' dari 13</b> momen.</p><p class="mini">Tidak ada nilai yang dicatat dan nilai akhirmu tidak berubah.</p></div>' +
+      '<div class="card"><b>Pembahasan 13 momen</b><div class="row-list" style="margin-top:10px">' + rows + '</div></div>' +
+      '<a class="btn full" href="#/sim/0">Kembali ke pengantar (mulai simulasi resmi)</a></div>' + bottombar('#/rak', '', null) + '</div>', { dark: true });
+  }
   function scrSimEnd(i) {
+    if (sim.mode === 'latihan') return scrSimLatEnd();
     var M = D.sim, tot = sim.pts.reduce(function (a, b) { return a + (b || 0); }, 0);
     var kom = 0, eti = 0;
     M.forEach(function (m, k) { if (KOM.indexOf(m.code) >= 0) kom += sim.pts[k] || 0; else eti += sim.pts[k] || 0; });
@@ -347,10 +400,11 @@
   /* ------------------------------------------------------------ rapor */
   /* Profil Kesiapan Lisan di rapor (formatif, tidak masuk kelulusan): angka dari rekaman terakhir B4-15 dan B5-13 */
   function profilLisan(S) {
-    var L = S.lisan; if (!L || (!L.jiko && !(L.jawab && L.jawab.length))) return '';
+    var L = S.lisan; if (!L || (!L.jiko && !L.sim06 && !(L.jawab && L.jawab.length))) return '';
     var baris = function (r) { return (r.durasi != null ? 'durasi ' + r.durasi + ' dtk · ' + r.jeda + ' jeda · volume ' + r.volume + ' · ' : '') + 'daftar periksa ' + r.cek + '/' + r.total; };
     var out = [];
     if (L.jiko) out.push('<div><b>Jikoshoukai (B4-15)</b><br>' + esc(baris(L.jiko)) + '</div>');
+    if (L.sim06) out.push('<div><b>Jikoshoukai di Simulasi (SIM-06)</b><br>' + esc(baris(Object.assign({ cek: 0, total: 0 }, L.sim06)).replace(/ · daftar periksa 0\/0$/, '')) + '</div>');
     (L.jawab || []).forEach(function (r, i) { out.push('<div><b>Jawaban ' + (i + 1) + ' (B5-13)</b><br>' + esc(baris(r)) + '</div>'); });
     return '<div class="card"><b>Profil Kesiapan Lisan</b><p class="mini">Formatif, tidak masuk batas lulus. Analisis otomatis berupa perkiraan.</p><div class="row-list" style="margin-top:8px">' + out.join('') + '</div></div>';
   }
@@ -433,6 +487,7 @@
   }
   window.MN_APP = {
     toast: function (m) { toast(m); },
+    slideLink: slideLink,
     status: function (no) { return ST.status(no); },
     progress: function (no) { return ST.progress(no); },
     stamps: function () { return ST.stamps(); },

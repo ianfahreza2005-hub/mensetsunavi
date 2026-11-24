@@ -15,6 +15,7 @@
   var D = window.MN_DATA, ST = window.MN_STORE;
   var view = document.getElementById('view');
   var rakEl = document.getElementById('rak');
+  var saranEl = document.getElementById('navi-saran');
 
   /* ------------------------------------------------------------ util */
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -42,9 +43,9 @@
   /* ------------------------------------------------------------ suara: rekaman bila ada, jika tidak suara bawaan peramban */
   var curAudio = null;
   function stopVoice() { if (curAudio) { curAudio.pause(); curAudio = null; } if (window.speechSynthesis) speechSynthesis.cancel(); }
-  function speak(code, text) {
+  function speak(code, text, dir) {
     stopVoice();
-    var a = new Audio('assets/audio/narasi/' + code + '.mp3');
+    var a = new Audio('assets/audio/' + (dir || 'narasi') + '/' + code + '.mp3');
     curAudio = a;
     a.addEventListener('error', function () {
       if (curAudio !== a || !window.speechSynthesis || !text) return;
@@ -53,6 +54,9 @@
     });
     a.play().catch(function () {});
   }
+
+  /* GLB-07: Kata Mutiara diucapkan Navi (assets/audio/mutiara/B<bab>.mp3 bila ada, jika belum suara bawaan peramban) */
+  function sayMutiara(bab, teks) { speak('B' + bab, teks, 'mutiara'); }
 
   /* ------------------------------------------------------------ bagian bersama */
   function blocks(list, code) {
@@ -81,10 +85,10 @@
     for (var n = 0; n < D.bab.length; n++) { var k = D.bab[n].slides.indexOf(kode); if (k >= 0) return { href: '#/bab/' + D.bab[n].no + '/' + k, judul: sl.title.replace(/^Aktivitas:\s*/, ''), bab: D.bab[n].no, k: k }; }
     return /^GLB/.test(kode) ? { href: '#/hal/' + kode, judul: sl.title, bab: 0, k: -1 } : null;
   }
-  function naviSay(code, text, pose) {
+  function naviSay(code, text, pose, nobtn) {
     if (!text || /^tidak ada/i.test(text)) return '';
     return '<div class="navi-say"><img src="' + navi(pose || 'exp_senang') + '" alt="Navi"><div class="bubble">' + esc(text) +
-      '<div><button class="btn soft" data-speak="' + esc(code) + '">' + ic('speaker') + 'Dengarkan</button></div></div></div>';
+      (nobtn ? '' : '<div><button class="btn soft" data-speak="' + esc(code) + '">' + ic('speaker') + 'Dengarkan</button></div>') + '</div></div>';
   }
   function bindSpeak(root) {
     root.querySelectorAll('[data-speak]').forEach(function (b) {
@@ -127,6 +131,7 @@
   function show(html, opts) {
     stopVoice();
     rakEl.hidden = true; if (window.MN_RAK) window.MN_RAK.hide();
+    saranEl.hidden = true;
     view.hidden = false;
     document.body.className = ((opts && opts.dark) ? 'sim' : '') + setClasses();
     view.innerHTML = html;
@@ -236,10 +241,20 @@
       inner = '<div class="body"><div class="gt-row"><span class="chip">' + esc(lesson) + '</span>' + gtog() + '</div><h2 class="slide-h">' + esc(s.title.replace(/^Aktivitas:\s*/, '')) + '</h2>' +
         (/^Aktivitas/.test(s.title) ? '<span class="act-tag">Aktivitas</span>' : '') +
         '<div class="card' + (ix ? ' ix-slide' : '') + '">' + (ix ? ix.html : blocks(s.screen, code)) + '</div>' +
+        (ix && /^(T08|T10|T11|T12)$/.test(s.tpl) && window.MN_NAVI ? '<div class="navi-hint"><button class="btn soft" id="navi-hint">' + ic('bulb') + 'Petunjuk Navi</button><div id="navi-hint-box"></div></div>' : '') +
         naviSay(code, s.narasi, 'exp_senang') + devNote(s) + '</div>';
     }
     show('<div class="with-side" style="--c:' + b.col + ';--cl:' + b.colL + '">' + side(b, k) + '<div class="screen">' + topbar(sub, s.title, pct, b.col) + inner +
       bottombar(k > 0 ? root + (k - 1) : '#/rak', (k + 1) + ' / ' + b.slides.length, k < last ? root + (k + 1) : null, k === 0 ? 'Mulai ' + b.label : 'Lanjut', gate) + '</div></div>');
+    var nh = document.getElementById('navi-hint');   /* Petunjuk Navi: hanya di aktivitas slide materi (tidak di kuis, pre/post-test, Simulasi resmi) */
+    if (nh) nh.addEventListener('click', function () {
+      document.getElementById('navi-hint-box').innerHTML = '<div class="navi-say"><img src="' + navi('exp_berpikir') + '" alt="Navi"><div class="bubble">' + MN_NAVI.hint(code, b, k, slideLink, esc) + '</div></div>';
+      nh.hidden = true;
+    });
+    view.querySelectorAll('.km').forEach(function (c) {
+      function putar() { sayMutiara(c.dataset.bab, c.dataset.say); }
+      c.addEventListener('click', putar); c.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); putar(); } });
+    });
     view.querySelectorAll('.gt').forEach(function (b) { b.addEventListener('click', function () { setG(b.dataset.g, !ST.set()[b.dataset.g]); }); });
     if (ix) ix.bind(view, function () {
       if (!ST.isSeen(n, code)) { ST.seen(n, code, k); toast('Bagus! Slide ini selesai.'); }
@@ -268,6 +283,7 @@
           var j = b.slides.indexOf(c); var s = D.slides[c];
           return j < 0 ? '' : '<div><a href="#/bab/' + n + '/' + j + '">' + esc(c + ' · ' + s.title) + '</a></div>';
         }).join('') + '</div></div>' : '') +
+        (score >= 80 ? naviSay('', 'Hebat, kamu lulus ' + b.label + '! Stempelnya sudah di rak.', 'pose_jempol', true) : naviSay('', 'Belum lulus, tidak apa-apa. Baca lagi slide di atas, lalu coba kuis dengan soal yang berbeda. Kamu pasti bisa!', 'pose_semangat', true)) +
         '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button class="btn ghost" id="ulang">Ulangi kuis</button><a class="btn" href="#/rak">Ke rak bab' + ic('next') + '</a></div>' +
         (stamp && ST.stamps() === 6 ? '<p class="chip">Enam stempel lengkap — Simulasi terbuka!</p>' : '') + '</div></div>');
     }
@@ -444,10 +460,10 @@
   /* ------------------------------------------------------------ fitur global & pengaturan */
   function scrHal(code) {
     var s = D.slides[code]; if (!s) return go('#/rak');
-    var FITUR = { 'GLB-03': ['MN_KOSA', 'Bank Kosakata', '#B0436A', '#FBE6EE'], 'GLB-04': ['MN_LATIH', 'Latihan Pertanyaan Acak', '#5B46A8', '#ECE7FA'], 'GLB-05': ['MN_TIPS', 'Tips & Trik', '#A8650F', '#FBEEDA'] }[code];
+    var FITUR = { 'GLB-03': ['MN_KOSA', 'Bank Kosakata', '#B0436A', '#FBE6EE'], 'GLB-04': ['MN_LATIH', 'Latihan Pertanyaan Acak', '#5B46A8', '#ECE7FA'], 'GLB-05': ['MN_TIPS', 'Tips & Trik', '#A8650F', '#FBEEDA'], 'GLB-07': ['MN_NAVI', 'Kata Mutiara', '#2A4B8D', '#E4EBF8'] }[code];
     if (FITUR && window[FITUR[0]]) {
       show('<div class="screen" style="--c:' + FITUR[2] + ';--cl:' + FITUR[3] + '">' + topbar('Sumber belajar', FITUR[1], 1, FITUR[2]) + '<div class="body"><h2 class="slide-h">' + esc(s.title) + '</h2><div id="fitur"></div></div>' + bottombar('#/rak', '', null) + '</div>');
-      window[FITUR[0]].mount(document.getElementById('fitur'), { esc: esc, ic: ic, naviSay: naviSay, bindSpeak: bindSpeak, toast: toast, status: function (n) { return ST.status(n); },
+      window[FITUR[0]].mount(document.getElementById('fitur'), { esc: esc, ic: ic, naviSay: naviSay, bindSpeak: bindSpeak, toast: toast, sayMutiara: sayMutiara, status: function (n) { return ST.status(n); },
         sayJa: function (t, rate, onend) { return window.MN_IX ? MN_IX.sayJa(t, rate, onend) : false; } });
       bindSpeak(view);
       return;
@@ -491,7 +507,7 @@
       '<a href="#/rak">' + ic('home') + 'Rak bab (beranda)</a><div class="sec">Bab</div>' +
       D.bab.map(function (b) { var st = ST.status(b.no); return '<a href="#/bab/' + b.no + '/' + (ST.bab(b.no).last || 0) + '"' + (h.indexOf('#/bab/' + b.no + '/') === 0 ? ' class="cur"' : '') + '>' + (st === 'done' ? '<span class="jp" style="color:var(--hanko);font-weight:900">済</span>' : st === 'locked' ? ic('lock') : '<b style="color:' + b.col + '">' + b.no + '</b>') + '<span>' + esc(b.title) + '<br><span class="mini">' + Math.round(ST.progress(b.no) * 100) + '%</span></span></a>'; }).join('') +
       '<div class="sec">Evaluasi</div><a href="#/sim/0">' + ic('chat') + 'Simulasi Mensetsu</a><a href="#/rapor">' + ic('trophy') + 'Rapor Kesiapan</a>' +
-      '<div class="sec">Sumber belajar</div><a href="#/hal/GLB-03">' + ic('book') + 'Bank Kosakata</a><a href="#/hal/GLB-04">' + ic('chat') + 'Latihan Pertanyaan Acak</a><a href="#/hal/GLB-05">' + ic('bulb') + 'Tips & Trik</a><a href="#/atur">' + ic('gear') + 'Pengaturan</a></nav></aside>';
+      '<div class="sec">Sumber belajar</div><a href="#/hal/GLB-03">' + ic('book') + 'Bank Kosakata</a><a href="#/hal/GLB-07">' + ic('bulb') + 'Kata Mutiara</a><a href="#/hal/GLB-04">' + ic('chat') + 'Latihan Pertanyaan Acak</a><a href="#/hal/GLB-05">' + ic('bulb') + 'Tips & Trik</a><a href="#/atur">' + ic('gear') + 'Pengaturan</a></nav></aside>';
     document.body.appendChild(wrap);
     function close() { wrap.remove(); }
     wrap.querySelector('.drawer-bg').addEventListener('click', close);
@@ -502,6 +518,16 @@
   window.MN_MENU = openMenu;
 
   /* ------------------------------------------------------------ rak */
+  /* GLB-07: Navi di beranda menyarankan bagian berikutnya; kartu bisa ditutup (diingat selama sesi untuk saran yang sama) */
+  function tampilSaran() {
+    if (!window.MN_NAVI) return;
+    var sr = MN_NAVI.saran(), kunci = 'mn-saran-tutup', tutup = ''; try { tutup = sessionStorage.getItem(kunci) || ''; } catch (e) { /* diblokir */ }
+    if (tutup === sr.t) { saranEl.hidden = true; return; }
+    saranEl.innerHTML = '<img src="' + navi(sr.pose) + '" alt="Navi"><div class="sr-isi"><p>' + esc(sr.t) + '</p><div class="sr-aksi"><a class="btn" href="' + sr.href + '">' + esc(sr.label) + '</a>' +
+      '<a class="sr-kol" href="#/hal/GLB-07">Kata Mutiara ' + MN_NAVI.terbuka() + '/' + MN_NAVI.total() + '</a></div></div><button class="sr-x" aria-label="Tutup saran Navi">' + ic('x') + '</button>';
+    saranEl.hidden = false;
+    saranEl.querySelector('.sr-x').addEventListener('click', function () { try { sessionStorage.setItem(kunci, sr.t); } catch (e) { /* diblokir */ } saranEl.hidden = true; });
+  }
   function scrRak() {
     var S = ST.get();
     if (!S.name) return go('#/mulai');
@@ -509,6 +535,7 @@
     view.hidden = true; view.innerHTML = ''; document.body.className = '';
     rakEl.hidden = false;
     if (window.MN_RAK) window.MN_RAK.show();
+    tampilSaran();
     if (!ST.ok() && !window.__tanpaSimpan) { window.__tanpaSimpan = true; toast('Peramban menolak penyimpanan. Progresmu hanya bertahan sampai halaman ditutup.'); }
   }
   window.MN_APP = {

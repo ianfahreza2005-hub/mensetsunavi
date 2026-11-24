@@ -211,7 +211,21 @@ tips = [{'tahap': r[hd.index('tahap')].strip(), 'no': int(r[hd.index('no')]), 't
          'alasan': r[hd.index('alasan')].strip() if 'alasan' in hd else ''} for r in tb[1:]]
 assert [z['no'] for z in tips] == list(range(1, len(tips) + 1)) and len(tips) == 8, len(tips)
 assert all(z['acuan'] in slides or z['acuan'].startswith('GLB') for z in tips), [z['acuan'] for z in tips]
-data = {'bab': BAB, 'latih': latih, 'lisan5': lisan5, 'tips': tips, 'eval': EVAL, 'pre': pre, 'sim': sim, 'slides': slides, 'order': order}
+# Kata Mutiara (GLB-07): tabel Bab | Slide | Kata Mutiara
+m0 = [k for k, (t, sx) in enumerate(G) if t.startswith('h') and 'GLB-07' in sx][0]
+mt = [v for t, v in G[m0:m0 + 14] if t == 'table' and v[0][0].strip().lower() == 'bab'][0]
+mutiara = []
+for r in mt[1:]:
+    bn = int(re.search(r'\d', r[0]).group())
+    mq = re.search(r'[“"](.+?)[”"]', r[2]); teks = (mq.group(1) if mq else r[2]).strip()
+    rg = [c for c in BAB[bn - 1]['slides'] if slides[c]['tpl'] == 'T17']
+    mutiara.append({'bab': bn, 'slide': rg[0] if rg else '', 'teks': teks})
+assert [z['bab'] for z in mutiara] == [1, 2, 3, 4, 5, 6] and all(z['teks'] and z['slide'] for z in mutiara), mutiara
+# kutipan di slide rangkuman harus sama dengan tabel
+for z in mutiara:
+    q = [bl['p'] for bl in slides[z['slide']]['screen'] if 'p' in bl and 'Kata Mutiara' in bl['p']]
+    assert q and z['teks'].rstrip('.') in q[0], (z['slide'], z['teks'], q)
+data = {'bab': BAB, 'latih': latih, 'lisan5': lisan5, 'tips': tips, 'mutiara': mutiara, 'eval': EVAL, 'pre': pre, 'sim': sim, 'slides': slides, 'order': order}
 js = '/* Dibuat otomatis dari naskah materi dan storyboard (gen_data.py). Jangan diedit manual. */\nwindow.MN_DATA = ' + json.dumps(data, ensure_ascii=False) + ';\n'
 open('js/data/kursus.js', 'w').write(js)
 print('ok', len(js), {n: len(b['slides']) for n, b in enumerate(BAB, 1)}, len(sim), len(pre))

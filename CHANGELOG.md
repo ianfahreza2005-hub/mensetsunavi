@@ -15,6 +15,10 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 - GLB-05 Tips & Trik: 8 kartu geser dalam tiga tahap (Sebelum/Saat/Sesudah), tab lompat, tombol Pelajari ke slide acuan. `gen_data.py` membaca tabel ke `D.tips`.
 - Stepper untuk daftar langkah bernomor T03 (B3-03, B6-03, B6-08).
 
+- Mode Latihan simulasi (tanpa timer dan nilai, dengan Petunjuk Navi), suara pewawancara (suara bawaan perangkat), dan rekaman opsional jikoshoukai setelah SIM-06 (masuk Profil Kesiapan Lisan).
+- GLB-02/06: tombol Romaji/Arti global di slide dan Pengaturan, kecepatan suara Normal/Pelan, pesan bila penyimpanan ditolak peramban.
+- GLB-07: Petunjuk Navi di aktivitas, saran Navi di beranda, reaksi Navi di hasil kuis, kartu Kata Mutiara di rangkuman dan halaman koleksi (`D.mutiara`).
+
 ### Diperbaiki
 - Analisis suara: bicara terus tanpa diam tidak lagi dianggap hening (ambang relatif terhadap puncak suara).
 - Daftar langkah storyboard B4-15 dan B5-13 tidak lagi tampil sebagai kartu buka.

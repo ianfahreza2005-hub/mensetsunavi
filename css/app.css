@@ -559,3 +559,32 @@ b, strong { font-weight: 800; }
 .gt.on { background: var(--cl, var(--ground)); border-color: var(--c, var(--pri)); color: var(--c, var(--pri)); }
 .no-ro .gro .r, .no-ro .gro .s, .no-ar .gro .a, .no-ar .gro .s { display: none; }
 .no-ro .gro.ro-only, .no-ro.no-ar .gro { display: none; }
+
+/* GLB-07: Navi (saran di beranda, Petunjuk Navi, Kata Mutiara) */
+#navi-saran { position: fixed; z-index: 30; left: 12px; right: 12px; top: 66px; display: flex; gap: 10px; align-items: center; background: #fff; border-radius: 20px; box-shadow: var(--sh); padding: 10px 40px 10px 10px; max-width: 560px; margin: 0 auto; }
+#navi-saran[hidden] { display: none; }
+#navi-saran img { flex: none; width: 52px; height: 64px; object-fit: contain; object-position: top; }
+#navi-saran .sr-isi { flex: 1; min-width: 0; }
+#navi-saran p { margin: 0 0 6px; font-size: 14px; font-weight: 700; line-height: 1.4; }
+#navi-saran .sr-aksi { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+#navi-saran .btn { min-height: 38px; padding: 6px 16px; font-size: 14px; }
+#navi-saran .sr-kol { font-size: 12px; font-weight: 800; }
+#navi-saran .sr-x { position: absolute; top: 4px; right: 4px; width: 36px; height: 36px; border: 0; background: none; border-radius: 12px; color: var(--ink2); }
+#navi-saran .sr-x svg { width: 18px; height: 18px; }
+@media (min-width: 900px) { #navi-saran { top: auto; bottom: 92px; left: 50%; right: auto; transform: translateX(-50%); width: 560px; } }
+.navi-hint { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.navi-hint .navi-say { width: 100%; margin: 0; }
+.kunci.km { display: flex; gap: 12px; align-items: center; cursor: pointer; text-align: left; }
+.kunci.km:focus-visible { outline: 3px solid var(--c, var(--pri)); outline-offset: 3px; }
+.km-navi { flex: none; width: 56px; height: 72px; object-fit: contain; object-position: top; }
+.km-body { display: flex; flex-direction: column; gap: 6px; }
+.km-q { font-weight: 700; line-height: 1.45; }
+.km-say { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 800; color: var(--c, var(--pri)); }
+.km-say svg { width: 18px; height: 18px; }
+.km-list { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 12px; }
+.km-card { text-align: left; border: 0; background: #fff; border-radius: 20px; box-shadow: var(--sh2); padding: 14px 16px; border-left: 6px solid var(--c); display: flex; flex-direction: column; gap: 8px; }
+.km-card.km-lock { flex-direction: row; align-items: center; background: var(--cl); box-shadow: none; opacity: .85; }
+.km-card.km-lock svg { width: 28px; height: 28px; flex: none; color: #8A8FA3; }
+.km-top { display: flex; align-items: baseline; justify-content: space-between; }
+.km-kj { font-size: 22px; font-weight: 900; color: var(--c); }
+@media (min-width: 700px) { .km-list { grid-template-columns: 1fr 1fr; } }

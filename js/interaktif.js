@@ -62,7 +62,13 @@
       return '<aside class="callout ' + kind + '"><b class="ct">' + esc(m[1]) + '</b><p>' + md(cap(p.slice(m[0].length))) + '</p></aside>';
     }
     if ((m = /^Tips:\s*/.exec(p))) return '<aside class="callout tip"><b class="ct">Tips</b><p>' + md(cap(p.slice(m[0].length))) + '</p></aside>';
-    if ((m = /^(Kalimat kunci|Kata Mutiara):\s*/.exec(p))) return '<blockquote class="kunci">' + md(p.slice(m[0].length).replace(/\*\*/g, '').replace(/^"|"$/g, '')) + '</blockquote>';
+    if ((m = /^(Kalimat kunci|Kata Mutiara):\s*/.exec(p))) {
+      var kt = p.slice(m[0].length).replace(/\*\*/g, '').replace(/^"|"$/g, '');
+      /* GLB-07: Kata Mutiara = kartu bergambar Navi; ketuk untuk mendengar (app.js .km) */
+      if (m[1] === 'Kata Mutiara') return '<blockquote class="kunci km" role="button" tabindex="0" data-bab="' + esc((/^B(\d)/.exec(code) || [0, ''])[1]) + '" data-say="' + esc(kt) + '"><img class="km-navi" src="assets/navi/exp_senang.webp" alt="Navi">' +
+        '<span class="km-body"><span class="km-q">' + md(kt) + '</span><span class="km-say">' + SPK + 'Dengarkan Navi</span></span></blockquote>';
+      return '<blockquote class="kunci">' + md(kt) + '</blockquote>';
+    }
     if ((m = /^(Keterangan kecil|Keterangan|Catatan kecil|Catatan kosakata|Catatan):\s*/.exec(p))) return '<p class="note"><b>' + esc(m[1].replace(/ kecil$/, '')) + ':</b> ' + md(p.slice(m[0].length)) + '</p>';
     return '<p>' + md(p) + '</p>';
   }

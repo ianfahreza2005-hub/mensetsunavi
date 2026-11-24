@@ -14,7 +14,7 @@ Aplikasi satu halaman tanpa framework dan tanpa *build step*: HTML, CSS, dan Jav
 | `#/sim/0` … `#/sim/15` | Simulasi Mensetsu | SIM-00–15 |
 | `#/post/0` … | Post-test | POST-00–20 |
 | `#/rapor` | Rapor Kesiapan | RAP-01–03 |
-| `#/hal/GLB-0x` | Fitur global (GLB-03 Bank Kosakata, GLB-04 Latihan Pertanyaan Acak, dan GLB-05 Tips & Trik sudah jadi) | GLB-03–05 |
+| `#/hal/GLB-0x` | Fitur global (GLB-03 Bank Kosakata, GLB-04 Latihan Pertanyaan Acak, GLB-05 Tips & Trik, dan GLB-07 Kata Mutiara sudah jadi) | GLB-03–05 |
 | `#/atur` | Pengaturan, mode uji, hapus progres | GLB-06 |
 
 ## Data
@@ -121,3 +121,24 @@ Daftar langkah storyboard di dua slide itu (Persiapan, Lapis 1–3) disembunyika
 Delapan kartu dalam rel geser CSS scroll-snap; tab Sebelum/Saat/Sesudah melompat ke kartu pertama tiap tahap; titik, tombol sebelumnya/berikutnya, dan panah keyboard.
 "Pelajari" membuka slide acuan (`#/bab/N/K`) atau halaman fitur (GLB-04); tombol terkunci bila bab acuan belum terbuka (sebelum pre-test).
 Kolom `Alasan` opsional: bila ditambahkan ke tabel naskah, `gen_data.py` memuatnya dan kartu menampilkannya.
+
+## Simulasi: Mode Latihan, suara pewawancara, rekaman SIM-06
+
+- **Mode Latihan** (tombol di pengantar SIM-00): `sim.mode = 'latihan'`. Tanpa timer, tanpa nilai: tidak menulis `S.sim` (Post-test tetap terkunci), ringkasan tersendiri (`scrSimLatEnd`). Tombol **Petunjuk Navi** menunjuk slide acuan momen (`m.acuan`); setelah memilih tampil tindakan terbaik + tautan pelajari.
+- **Suara pewawancara**: tombol di gelembung ucapan + putar otomatis saat momen tampil (`MN_IX.sayJa`, suara ja-JP bawaan perangkat).
+- **SIM-06** (hanya simulasi resmi): setelah memilih, kartu rekaman opsional `js/simrek.js` (target 30–60 dtk, tidak dinilai, tidak lanjut otomatis). Angka masuk `MN_STORE.get().lisan.sim06` dan tampil di Profil Kesiapan Lisan pada rapor.
+
+## Pengaturan global (GLB-02, GLB-06)
+
+`MN_STORE.set()` = `{ ro, ar, kec }` (Romaji dan Arti menyala bawaan; kecepatan `normal` | `pelan`). Kelas `no-ro` / `no-ar` dipasang di `<body>` oleh `show()` dan berlaku di semua layar.
+Di slide materi, pola `「日本語」 (romaji, "arti")` dibungkus `MN_IX.roWrap` (di `md()` interaktif.js) menjadi `<span class="gro"><span class="r">…</span><span class="s">…</span><span class="a">…</span></span>`;
+tiga bentuk: romaji + "arti" berkutip, romaji + arti tanpa kutip (dikenali dari kata awal bahasa Indonesia: Saya, Jika, Tidak, …), dan romaji saja (`ro-only`). Saat keduanya menyala teks identik dengan aslinya (diuji pada seluruh teks slide).
+Widget kartu (`.ix-ro`, `.ix-ar`) ikut kelas yang sama. Tombol Romaji/Arti ada di setiap slide materi dan di Pengaturan, bersama kecepatan suara. `MN_STORE.ok()` false bila penyimpanan ditolak peramban; beranda menampilkan pesan.
+
+## Pemandu Navi dan Kata Mutiara (GLB-07)
+
+`js/navi.js` (`MN_NAVI`):
+- **Saran di beranda** (`saran()`, kartu `#navi-saran`, bisa ditutup, diingat per sesi untuk saran yang sama): pre-test belum → mulai pre-test; ada bab sedang dipelajari → "Lanjutkan Bab N dari …?"; bab belum bertempel dengan hasil pre-test terendah → "Stempel Bab N belum ada. Coba bab itu dulu?"; enam stempel → Simulasi; Simulasi selesai → Post-test; semua selesai → Rapor.
+- **Petunjuk Navi** (`hint()`): tombol di aktivitas slide materi bertemplate T08/T10/T11/T12 yang punya widget; satu petunjuk yang menunjuk slide terkait (kode slide yang dirujuk di teks aktivitas, atau slide materi sebelumnya; slide pemantik menunjuk slide berikutnya). Tidak muncul di kuis, pre/post-test, dan Simulasi resmi; di Mode Latihan simulasi memakai `m.acuan`.
+- **Kata Mutiara**: `D.mutiara` (tabel GLB-07 via `gen_data.py`, dicocokkan dengan kutipan di slide rangkuman). Kartu di slide rangkuman bergambar Navi dan bisa diketuk; halaman koleksi `#/hal/GLB-07` membuka kartu seiring stempel bab (mode uji membuka semua). Suara: `assets/audio/mutiara/B<bab>.mp3` bila ada, jika belum suara bawaan peramban (id-ID).
+- Layar hasil kuis memuat reaksi Navi (senang bila lulus, menyemangati bila belum).

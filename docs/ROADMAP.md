@@ -13,10 +13,11 @@
 - [x] T02 Pemantik, T04 Tabel Bertahap, T10 Kelompokkan, T11 Urutkan & Lengkapi
 - [ ] T07/T08 video benar–salah (T08 sementara: kartu titik kesalahan)
 - [x] T09 Slider ojigi, T12 Cocokkan Kartu, T13 Pilihan Situasi
-- [ ] T14 Dengar & Tebak, gambar panel komik T13
+- [x] T14 Dengar & Tebak (dipakai GLB-04, mode Dengar)
+- [ ] Gambar panel komik T13
 - [x] T15 Rekam Suara + daftar periksa (Lapis 2)
 - [x] T15 latihan lisan 3 lapis di B4-15 dan B5-13 (analisis Lapis 1, daftar periksa, profil, unduh rekaman dan rubrik)
-- [ ] Rekaman jikoshoukai opsional setelah SIM-06 (masuk Profil Kesiapan Lisan)
+- [x] Rekaman jikoshoukai opsional setelah SIM-06 (masuk Profil Kesiapan Lisan)
 - [x] T16 Penyusun Jikoshoukai berisian (B4-14)
 
 ## Tahap 3 · Aset
@@ -29,7 +30,9 @@
 - [x] GLB-04 Latihan Pertanyaan Acak: mode Dengar + Jawab-rekam, bank 25 soal (suara bawaan perangkat)
 - [ ] GLB-04: rekaman audio pewawancara penutur asli (setelah cek SME soal 2–17 dan 23–25)
 - [x] GLB-05 Tips & Trik (8 kartu geser, 3 tab)
-- [ ] Petunjuk Navi (GLB-07)
+- [x] GLB-07: Petunjuk Navi, saran Navi di beranda, reaksi Navi di hasil kuis, koleksi Kata Mutiara
+- [x] GLB-02/06: tombol Romaji/Arti global, kecepatan audio, pesan penyimpanan ditolak
 - [ ] GLB-03: contoh kalimat per istilah dan rekaman audio istilah (menunggu naskah/SME)
-- [ ] Audio pewawancara simulasi, Mode Latihan tanpa timer
+- [x] Mode Latihan simulasi tanpa timer; suara pewawancara dengan suara bawaan perangkat
+- [ ] Rekaman audio pewawancara simulasi dan narasi Kata Mutiara (`assets/audio/sim/`, `assets/audio/mutiara/`)
 - [ ] Uji di HP Android kelas bawah, uji offline, uji coba ke peserta LPK

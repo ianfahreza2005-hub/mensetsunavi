@@ -41,7 +41,10 @@ opacity 0,001, `inert`); begitu halaman judul setinggi layar, rak memanggil `MN_
 (skala = zoom 3D ÷ zoom penuh, jadi kartu halaman materi menempel di kartu isi halaman judul dan membesar bersamanya);
 selaman berhenti saat kartu memenuhi layar dan rak memanggil `MN_APP.tibaBuku()`: `#view` kembali ke alur biasa, rak disembunyikan.
 Bila rak tidak menyetir dalam 4 detik, aplikasi memunculkan halaman sendiri (pudar + membesar). Rak membaca `MN_APP.gerakKurang()`
-untuk memilih jalur singkat. Saat kembali ke rak, induk memanggil `MN_RAK_RESET()` (buku kembali ke rak, sampul diperbarui) dan `MN_RAK_PAUSE()` saat rak disembunyikan. Tanpa WebGL, rak menampilkan daftar bab biasa.
+untuk memilih jalur singkat. Arah sebaliknya (kembali ke rak dari halaman sebuah buku): `#view` dijadikan kartu (`.dari-buku`,
+digulir ke posisi yang sama), induk memanggil `MN_RAK.keluar(no)` → `MN_RAK_KELUAR(no)` di rak (pose "di dalam buku", lalu mundur);
+rak menyetir `MN_APP.ukurBuku` sampai kartu hilang dan memanggil `MN_APP.keluarSelesai()`. Bila rak belum siap, `keluar()` mengembalikan
+false dan induk memakai transisi pudar biasa. Saat kembali ke rak, induk memanggil `MN_RAK_RESET()` (buku kembali ke rak, sampul diperbarui) dan `MN_RAK_PAUSE()` saat rak disembunyikan. Tanpa WebGL, rak menampilkan daftar bab biasa.
 
 ## Offline
 

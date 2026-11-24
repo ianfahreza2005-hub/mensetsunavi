@@ -221,8 +221,8 @@
     return true;
   }
   function ukurBuku(skala, op) {
-    if (!buku) return;
-    buku.tampil = true;
+    if (!buku && !keluar) return;
+    if (buku) buku.tampil = true;
     view.style.transform = skala >= 0.9995 ? 'none' : 'scale(' + skala.toFixed(5) + ')';
     view.style.opacity = Math.max(0.001, Math.min(1, op)).toFixed(4);
   }
@@ -237,6 +237,54 @@
     ];
     buku.anim[1].finished.then(selesaiBuku, selesaiBuku);
   }
+  /* ------------------------------------------------------------ keluar dari buku (halaman materi → rak 3D)
+     Kebalikan masukBuku. Saat peserta kembali ke rak dari halaman bab/kuis/simulasi/post-test/rapor:
+     1. #view menjadi kartu (fixed di atas rak, digulir ke posisi yang sama, jadi tidak ada yang bergeser) dan rak dimunculkan
+        di baliknya dalam pose "di dalam buku" (MN_RAK.keluar).
+     2. Rak menyetir ukurBuku(skala, opacity) setiap frame: kartu mengecil kembali ke kartu isi halaman judul lalu memudar;
+        rak memanggil keluarSelesai() dan halaman materi disembunyikan.
+     3. Rak melanjutkan sendiri: teks halaman judul muncul lagi, kamera mundur, sampul menutup, buku kembali ke rak.
+     Rak belum dimuat/masih intro, "kurangi gerak", atau HP: transisi pudar biasa. */
+  var keluar = null;
+  function bukuDariHash(h) {
+    var m = /^#\/(bab|kuis)\/(\d+)/.exec(h || ''); if (m) return +m[2];
+    if (/^#\/sim\//.test(h || '')) return 7;
+    if (/^#\/(post\/|rapor)/.test(h || '')) return 8;
+    return 0;
+  }
+  function keluarBuku(dari) {
+    var no = bukuDariHash(dari);
+    if (!no || buku || keluar || view.hidden || gerakKurang() || !window.MN_RAK || !MN_RAK.keluar) return false;
+    var dw = document.querySelector('.drawer'); if (dw && dw.parentNode !== document.body) dw.parentNode.remove();
+    stopTimer(); stopVoice();
+    view.querySelectorAll('video').forEach(function (v) { try { v.pause(); } catch (e) { /* abaikan */ } });
+    var y = window.scrollY || 0, sb = lebarScrollbar(), adaSb = sb > 0 && document.documentElement.scrollHeight > innerHeight + 1;
+    view.style.transform = 'none'; view.style.opacity = '1';
+    view.style.setProperty('--sb-buku', adaSb ? sb + 'px' : '0px');
+    view.classList.add('dari-buku'); view.inert = true;
+    view.scrollTop = y;   /* halaman yang sudah digulir tetap di posisi yang sama, kini sebagai kartu */
+    saranEl.hidden = true; rakEl.hidden = false;
+    keluar = { jaga: 0 };
+    if (!MN_RAK.keluar(no)) {   /* rak belum siap: kembalikan semuanya, pakai transisi biasa */
+      keluar = null; rakEl.hidden = true; if (MN_RAK.hide) MN_RAK.hide();
+      view.classList.remove('dari-buku'); view.inert = false; view.style.removeProperty('--sb-buku'); view.style.transform = ''; view.style.opacity = '';
+      window.scrollTo(0, y);
+      return false;
+    }
+    keluar.jaga = setTimeout(keluarSelesai, 3000);   /* jaga-jaga bila rak tidak sempat menyetir */
+    if (!ST.ok() && !window.__tanpaSimpan) { window.__tanpaSimpan = true; toast('Peramban menolak penyimpanan. Progresmu hanya bertahan sampai halaman ditutup.'); }
+    return true;
+  }
+  function keluarSelesai() {
+    if (!keluar) return;
+    var k = keluar; keluar = null; clearTimeout(k.jaga);
+    view.classList.remove('dari-buku'); view.inert = false;
+    view.style.removeProperty('--sb-buku'); view.style.transform = ''; view.style.opacity = '';
+    view.hidden = true; view.innerHTML = ''; document.body.className = '';
+    var f = document.getElementById('rakf'); try { if (f) f.focus(); } catch (e) { /* abaikan */ }
+    setTimeout(function () { if (!rakEl.hidden && view.hidden && !keluar) tampilSaran(); }, 900);   /* saran Navi setelah buku kembali ke rak */
+  }
+
   function selesaiBuku() {
     if (!buku) return;
     var b = buku; buku = null; clearTimeout(b.jaga);
@@ -918,6 +966,7 @@
     masukBuku: masukBuku,
     ukurBuku: ukurBuku,
     tibaBuku: tibaBuku,
+    keluarSelesai: keluarSelesai,
     gerakKurang: gerakKurang,
     menu: openMenu
   };
@@ -944,7 +993,7 @@
   }
   /* pintasan keyboard: ← sebelumnya, → berikutnya, spasi memutar suara, 1–3 memilih tindakan di Simulasi, A–D memilih jawaban soal */
   document.addEventListener('keydown', function (e) {
-    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || view.hidden) return;
+    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || view.hidden || view.inert) return;   /* inert: halaman sedang masuk/keluar buku */
     var t = e.target, tag = t && t.tagName;
     if (/^(INPUT|TEXTAREA|SELECT|VIDEO)$/.test(tag) || (t && t.isContentEditable) || document.querySelector('.drawer')) return;   /* video yang difokus: spasi/panah untuk video */
     var bar = view.querySelector('.screen > .bottombar'), k = e.key, el;
@@ -984,8 +1033,11 @@
   window.addEventListener('hashchange', function () {
     if (abaikanHash && location.hash === abaikanHash) { abaikanHash = null; return; }   /* sudah disusun oleh masukBuku */
     abaikanHash = null;
+    var batalSelam = !!buku;
     if (buku) selesaiBuku();   /* alamat berganti lagi di tengah selam (mis. tombol Kembali peramban): selesaikan dulu */
-    var arah = jenisPindah(hashLalu, location.hash); hashLalu = location.hash;
+    if (keluar) keluarSelesai();
+    var dari = hashLalu, arah = jenisPindah(hashLalu, location.hash); hashLalu = location.hash;
+    if (arah === 'tutup' && !batalSelam && keluarBuku(dari)) return;   /* kembali ke rak: halaman masuk lagi ke bukunya */
     denganGeser(arah, route);
   });
   route();

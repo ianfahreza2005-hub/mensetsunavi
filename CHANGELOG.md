@@ -13,6 +13,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 
 ### Diubah
 - Masuk ke bab dari rak tidak lagi terpotong: setelah sampul terbuka, kamera menyelam ke halaman judul tanpa berhenti, lalu halaman materi muncul sebagai kartu di atas kartu isi halaman judul dan membesar bersama halaman itu sampai memenuhi layar. Halaman materi disusun saat tombol Lanjutkan ditekan, jadi tidak ada lagi layar kosong sesaat. Kamera rak juga tidak lagi meloncat saat buku dipilih atau dibuka.
+- Kembali ke rak dari sebuah bab kini kebalikannya: halaman materi mengecil masuk lagi ke halaman judul bukunya, sampul menutup, dan buku terbang kembali ke tempatnya di rak.
 - Transisi halaman dirombak supaya mulus 60 fps:
   - blur kaca (`backdrop-filter`) di bilah atas/bawah dihapus; inilah penyebab geseran slide tersendat di ±30 fps;
   - pola pudar-lewat: isi lama hilang dulu, baru isi baru masuk, jadi teks tidak kabur bertumpuk;
@@ -34,6 +35,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 - Gerak dikurangi secara bertingkat: geser/membesar/melayang/denyut dibuang, kemunculan isi menjadi pudar singkat, pindah slide menjadi pudar.
 
 ### Diperbaiki
+- Buku yang dikembalikan ke rak (tombol Tutup atau kembali dari bab) tidak lagi berdiri miring; kembali ke pose semula.
 - Kode slide di teks naskah (mis. "pakai ungkapan di B5-09" di B5-08) dan di latihan lisan/simulasi rekam ("dari B4-14") tidak lagi tampil ke peserta; diganti judul slidenya.
 - Tombol Lanjut tidak lagi kehilangan efek denyut (dua @keyframes bernama "denyut" saling menimpa).
 - Pengantar B6-02 tidak lagi membocorkan kesalahan Dimas sebelum peserta menemukannya.

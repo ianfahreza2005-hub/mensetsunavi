@@ -104,6 +104,11 @@ Catatan keputusan yang sudah dikunci. Semua dokumen T1/T2 harus mengikuti ini.
   - begitu halaman judul setinggi layar, halaman materi muncul sebagai kartu tepat di atas kartu isi halaman judul (pudar 0,2 dtk) dan membesar bersama halaman 3D (skala dihitung dari zoom yang sama tiap frame) sampai memenuhi layar, lalu berhenti melambat;
   - kamera tidak lagi meloncat saat buku dipilih/dibuka; latar rak berhenti digambar begitu tertutup halaman judul.
   Kurangi gerak, HP, dan tanpa WebGL tetap memakai jalur lama (buka singkat + pudar).
+- Keluar dari buku (24 Nov, kebalikan selam): kembali ke rak dari halaman bab/kuis/simulasi/post-test/rapor →
+  halaman materi menjadi kartu yang mengecil kembali ke kartu isi halaman judul lalu memudar, teks halaman judul muncul lagi,
+  kamera mundur, sampul menutup, buku terbang kembali ke tempatnya (±1,5 dtk; halaman materi hilang dalam ±0,5 dtk).
+  Halaman yang sudah digulir tetap di posisinya. Rak belum dimuat/masih intro, kurangi gerak, HP: pudar biasa.
+- Perbaikan: buku yang dikembalikan ke rak dulu tetap berotasi seperti "dipegang" (miring); sekarang kembali ke pose semula.
 - Status: terkunci = sampul abu + gembok, diklik bergetar + toast alasan; selesai = stempel hanko 済 di sampul + punggung + rel (animasi cap); sedang dipelajari = bilah progres di sampul + cincin %; disarankan pre-test = label kuning (bab dengan skor pre-test terendah).
 - HP (<768 px): tumpukan buku digeser vertikal, bar bawah Detail/Buka; landscape & laptop: rak penuh + rel katalog bawah. Tanpa WebGL: daftar bab 2D.
 

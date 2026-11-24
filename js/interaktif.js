@@ -432,7 +432,10 @@
      ganti = paragraf naskah yang menjadi tempat video; paragraf sesudahnya (teks Jepang, romaji, arti) tetap ada sebagai transkrip. */
   var VIDEO = {
     'B2-09': { ganti: /^Contoh telepon/i, src: 'assets/video/B2-09.mp4', poster: 'assets/video/B2-09.jpg', durasi: '0:42',
-      judul: 'Contoh telepon renraku: terlambat karena kereta', kredit: 'Suara: VOICEVOX:雀松朱司' }
+      judul: 'Contoh telepon renraku: terlambat karena kereta', kredit: 'Suara: VOICEVOX:雀松朱司' },
+    /* simpan: paragraf yang diganti tetap ada di transkrip (di sini paragraf langkah, kotak Hindari, dan kotak Gugup) */
+    'B5-09': { ganti: /^Langkah bila tetap tidak paham/i, simpan: true, src: 'assets/video/B5-09.mp4', poster: 'assets/video/B5-09.jpg', durasi: '0:52',
+      judul: 'Saat tetap tidak paham: jujur dengan sopan', kredit: 'Suara: VOICEVOX:雀松朱司', teks: 'Lihat teks lengkap (langkah, hal yang dihindari, saat gugup)' }
   };
   var PUTAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>';
   W.video = function (v) {
@@ -814,7 +817,10 @@
       }
       /* paragraf */
       if (VIDEO[code] && VIDEO[code].ganti.test(g.p) && !vidBuka) {
-        add(W.video(VIDEO[code])); parts.push('<details class="vid-teks"><summary>Lihat teks percakapan (Jepang · romaji · arti)</summary>'); vidBuka = true; return;
+        var vd = VIDEO[code];
+        add(W.video(vd)); parts.push('<details class="vid-teks"><summary>' + esc(vd.teks || 'Lihat teks percakapan (Jepang · romaji · arti)') + '</summary>'); vidBuka = true;
+        if (vd.simpan) parts.push(para(code, g.i, g.p));
+        return;
       }
       var ref = tpl === 'T11' && /urutkan/i.test(g.p) && /\((B\d-\d\d)\)/.exec(g.p);
       parts.push(para(code, g.i, g.p));

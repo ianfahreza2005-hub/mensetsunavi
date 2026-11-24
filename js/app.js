@@ -525,7 +525,7 @@
   /* ------------------------------------------------------------ fitur global & pengaturan */
   function scrHal(code) {
     var s = D.slides[code]; if (!s) return go('#/rak');
-    var FITUR = { 'GLB-03': ['MN_KOSA', 'Bank Kosakata', '#B3282F', '#F8E3E3'], 'GLB-04': ['MN_LATIH', 'Latihan Pertanyaan Acak', '#5E4391', '#ECE6F4'], 'GLB-05': ['MN_TIPS', 'Tips & Trik', '#9A5A12', '#F6EBDB'], 'GLB-07': ['MN_NAVI', 'Kata Mutiara', '#0F4C81', '#E1EAF4'] }[code];
+    var FITUR = { 'GLB-03': ['MN_KOSA', 'Bank Kosakata', '#17706B', '#DDEFEC'], 'GLB-04': ['MN_LATIH', 'Latihan Pertanyaan Acak', '#5E4391', '#ECE6F4'], 'GLB-05': ['MN_TIPS', 'Tips & Trik', '#9A5A12', '#F6EBDB'], 'GLB-07': ['MN_NAVI', 'Kata Mutiara', '#0F4C81', '#E1EAF4'] }[code];
     if (FITUR && window[FITUR[0]]) {
       show('<div class="screen fitur" style="--c:' + FITUR[2] + ';--cl:' + FITUR[3] + '">' + topbar('Sumber belajar', FITUR[1], 1, FITUR[2]) + '<div class="body"><h2 class="slide-h">' + esc(s.title) + '</h2><div id="fitur"></div></div>' + bottombar('#/rak', '', null) + '</div>');
       window[FITUR[0]].mount(document.getElementById('fitur'), { esc: esc, ic: ic, naviSay: naviSay, bindSpeak: bindSpeak, toast: toast, sayMutiara: sayMutiara, status: function (n) { return ST.status(n); },

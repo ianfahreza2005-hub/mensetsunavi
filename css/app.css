@@ -902,3 +902,10 @@ a { color: var(--pri); text-underline-offset: 3px; text-decoration-thickness: 1.
    Tata letak laptop berlaku di semua lebar; di bawah 1024 px halaman bisa digeser, dan di HP peramban
    memperkecil halaman lewat viewport width=1280 di index.html. Versi responsif lama: lihat docs/KEPUTUSAN.md. */
 html { min-width: 1024px; }
+
+/* ---------- panel kanan: Navi di atas, gelembung selebar panel (sebelumnya teks terjepit ±110 px) ---------- */
+.rpanel .navi-say { flex-direction: column; align-items: stretch; gap: 0; }
+.rpanel .navi-say img { width: 76px; align-self: flex-start; margin: 0 0 -6px 12px; position: relative; z-index: 1; }
+.rpanel .navi-say .bubble { position: relative; border-radius: 18px; padding: 14px 16px; font-size: 14.5px; line-height: 1.6; background: #F5F4F8; box-shadow: none; border: 1px solid var(--line); }
+.rpanel .navi-say .bubble::before { content: ""; position: absolute; top: -7px; left: 40px; width: 12px; height: 12px; background: #F5F4F8; border-left: 1px solid var(--line); border-top: 1px solid var(--line); transform: rotate(45deg); }
+.rpanel .navi-say .bubble .btn { margin-top: 10px; min-height: 40px; padding: 8px 16px; }

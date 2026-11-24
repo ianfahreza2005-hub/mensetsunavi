@@ -146,6 +146,9 @@
     document.body.className = ((opts && opts.dark) ? 'sim' : '') + setClasses();
     view.innerHTML = html;
     view.querySelectorAll('.screen').forEach(function (sc) { for (var c = sc.firstElementChild; c; c = c.nextElementSibling) if (c.classList.contains('bottombar')) { sc.classList.add('has-bar'); break; } });
+    /* saat isi sedang bergeser (View Transitions), animasi masuk layar dimatikan pada elemen itu sendiri; bila dimatikan lewat
+       atribut <html>, animasinya justru menyala setelah geseran selesai sehingga isi berkedip dua kali */
+    if (document.documentElement.hasAttribute('data-geser')) view.querySelectorAll('.screen').forEach(function (sc) { sc.classList.add('diam'); });
     var sc0 = view.firstElementChild;   /* layar isi (bukan pembuka/simulasi) dibungkus kerangka laptop */
     if (!(opts && opts.dark) && sc0 && sc0.classList.contains('screen') && !sc0.classList.contains('start')) {
       var wrap0 = document.createElement('div'); wrap0.className = 'with-side shell';
@@ -200,10 +203,62 @@
     return esc(t).replace(/「[^」]*」/g, function (m) { return '<span class="q-jp jp">' + m + '</span>'; })
       .replace(/\(([^()]{3,})\)/g, '<span class="q-ro">($1)</span>');
   }
-  function layarSoal(o) {   /* o = { meta, dots, stem, pose, kanan } */
-    return '<div class="soal"><section class="soal-kiri"><div class="soal-meta">' + o.meta + '</div>' + (o.dots || '') +
-      '<p class="q-stem">' + fmtStem(o.stem) + '</p><img class="soal-navi" src="' + navi(o.pose || 'exp_berpikir') + '" alt=""></section>' +
-      '<section class="soal-kanan">' + o.kanan + '</section></div>';
+  function layarSoal(o) {   /* o = { meta, dots, stem, pose, kanan, kosa, jalur } */
+    return '<div class="soal"><div class="soal-kol"><section class="soal-kiri"><div class="soal-meta">' + o.meta + '</div>' + (o.dots || '') +
+      '<p class="q-stem">' + fmtStem(o.stem) + '</p><img class="soal-navi" src="' + navi(o.pose || 'exp_berpikir') + '" alt=""></section>' + (o.kosa || '') + '</div>' +
+      '<section class="soal-kanan">' + o.kanan + '</section></div>' + (o.jalur || '');
+  }
+  /* "Kosakata di soal ini" (khusus kuis bab; tidak di pre/post-test agar penilaian tetap murni).
+     Istilah glosarium bab yang muncul di soal/pilihan (huruf Jepang, atau romaji ≥5 huruf). Istilah yang artinya tercantum
+     di pilihan yang benar dilewati, dan soal yang menanyakan arti kata tidak diberi kotak ini, supaya jawabannya tidak bocor.
+     Bila tidak ada yang cocok: kosakata penting dari slide yang menjadi acuan soal. */
+  function kosaSoal(q, b) {
+    if (/\b(arti(nya)?|makna|maksud(nya)?)\b/i.test(q.stem)) return '';
+    var t = q.stem + ' ' + q.opts.join(' '), tl = t.toLowerCase(), benar = (q.opts['ABCD'.indexOf(q.key)] || '').toLowerCase(), pakai = {}, out = [];
+    function ambil(g) {   /* lewati istilah bila salah satu bagian artinya ada di pilihan yang benar */
+      var bocor = g.ar.toLowerCase().split(/[,;()\/]| dan | atau /).some(function (x) { x = x.trim(); return x.length >= 4 && benar.indexOf(x) >= 0; });
+      if (out.length >= 4 || pakai[g.jp] || pakai[g.ro] || bocor) return;
+      pakai[g.jp] = pakai[g.ro] = 1; out.push(g);
+    }
+    var G = b.glos || [];
+    G.forEach(function (g) { if (t.indexOf(g.jp) >= 0) ambil(g); });
+    G.forEach(function (g) { var r = g.ro.toLowerCase().replace(/[^a-z]/g, ''); if (r.length >= 5 && new RegExp('(^|[^a-z])' + r.split('').join('[^a-z]?') + '([^a-z]|$)').test(tl)) ambil(g); });
+    var cadangan = !out.length;
+    if (cadangan) {
+      var ks = (q.remed || []).map(function (c) { var l = slideLink(c); return l && l.bab === b.no ? l.k : -1; });
+      G.forEach(function (g) { if (out.length < 3 && ks.indexOf(g.k) >= 0) ambil(g); });
+    }
+    if (!out.length) return '';
+    return '<div class="card soal-kosa"><h3 class="sec-h">' + (cadangan ? 'Kosakata penting ' + esc(b.label) : 'Kosakata di soal ini') + '</h3><div class="sk-list">' + out.map(function (g) {
+      return '<div class="sk"><span class="jp sk-jp">' + esc(g.jp) + '</span><span class="sk-teks"><span class="ix-ro">' + esc(g.ro) + '</span><span class="ix-ar" title="' + esc(g.ar) + '">' + esc(g.ar) + '</span></span>' +
+        '<button class="ix-sp sk-say" data-t="' + esc(g.jp) + '" aria-label="Dengarkan ' + esc(g.ro) + '">' + ic('speaker') + '</button></div>';
+    }).join('') + '</div></div>';
+  }
+  /* jalur soal di bawah: kotak per soal. Kuis bab: ✓/✗, skor sementara, meteran menuju 80 dan stempel 済.
+     Pre/post-test: hanya status dijawab (tanpa nilai); kotak soal yang sudah dijawab bisa diklik. */
+  function jalurKuis(Q, ans, i, b) {
+    var right = ans.filter(Boolean).length, done = ans.filter(function (x) { return x !== undefined; }).length, skor = right * 20;
+    var butuh = Math.max(0, 4 - right), sisa = Q.length - done;
+    var ket = butuh === 0 ? 'Skor 80 tercapai! Stempel ' + b.label + ' menunggu di akhir kuis.'
+      : butuh <= sisa ? 'Butuh ' + butuh + ' jawaban tepat lagi untuk stempel ' + b.label + '.'
+      : 'Selesaikan dulu, lalu ulangi kuis dengan soal lain untuk mendapat stempel.';
+    return '<div class="jalur"><div class="jl-soal">' + Q.map(function (_, k) {
+      var st = ans[k] === undefined ? (k === i ? 'now' : '') : ans[k] ? 'ok' : 'no';
+      return '<span class="jl-t ' + st + '"><b>' + (k + 1) + '</b><i aria-hidden="true">' + (st === 'ok' ? '✓' : st === 'no' ? '✗' : '') + '</i></span>';
+    }).join('') + '</div><div class="jl-skor"><small>Skor sementara</small><b>' + skor + '</b><span>/100</span></div>' +
+      '<div class="jl-target"><div class="jl-bar"><i style="width:' + skor + '%"></i><em style="left:80%"><span>80</span></em></div><small>' + esc(ket) + '</small></div>' +
+      '<div class="jl-hanko' + (butuh === 0 ? ' on' : '') + '" style="--isi:' + Math.min(1, right / 4) + '"><span class="jp">済</span></div></div>';
+  }
+  function jalurTes(N, ans, i, root) {
+    var done = ans.filter(Boolean).length;
+    return '<div class="jalur jalur-tes"><div class="jl-soal">' + Array.apply(null, Array(N)).map(function (_, k) {
+      var st = k + 1 === i ? 'now' : ans[k] ? 'isi' : '';
+      return (ans[k] || k + 1 === i ? '<a class="jl-t ' + st + '" href="' + root + (k + 1) + '" aria-label="Soal ' + (k + 1) + '">' : '<span class="jl-t">') + '<b>' + (k + 1) + '</b>' + (ans[k] || k + 1 === i ? '</a>' : '</span>');
+    }).join('') + '</div><div class="jl-skor"><small>Sudah dijawab</small><b>' + done + '</b><span>/' + N + '</span></div>' +
+      '<div class="jl-target"><small>Nilai baru terlihat setelah semua soal selesai. Kamu bisa kembali ke soal yang sudah dijawab untuk mengganti pilihan.</small></div></div>';
+  }
+  function bindSayJa(root) {
+    root.querySelectorAll('.sk-say, .rp-say').forEach(function (bt) { bt.addEventListener('click', function () { if (window.MN_IX && !MN_IX.sayJa(bt.dataset.t)) toast('Suara Jepang belum tersedia di perangkat ini.'); }); });
   }
   function titikSoal(n, i) { return '<div class="dots soal-dots">' + Array.apply(null, Array(n)).map(function (_, k) { return '<i' + (k < i ? ' class="on"' : k === i ? ' class="now"' : '') + '></i>'; }).join('') + '</div>'; }
   /* pindah antar-soal tanpa ganti alamat (kuis bab) tetap bergeser halus */
@@ -252,8 +307,10 @@
         meta: '<span class="soal-no">Soal <b>' + i + '</b> dari ' + N + '</span><span class="soal-bab">' + esc(base + ' · materi ' + qb.label + ' ' + qb.title) + '</span>',
         dots: titikSoal(N, i - 1), stem: cleanStem(q.stem), pose: sel ? 'exp_senang' : 'exp_berpikir',
         kanan: '<p class="soal-arah">' + (sel ? 'Jawabanmu: <b>' + sel + '</b>. Kamu masih bisa menggantinya.' : 'Pilih satu jawaban <span class="kbd">A</span>–<span class="kbd">D</span>') + '</p><div class="opts">' +
-          q.opts.map(function (o, k) { var L = 'ABCD'[k]; return '<button class="opt' + (sel === L ? ' sel' : '') + '" data-l="' + L + '"><span class="L">' + L + '</span><span>' + esc(o) + '</span></button>'; }).join('') + '</div>'
+          q.opts.map(function (o, k) { var L = 'ABCD'[k]; return '<button class="opt' + (sel === L ? ' sel' : '') + '" data-l="' + L + '"><span class="L">' + L + '</span><span>' + esc(o) + '</span></button>'; }).join('') + '</div>',
+        jalur: jalurTes(N, testAns[kind], i, root)
       }) + '</div>' + bottombar(i > 1 ? root + (i - 1) : root + '0', i + ' / ' + N, root + (i + 1), i === N ? 'Selesai' : 'Lanjut', !sel) + '</div>');
+    bindSayJa(view);
     view.querySelectorAll('.opt').forEach(function (b) {
       b.addEventListener('click', function () { testAns[kind][i - 1] = b.dataset.l; scrTest(kind, i); });
     });
@@ -382,7 +439,7 @@
     }
     show('<div class="with-side' + (panel ? ' has-rp' : '') + '" style="--c:' + b.col + ';--cl:' + b.colL + '">' + sidebar({ bab: n, k: k }) + '<div class="screen">' + topbar(sub, s.title, pct, b.col) + inner +
       bottombar(k > 0 ? root + (k - 1) : '#/rak', (k + 1) + ' / ' + b.slides.length, k < last ? root + (k + 1) : null, k === 0 ? 'Mulai ' + b.label : 'Lanjut', gate) + '</div>' + panel + '</div>');
-    view.querySelectorAll('.rp-say').forEach(function (bt) { bt.addEventListener('click', function () { if (window.MN_IX && !MN_IX.sayJa(bt.dataset.t)) toast('Suara Jepang belum tersedia di perangkat ini.'); }); });
+    bindSayJa(view);
     var nh = document.getElementById('navi-hint');   /* Petunjuk Navi: hanya di aktivitas slide materi (tidak di kuis, pre/post-test, Simulasi resmi) */
     if (nh) nh.addEventListener('click', function () {
       document.getElementById('navi-hint-box').innerHTML = '<div class="navi-say"><img src="' + navi('exp_berpikir') + '" alt="Navi"><div class="bubble">' + MN_NAVI.hint(code, b, k, slideLink, esc) + '</div></div>';
@@ -434,9 +491,11 @@
             if (answered) { if (L === q.key) cls = ' ok'; else if (quiz.pick === L) cls = ' no'; }
             return '<button class="opt' + cls + '" data-l="' + L + '"' + (answered ? ' disabled' : '') + '><span class="L">' + L + '</span><span>' + esc(o) + '</span></button>';
           }).join('') + '</div>' +
-          (answered ? '<div class="fb soal-fb ' + (a ? 'ok' : 'no') + '"><b class="fb-h">' + (a ? '✓ Tepat' : '✗ Kurang tepat') + '</b><p>' + tanpaKode(esc(a ? (q.ok || 'Tepat!') : (q.no || 'Kurang tepat.'))) + '</p>' + (q.exp ? '<p class="mini">' + tanpaKode(esc(q.exp.charAt(0).toUpperCase() + q.exp.slice(1))) + '</p>' : '') + '</div>' : '')
+          (answered ? '<div class="fb soal-fb ' + (a ? 'ok' : 'no') + '"><b class="fb-h">' + (a ? '✓ Tepat' : '✗ Kurang tepat') + '</b><p>' + tanpaKode(esc(a ? (q.ok || 'Tepat!') : (q.no || 'Kurang tepat.'))) + '</p>' + (q.exp ? '<p class="mini">' + tanpaKode(esc(q.exp.charAt(0).toUpperCase() + q.exp.slice(1))) + '</p>' : '') + '</div>' : ''),
+        kosa: kosaSoal(q, b), jalur: jalurKuis(Q, quiz.ans, i, b)
       }) + '</div>' +
       '<footer class="bottombar"><span class="no">' + (i + 1) + ' / 5</span><button class="btn" id="nx"' + (answered ? '' : ' disabled') + '>' + (i === 4 ? 'Lihat hasil' : 'Soal berikutnya') + ic('next') + '</button></footer></div>');
+    bindSayJa(view);
     view.querySelectorAll('.opt:not([disabled])').forEach(function (bt) {
       bt.addEventListener('click', function () { quiz.pick = bt.dataset.l; quiz.ans[i] = bt.dataset.l === q.key; scrKuis(n); });
     });

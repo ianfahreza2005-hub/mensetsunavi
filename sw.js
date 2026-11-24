@@ -1,6 +1,6 @@
 /* Service worker Mensetsu Navi: menyimpan aplikasi agar bisa dipakai tanpa internet.
    Daftar dan VERSION diperbarui oleh tools/build_sw.py setiap kali isi berubah. */
-var VERSION = 'mn-b475eed521';
+var VERSION = 'mn-197dc92bfd';
 var PRECACHE = [
  "./",
  "index.html",
@@ -57,17 +57,39 @@ var PRECACHE = [
 ];
 
 self.addEventListener('install', function (e) {
-  e.waitUntil(caches.open(VERSION).then(function (c) { return c.addAll(PRECACHE); }).then(function () { return self.skipWaiting(); }));
+  /* cache: 'reload' = lewati cache HTTP peramban/GitHub Pages (max-age 10 menit) supaya yang tersimpan benar-benar berkas versi ini */
+  e.waitUntil(caches.open(VERSION).then(function (c) {
+    return Promise.all(PRECACHE.map(function (u) { return c.add(new Request(u, { cache: 'reload' })); }));
+  }).then(function () { return self.skipWaiting(); }));
 });
 self.addEventListener('activate', function (e) {
   e.waitUntil(caches.keys().then(function (keys) {
-    return Promise.all(keys.filter(function (k) { return k !== VERSION && k.indexOf('mn-') === 0; }).map(function (k) { return caches.delete(k); }));
+    return Promise.all(keys.filter(function (k) { return k.indexOf('mn-') === 0 && k !== VERSION && k !== VERSION + '-rt'; }).map(function (k) { return caches.delete(k); }));
   }).then(function () { return self.clients.claim(); }));
 });
+
+/* Kode aplikasi (HTML/JS/CSS/manifest): jaringan dulu supaya pembaruan langsung terpakai saat online; bila offline atau lebih dari 4 detik, pakai cache. */
+function jaringanDulu(req, url) {
+  var net = fetch(url.href, { cache: 'no-cache', credentials: 'same-origin' }).then(function (res) {
+    if (res.ok) { var copy = res.clone(); caches.open(VERSION).then(function (c) { c.put(req, copy); }); }
+    return res;
+  });
+  var batas = new Promise(function (_, tolak) { setTimeout(tolak, 4000); });
+  return Promise.race([net, batas]).catch(function () {
+    return caches.match(req, { ignoreSearch: true }).then(function (hit) {
+      return hit || net.catch(function () { return req.mode === 'navigate' ? caches.match('index.html') : Response.error(); });
+    });
+  });
+}
+
 self.addEventListener('fetch', function (e) {
   var req = e.request;
   if (req.method !== 'GET') return;
   var url = new URL(req.url);
+  if (url.origin === location.origin && (req.mode === 'navigate' || /\.(html|js|css|webmanifest)$/.test(url.pathname) || /\/$/.test(url.pathname))) {
+    e.respondWith(jaringanDulu(req, url));
+    return;
+  }
   // font Google & rekaman audio: simpan saat pertama dipakai
   var runtime = /fonts\.(googleapis|gstatic)\.com$/.test(url.hostname) || url.pathname.indexOf('/assets/audio/') >= 0 || url.pathname.indexOf('/assets/video/') >= 0;
   e.respondWith(caches.match(req, { ignoreSearch: true }).then(function (hit) {

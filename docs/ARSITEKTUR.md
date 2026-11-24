@@ -23,7 +23,7 @@ Aplikasi satu halaman tanpa framework dan tanpa *build step*: HTML, CSS, dan Jav
 
 - `bab[]`: identitas bab (judul, kanji, warna, pelajaran, daftar kode slide) dan `kuis` (10 soal: stem, 4 pilihan, kunci, umpan balik, slide remedial).
 - `slides{kode}`: judul, template (T01–T21), pelajaran, teks layar (`screen`), narasi, rencana visual.
-- `pre[]`: 20 soal pre/post-test. `sim[]`: 13 momen simulasi (situasi, 3 pilihan 10/5/0, jenis skor, acuan).
+- `pre[]`: bank 20 soal (post-test memakai semuanya). `preSub[]`: indeks 10 butir terpilih untuk pre-test (`PRE10` di gen_data.py); `scrTest` memakai `preSub` bila `kind === 'pre'`. N-gain di rapor dihitung pada butir yang sama (`skorSama()`). `sim[]`: 13 momen simulasi (situasi, 3 pilihan 10/5/0, jenis skor, acuan).
 
 File ini dibuat otomatis oleh `tools/gen_data.py` dari naskah Bab 1–6, Evaluasi Sumatif, dan storyboard. Ubah isi di dokumen naskah, lalu jalankan ulang skripnya; jangan mengedit `kursus.js` secara manual.
 
@@ -40,6 +40,13 @@ Aturan kunci: Bab 1–6 terbuka setelah pre-test; Simulasi setelah 6 stempel; Po
 ## Offline
 
 `sw.js` menyimpan semua file aplikasi saat pertama dibuka; font dan rekaman disimpan saat pertama dipakai. Versi cache dihitung dari isi file oleh `tools/build_sw.py`.
+
+**Pembaruan versi** (agar perubahan langsung terlihat):
+- Kode aplikasi (HTML/JS/CSS/manifest) memakai strategi **jaringan dulu**: saat online selalu diambil segar (`cache: 'no-cache'`), dan baru memakai cache bila offline atau lebih dari 4 detik. Gambar, font, vendor, dan audio tetap cache-dulu.
+- Pemasangan versi baru mengambil berkas dengan `cache: 'reload'` (melewati cache HTTP GitHub Pages yang berlaku 10 menit), lalu `skipWaiting` + `clients.claim`.
+- `build_sw.py` memberi alamat berversi pada berkas kode di `index.html` (`js/app.js?v=<hash>`; hash tidak menghitung tanda versinya sendiri sehingga stabil). Itu memaksa peramban mengambil berkas baru walau cache memori/HTTP masih menyimpan yang lama.
+- `app.js` menampilkan spanduk "Versi baru tersedia. Muat ulang" saat service worker baru mengambil alih, dan mengecek pembaruan tiap tab kembali dibuka dan tiap 30 menit.
+- Sebelumnya (cache-dulu) pengguna bisa terus melihat versi lama sampai muat ulang berikutnya.
 
 ## Suara
 
@@ -155,7 +162,7 @@ Acuan: canvas interface v2 (`sumber/desain-canvas/`: D_* laptop, L_* HP landscap
 | Landscape ≥ 640px lebar (HP, tablet, laptop) | **Simulasi dua kolom** (`.screen.sim-split`): ilustrasi kiri, pilihan di panel kanan; teks lebih besar di ≥ 1100px |
 | ≥ 1024px | **kerangka laptop** (lihat bawah): header penuh lebar + sidebar navigasi di semua layar isi; Rapor dua kolom (`.rapor`) |
 | ≥ 1100px | halaman fitur (`.screen.fitur`) lebih lebar, daftar 3 kolom |
-| ≥ 1280px | panel kanan di slide materi (`.rpanel`): Navi + **Kosakata di slide ini** (dari `D.bab[].glos` dengan `k` = indeks slide); gelembung Navi di bawah isi disembunyikan |
+| ≥ 1240px | panel kanan 300px di slide materi (`.rpanel`): Navi + **Kosakata di slide ini** (dari `D.bab[].glos` dengan `k` = indeks slide); gelembung Navi di bawah isi disembunyikan |
 
 `show()` menambahkan kelas `has-bar` pada `.screen` yang punya anak `.bottombar` (lewat JavaScript, bukan `:has()`, agar jalan di Chrome Android lama). Layar sim memakai `sim-split` di markup `scrSim`.
 
@@ -164,7 +171,7 @@ Acuan: canvas interface v2 (`sumber/desain-canvas/`: D_* laptop, L_* HP landscap
 ## Kerangka laptop (≥1024px)
 
 Semua layar isi (slide bab, kuis, Pre/Post-test, Rapor, halaman fitur, Pengaturan) dibungkus `div.with-side` oleh `show()` di `app.js`; pembuka, rak, dan simulasi (layar imersif) tidak.
-`.with-side` adalah grid: baris 1 = `header.appbar` (penuh lebar), baris 2 = `aside.side` (284px) + `.screen` (+ `.rpanel` 320px di ≥ 1280px).
+`.with-side` adalah grid: baris 1 = `header.appbar` (penuh lebar), baris 2 = `aside.side` (lebar `--sbw`, 272px) + `.screen` (+ `.rpanel` 300px di ≥ 1240px). Layar pendek (tinggi ≤ 820px) memakai sidebar lebih rapat. Ukuran acuan: laptop Windows 1920×1080 dengan skala 150% ≈ 1280×720 px CSS.
 Di bawah 1024px `appbar` dan `side` disembunyikan CSS, jadi tampilan HP tidak berubah; `.topbar` kolom dipakai di HP, disembunyikan di laptop.
 
 - **`appbar(ws)`**: brand, breadcrumb (diambil dari `.topbar .sub/.title`), progres "n/10" (`bagianSelesai()`: pre-test + 6 stempel + Simulasi + Post-test + Rapor dilihat → `S.raporLihat`), tombol Romaji/Arti, tombol audio (memutar `[data-speak]` pertama), chip nama.

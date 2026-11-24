@@ -43,5 +43,5 @@ window.MN_TAMPIL = {
   'B6-02': { 0: 'Dimas selesai wawancara. Ia berdiri tanpa salam, menutup pintu keras, lalu di lorong menghela napas, melonggarkan dasi, dan langsung menelepon temannya sambil tertawa.' },
   'B6-03': { 0: 'Lima langkah dari kursi ke pintu:' },
   'B6-09': { 0: null, 1: '**Tahap A:** susun lima langkah keluar ruangan.', 2: '**Tahap B:** pilih ungkapan yang tepat untuk langkah 2–4.' },
-  'PRE-00': {}, 'SIM-00': {}
+  'PRE-00': { 0: 'Pre-test berisi ' + (window.MN_DATA && MN_DATA.preSub ? MN_DATA.preSub.length : 10) + ' soal pilihan ganda, satu soal per layar, sekitar 8 menit. Jawab sesuai yang kamu ketahui sekarang; hasilnya dipakai untuk melihat kemampuan awalmu, bukan untuk menentukan lulus.' }, 'SIM-00': {}
 };

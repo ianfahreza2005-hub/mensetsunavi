@@ -1,7 +1,7 @@
 /* Mensetsu Navi — kerangka aplikasi (router + layar).
    Rute (hash):
    #/mulai            layar pembuka (GLB-00)
-   #/pre/0..21        pre-test (petunjuk, 20 soal, hasil)
+   #/pre/0..11        pre-test (petunjuk, 10 soal terpilih, hasil)
    #/rak              rak bab 3D (beranda)
    #/bab/N/K          slide ke-K di Bab N (0 = sampul)
    #/kuis/N           kuis formatif Bab N
@@ -176,13 +176,14 @@
   var testAns = { pre: [], post: [] };
   function cleanStem(t) { return String(t).split('\nTranskrip')[0].replace(/\s*\((Arti|Romaji)[^)]*(ditampilkan|menguji)[^)]*\)/g, ''); }
   function scrTest(kind, i) {
-    var S = ST.get(), Q = D.pre, N = Q.length, isPre = kind === 'pre';
+    var S = ST.get(), isPre = kind === 'pre';
+    var Q = isPre ? D.preSub.map(function (k) { return D.pre[k]; }) : D.pre, N = Q.length;   /* pre-test = 10 butir terpilih (D.preSub), post-test = 20 butir */
     var base = isPre ? 'Pre-test' : 'Post-test', root = '#/' + kind + '/';
     if (i === 0) {
       testAns[kind] = [];
       var intro = isPre ? D.slides['PRE-00'] : D.slides['POST-00'];
       return show('<div class="screen">' + topbar(base, 'Petunjuk', 0) + '<div class="body">' +
-        '<span class="chip">' + (isPre ? '20 soal · ±15 menit · belum dinilai' : '20 soal · bagian dari nilai akhir') + '</span>' +
+        '<span class="chip">' + (isPre ? N + ' soal · ±8 menit · belum dinilai' : N + ' soal · bagian dari nilai akhir') + '</span>' +
         '<h2 class="slide-h">' + esc(intro.title) + '</h2><div class="card">' + blocks(intro.screen, intro.code) + '</div>' +
         naviSay(intro.code, intro.narasi, 'pose_menunjuk') + '</div>' + bottombar(null, '', root + '1', 'Mulai') + '</div>');
     }
@@ -490,13 +491,22 @@
     (L.jawab || []).forEach(function (r, i) { out.push('<div><b>Jawaban ' + (i + 1) + ' (B5-13)</b><br>' + esc(baris(r)) + '</div>'); });
     return '<div class="card"><b>Profil Kesiapan Lisan</b><p class="mini">Formatif, tidak masuk batas lulus. Analisis otomatis berupa perkiraan.</p><div class="row-list" style="margin-top:8px">' + out.join('') + '</div></div>';
   }
+  /* N-gain dihitung pada butir yang sama: pre-test = 10 butir terpilih (D.preSub), post-test = 20 butir yang memuat 10 butir itu.
+     Jawaban pre-test lama (20 butir, dari sebelum perubahan) dihitung ulang pada 10 butir yang sama. */
+  function skorSama(S) {
+    var sub = D.preSub, pre = S.pre ? S.pre.score : 0, post = S.post.score;
+    function pct(ans) { return Math.round(sub.filter(function (k) { return ans[k] === D.pre[k].key; }).length / sub.length * 100); }
+    if (S.pre && S.pre.ans && S.pre.ans.length === D.pre.length) pre = pct(S.pre.ans);
+    if (S.post.ans && S.post.ans.length === D.pre.length) post = pct(S.post.ans);
+    return { pre: pre, post: post, n: sub.length };
+  }
   function scrRapor() {
     var S = ST.get();
     if (!S.post || !S.sim) { toast('Rapor terbuka setelah Simulasi dan Post-test.'); return go('#/rak'); }
     S.raporLihat = true; ST.save();
     var nilai = Math.round(0.5 * S.sim.score + 0.5 * S.post.score);
     var kat = nilai >= 85 ? ['Siap Wawancara', 'ok'] : nilai >= 75 ? ['Lulus, Perlu Penguatan', 'mid'] : ['Belum Lulus', 'no'];
-    var pre = S.pre ? S.pre.score : 0, ng = pre >= 100 ? 0 : Math.round((S.post.score - pre) / (100 - pre) * 100) / 100;
+    var sk = skorSama(S), pre = sk.pre, ng = pre >= 100 ? 0 : Math.round((sk.post - pre) / (100 - pre) * 100) / 100;
     var rek = [];
     D.sim.forEach(function (m, k) { if ((S.sim.pts[k] || 0) < 10) rek.push(m.code + ' → pelajari lagi ' + m.acuan); });
     var g = function (lab, v, c) { return '<div class="gauge"><div class="score-ring" style="--p:' + v + '%;--c:' + c + '"><span>' + v + '</span></div><b style="font-size:13px">' + lab + '</b></div>'; };
@@ -506,7 +516,7 @@
       '<div class="grid2">' + g('Komunikasi', S.sim.kom, 'var(--pri)') + g('Etika & Budaya Kerja', S.sim.etika, 'var(--good)') + '</div>' +
       '<div class="card"><b>Stempel bab</b><div class="stamps" style="margin-top:10px">' + [1, 2, 3, 4, 5, 6].map(function (n) { return '<span class="' + (S.bab[n] && S.bab[n].stamp ? 'on' : '') + '">済</span>'; }).join('') + '</div></div>' +
       profilLisan(S) +
-      '<div class="card"><b>Peningkatan</b><p>Pre-test ' + pre + ' → Post-test ' + S.post.score + ' · N-gain ' + ng + '</p></div>' +
+      '<div class="card"><b>Peningkatan</b><p>Pre-test ' + pre + ' → Post-test ' + sk.post + ' · N-gain ' + ng + '</p><p class="mini">Dibandingkan pada ' + sk.n + ' butir yang sama dengan pre-test. Post-test lengkap: ' + S.post.score + ' (' + D.pre.length + ' soal).</p></div>' +
       '<div class="card"><b>Rekomendasi</b><div class="row-list" style="margin-top:8px">' + (rek.length ? rek.map(function (r) { return '<div>' + esc(r) + '</div>'; }).join('') : '<div>Semua momen simulasi sudah tepat. Lanjutkan dengan praktik bersama instruktur LPK.</div>') + '</div></div>' +
       naviSay('RAP-03', 'Mensetsu Navi adalah persiapan. Lanjutkan dengan latihan wawancara langsung bersama instruktur LPK-mu. Ganbatte!', 'pose_semangat') +
       '</div>' + bottombar('#/rak', '', null) + '</div>');
@@ -643,6 +653,21 @@
 
   /* ------------------------------------------------------------ PWA */
   if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
-    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+    var punyaSW = !!navigator.serviceWorker.controller;   /* true bila halaman ini sudah dikendalikan versi sebelumnya */
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!punyaSW) { punyaSW = true; return; }   /* pemasangan pertama, bukan pembaruan */
+      if (document.getElementById('upd')) return;
+      var d = document.createElement('div'); d.id = 'upd'; d.className = 'upd'; d.setAttribute('role', 'status');
+      d.innerHTML = '<span>Versi baru tersedia.</span><button class="btn soft">Muat ulang</button>';
+      d.querySelector('button').addEventListener('click', function () { location.reload(); });
+      document.body.appendChild(d);
+    });
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').then(function (reg) {
+        /* cek pembaruan tiap tab kembali dibuka, dan tiap 30 menit selama terbuka */
+        document.addEventListener('visibilitychange', function () { if (!document.hidden) reg.update().catch(function () {}); });
+        setInterval(function () { reg.update().catch(function () {}); }, 30 * 60 * 1000);
+      }).catch(function () {});
+    });
   }
 })();

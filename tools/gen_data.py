@@ -225,7 +225,15 @@ assert [z['bab'] for z in mutiara] == [1, 2, 3, 4, 5, 6] and all(z['teks'] and z
 for z in mutiara:
     q = [bl['p'] for bl in slides[z['slide']]['screen'] if 'p' in bl and 'Kata Mutiara' in bl['p']]
     assert q and z['teks'].rstrip('.') in q[0], (z['slide'], z['teks'], q)
-data = {'bab': BAB, 'latih': latih, 'lisan5': lisan5, 'tips': tips, 'mutiara': mutiara, 'eval': EVAL, 'pre': pre, 'sim': sim, 'slides': slides, 'order': order}
+# Pre-test memakai 10 dari 20 butir bank Evaluasi Sumatif (post-test tetap 20 butir, memuat 10 butir yang sama).
+# Dipilih agar: semua bab terwakili secara proporsional (Bab 1:1, 2:2, 3:2, 4:2, 5:2, 6:1), butir berdiri sendiri (tanpa audio/gambar;
+# butir 14 = soal menyimak dibuang), ragam jenis (situasi, konsep/fakta, penerapan, mendeteksi kesalahan), dan kunci seimbang (A3 B2 C3 D2).
+# Nomor = urutan butir di bank (1-20). Ubah di sini lalu jalankan ulang skrip ini.
+PRE10 = [1, 3, 5, 6, 8, 12, 13, 15, 16, 18]
+assert PRE10 == sorted(set(PRE10)) and all(1 <= n <= len(pre) for n in PRE10), PRE10
+assert {pre[n - 1]['bab'] for n in PRE10} == {1, 2, 3, 4, 5, 6}, 'setiap bab harus terwakili'
+preSub = [n - 1 for n in PRE10]
+data = {'bab': BAB, 'preSub': preSub, 'latih': latih, 'lisan5': lisan5, 'tips': tips, 'mutiara': mutiara, 'eval': EVAL, 'pre': pre, 'sim': sim, 'slides': slides, 'order': order}
 js = '/* Dibuat otomatis dari naskah materi dan storyboard (gen_data.py). Jangan diedit manual. */\nwindow.MN_DATA = ' + json.dumps(data, ensure_ascii=False) + ';\n'
 open('js/data/kursus.js', 'w').write(js)
 print('ok', len(js), {n: len(b['slides']) for n, b in enumerate(BAB, 1)}, len(sim), len(pre))

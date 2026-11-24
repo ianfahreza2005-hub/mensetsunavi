@@ -47,6 +47,8 @@ Kalau deploy gagal dengan "No artifacts named github-pages", itu gangguan GitHub
 
 ## Aturan kerja
 
+- **Terbit otomatis (permintaan pemilik repo):** setiap selesai mengerjakan permintaan, Claude langsung commit, buka PR ke `main`,
+  dan merge tanpa menunggu persetujuan, lalu memantau deploy sampai hijau. Pengecekan sebelum commit di bawah tetap wajib.
 - **Sebelum commit:** jalankan `tools/build_sw.py`, cek sintaks, lalu uji di browser ukuran HP (390×844) dan laptop (1440×900).
   Pastikan semua aktivitas slide tetap bisa diselesaikan dan tidak ada error di Console.
 - **Materi** hanya berubah dari masukan SME/dosen. Ubah naskahnya dulu (doc sumber → `tools/xml.json`), lalu `gen_data.py`.

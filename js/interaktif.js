@@ -428,6 +428,28 @@
     };
   };
 
+  /* Video animasi pengganti blok teks tertentu (dibuat di sumber/video/<kode>/, lihat docs/ASET.md).
+     ganti = paragraf naskah yang menjadi tempat video; paragraf sesudahnya (teks Jepang, romaji, arti) tetap ada sebagai transkrip. */
+  var VIDEO = {
+    'B2-09': { ganti: /^Contoh telepon/i, src: 'assets/video/B2-09.mp4', poster: 'assets/video/B2-09.jpg', durasi: '0:42',
+      judul: 'Contoh telepon renraku: terlambat karena kereta', kredit: 'Suara: VOICEVOX:雀松朱司' }
+  };
+  var PUTAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>';
+  W.video = function (v) {
+    return {
+      html: '<figure class="vid"><div class="vid-bingkai"><video class="vid-el" controls playsinline preload="metadata" poster="' + v.poster + '" src="' + v.src + '"></video>' +
+        '<button class="vid-main" type="button" aria-label="Putar video"><span class="vid-ikon">' + PUTAR + '</span><span class="vid-label">Video animasi · ' + esc(v.durasi) + '</span></button></div>' +
+        '<figcaption><span>' + esc(v.judul) + '</span><span class="vid-kredit">' + esc(v.kredit) + '</span></figcaption></figure>',
+      bind: function (el, done) {
+        var fig = el.querySelector('.vid'), vid = el.querySelector('.vid-el'), main = el.querySelector('.vid-main');
+        main.addEventListener('click', function () { var p = vid.play(); if (p && p.catch) p.catch(function () {}); });
+        vid.addEventListener('play', function () { fig.classList.add('main'); try { window.speechSynthesis.cancel(); } catch (e) { /* tanpa TTS */ } });
+        vid.addEventListener('ended', function () { fig.classList.remove('main'); });
+        done();   // menonton video tidak diwajibkan untuk membuka Lanjut
+      }
+    };
+  };
+
   /* T11 tahap A: urutkan langkah */
   W.order = function (steps) {
     var ord = shuffle(steps.map(function (_, i) { return i; }));
@@ -541,7 +563,7 @@
     if (NOINT.indexOf(tpl) >= 0) return null;
     function add(w) { var id = ws.length; ws.push(w); parts.push('<div class="ix" data-w="' + id + '">' + w.html + '</div>'); }
 
-    var choiceAt = -1, choiceLabels = null, vsAt = -1;
+    var choiceAt = -1, choiceLabels = null, vsAt = -1, vidBuka = false;
     /* komik kasus: ≥2 pasangan "Kasus N (tempat): …" + tabel Pilihan|Hasil → satu panggung bertab (W.kasus) */
     var kasus = [], pakai = {}, penutup = null, RX_K = /^\**Kasus\s+\d+\s*\(([^)]+)\):?\**:?\s*/;
     gs.forEach(function (g, gi) {
@@ -592,6 +614,9 @@
         return parts.push(staticLi(g.li));
       }
       /* paragraf */
+      if (VIDEO[code] && VIDEO[code].ganti.test(g.p) && !vidBuka) {
+        add(W.video(VIDEO[code])); parts.push('<details class="vid-teks"><summary>Lihat teks percakapan (Jepang · romaji · arti)</summary>'); vidBuka = true; return;
+      }
       var ref = tpl === 'T11' && /urutkan/i.test(g.p) && /\((B\d-\d\d)\)/.exec(g.p);
       parts.push(para(code, g.i, g.p));
       if (ref && D.slides[ref[1]]) {
@@ -599,6 +624,7 @@
         if (steps.length >= 3) add(W.order(steps));
       }
     });
+    if (vidBuka) parts.push('</details>');
     /* perbandingan: kalimat "Pertanyaan: …" dipindah ke atas panel agar dibaca sebelum membandingkan */
     if (vsAt >= 0) for (var pi = vsAt + 1; pi < parts.length; pi++) if (/Pertanyaan/.test(parts[pi]) && parts[pi].indexOf('class="ix"') < 0) { parts.splice(vsAt, 0, parts.splice(pi, 1)[0]); break; }
     if (choiceAt === -2) parts.push('</div>');

@@ -62,6 +62,14 @@ Catatan keputusan yang sudah dikunci. Semua dokumen T1/T2 harus mengikuti ini.
   peserta LPK kebanyakan memakai HP, jadi ini perlu diputuskan sebelum uji coba ke peserta.
 - Pratinjau di panel kanan aplikasi Claude memuat aplikasi selebar 1280 px lalu memperkecilnya (`tools/pratinjau.py`).
 
+## Video animasi B2-09 (24 Nov)
+- Blok "Contoh telepon" di B2-09 diganti video motion graphic 42 detik (1080p, 60 fps), atas permintaan pemilik repo. Teks Jepang,
+  romaji, dan arti tetap tersedia di bawah video ("Lihat teks percakapan"). Menonton video tidak diwajibkan untuk membuka Lanjut.
+- Isi tanpa tambahan materi: situasi + tiga pilihan dari Kasus 3 (B2-11); kalimat telepon + lima unsur (nama, jadwal wawancara,
+  alasan singkat, perkiraan tiba, permintaan maaf) dari B2-09. Gaya gerak mengikuti video referensi tim.
+- Suara dialog: VOICEVOX:雀松朱司 (sintetis, bukan penutur asli; kredit wajib). Bila nanti ada rekaman penutur asli, ganti
+  `public/audio/k1–k4.wav` di `sumber/video/b2-09/` lalu render ulang; animasi mengikuti waktu frasa.
+
 ## Pemilihan bab = rak buku 3D (24 Nov)
 - Referensi tim: ThreeUI "Ashen Press" (Meng To, Three.js r181). Diambil gerak & interaksinya, bukan gambarnya; isi, sampul, dan warna dibuat ulang.
 - Prototipe: https://claude.ai/artifact/HcEfFzfnaz414uPJ3Wus6A (sumber: rak-bab-mensetsu-navi.html); versi produk = rak.html di repo.

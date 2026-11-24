@@ -783,7 +783,7 @@
   document.addEventListener('keydown', function (e) {
     if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || view.hidden) return;
     var t = e.target, tag = t && t.tagName;
-    if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag) || (t && t.isContentEditable) || document.querySelector('.drawer')) return;
+    if (/^(INPUT|TEXTAREA|SELECT|VIDEO)$/.test(tag) || (t && t.isContentEditable) || document.querySelector('.drawer')) return;   /* video yang difokus: spasi/panah untuk video */
     var bar = view.querySelector('.screen > .bottombar'), k = e.key, el;
     if (k === 'ArrowRight' && bar) { el = bar.querySelector('.btn:not(.ghost)'); if (el && el.getAttribute('aria-disabled') !== 'true' && !el.disabled) { e.preventDefault(); el.click(); } }
     else if (k === 'ArrowLeft' && bar) { el = bar.querySelector('a.btn.ghost'); if (el) { e.preventDefault(); el.click(); } }

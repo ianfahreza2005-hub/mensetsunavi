@@ -9,6 +9,8 @@ for f in files:
     data = open(f, 'rb').read()
     if f == 'index.html': data = re.sub(rb'\?v=[0-9a-f]+', b'', data)   # tanda versi di index.html tidak ikut dihitung agar hasilnya stabil
     h.update(data)
+for f in sorted(glob.glob('assets/video/*')):   # video tidak di-precache (disimpan saat pertama diputar), tetapi ikut menentukan VERSION
+    h.update(open(f, 'rb').read())
 ver = h.hexdigest()[:10]
 # alamat berkas kode diberi ?v=<hash>: peramban wajib mengambil berkas baru saat versi berganti (tidak memakai cache memori/HTTP yang usang)
 idx = open('index.html', encoding='utf8').read()

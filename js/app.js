@@ -374,7 +374,7 @@
       var s0 = D.slides['SIM-00'];
       show('<div class="screen sim-split"><div class="sim-scene sim-intro" style="background-image:url(assets/bg/ruang_wawancara.webp)">' +
         '<div class="sim-card"><span class="jp">さくら食品 · 人事部</span><b class="jp">田中さん</b><span>Tanaka-san, pewawancara</span></div></div><div class="body">' +
-        '<span class="chip" style="background:#2C4479;color:#fff">Bagian dari nilai akhir (50%)</span><h2 class="slide-h">Hari wawancaramu tiba</h2>' +
+        '<span class="chip" style="background:var(--akane);color:#fff">Bagian dari nilai akhir (50%)</span><h2 class="slide-h">Hari wawancaramu tiba</h2>' +
         '<p class="sim-lead">Kamu melamar ke <span class="jp">さくら食品</span> (Sakura Shokuhin), pabrik makanan. Dari depan gedung sampai keluar ruangan, setiap keputusanmu dinilai.</p>' +
         '<div class="rules">' +
         '<div><b>13</b><span>momen keputusan</span></div><div><b>20<small> dtk</small></b><span>per momen; habis = 0 poin</span></div>' +
@@ -511,8 +511,8 @@
     D.sim.forEach(function (m, k) { if ((S.sim.pts[k] || 0) < 10) rek.push(m.code + ' → pelajari lagi ' + m.acuan); });
     var g = function (lab, v, c) { return '<div class="gauge"><div class="score-ring" style="--p:' + v + '%;--c:' + c + '"><span>' + v + '</span></div><b style="font-size:13px">' + lab + '</b></div>'; };
     show('<div class="screen wide rapor">' + topbar('Rapor Kesiapan', S.name || 'Peserta', 1) + '<div class="body">' +
-      '<div class="card" style="background:var(--pri);color:#fff;position:relative;overflow:hidden">' + SG + '<div style="position:relative"><div class="mini" style="color:#DCE5F6">NILAI SUMATIF</div><div class="big-num">' + nilai + '</div>' +
-      '<div class="mini" style="color:#DCE5F6">50% Simulasi (' + S.sim.score + ') + 50% Post-test (' + S.post.score + ')</div><p><span class="tag ' + kat[1] + '">' + kat[0] + '</span></p></div></div>' +
+      '<div class="card" style="background:var(--pri);color:#fff;position:relative;overflow:hidden">' + SG + '<div style="position:relative"><div class="mini" style="color:#C9D6E8">NILAI SUMATIF</div><div class="big-num">' + nilai + '</div>' +
+      '<div class="mini" style="color:#C9D6E8">50% Simulasi (' + S.sim.score + ') + 50% Post-test (' + S.post.score + ')</div><p><span class="tag ' + kat[1] + '">' + kat[0] + '</span></p></div></div>' +
       '<div class="grid2">' + g('Komunikasi', S.sim.kom, 'var(--pri)') + g('Etika & Budaya Kerja', S.sim.etika, 'var(--good)') + '</div>' +
       '<div class="card"><b>Stempel bab</b><div class="stamps" style="margin-top:10px">' + [1, 2, 3, 4, 5, 6].map(function (n) { return '<span class="' + (S.bab[n] && S.bab[n].stamp ? 'on' : '') + '">済</span>'; }).join('') + '</div></div>' +
       profilLisan(S) +
@@ -525,7 +525,7 @@
   /* ------------------------------------------------------------ fitur global & pengaturan */
   function scrHal(code) {
     var s = D.slides[code]; if (!s) return go('#/rak');
-    var FITUR = { 'GLB-03': ['MN_KOSA', 'Bank Kosakata', '#B0436A', '#FBE6EE'], 'GLB-04': ['MN_LATIH', 'Latihan Pertanyaan Acak', '#5B46A8', '#ECE7FA'], 'GLB-05': ['MN_TIPS', 'Tips & Trik', '#A8650F', '#FBEEDA'], 'GLB-07': ['MN_NAVI', 'Kata Mutiara', '#2A4B8D', '#E4EBF8'] }[code];
+    var FITUR = { 'GLB-03': ['MN_KOSA', 'Bank Kosakata', '#B3282F', '#F8E3E3'], 'GLB-04': ['MN_LATIH', 'Latihan Pertanyaan Acak', '#5E4391', '#ECE6F4'], 'GLB-05': ['MN_TIPS', 'Tips & Trik', '#9A5A12', '#F6EBDB'], 'GLB-07': ['MN_NAVI', 'Kata Mutiara', '#0F4C81', '#E1EAF4'] }[code];
     if (FITUR && window[FITUR[0]]) {
       show('<div class="screen fitur" style="--c:' + FITUR[2] + ';--cl:' + FITUR[3] + '">' + topbar('Sumber belajar', FITUR[1], 1, FITUR[2]) + '<div class="body"><h2 class="slide-h">' + esc(s.title) + '</h2><div id="fitur"></div></div>' + bottombar('#/rak', '', null) + '</div>');
       window[FITUR[0]].mount(document.getElementById('fitur'), { esc: esc, ic: ic, naviSay: naviSay, bindSpeak: bindSpeak, toast: toast, sayMutiara: sayMutiara, status: function (n) { return ST.status(n); },
@@ -567,7 +567,7 @@
   function openMenu() {
     var S = ST.get(), h = location.hash;
     var wrap = document.createElement('div');
-    wrap.innerHTML = '<div class="drawer-bg"></div><aside class="drawer" role="dialog" aria-label="Menu"><div class="head"><img src="' + navi('exp_senang') + '" alt=""><div style="flex:1"><b>' + esc(S.name || 'Peserta') + '</b><div class="mini" style="color:#DCE5F6">' + ST.stamps() + ' dari 6 stempel</div></div>' +
+    wrap.innerHTML = '<div class="drawer-bg"></div><aside class="drawer" role="dialog" aria-label="Menu"><div class="head"><img src="' + navi('exp_senang') + '" alt=""><div style="flex:1"><b>' + esc(S.name || 'Peserta') + '</b><div class="mini" style="color:#C9D6E8">' + ST.stamps() + ' dari 6 stempel</div></div>' +
       '<button class="icon-btn" data-x aria-label="Tutup menu" style="background:rgba(255,255,255,.15);border:0;color:#fff">' + ic('x') + '</button></div><nav>' +
       '<a href="#/rak">' + ic('home') + 'Rak bab (beranda)</a><div class="sec">Bab</div>' +
       D.bab.map(function (b) { var st = ST.status(b.no); return '<a href="#/bab/' + b.no + '/' + (ST.bab(b.no).last || 0) + '"' + (h.indexOf('#/bab/' + b.no + '/') === 0 ? ' class="cur"' : '') + '>' + (st === 'done' ? '<span class="jp" style="color:var(--hanko);font-weight:900">済</span>' : st === 'locked' ? ic('lock') : '<b style="color:' + b.col + '">' + b.no + '</b>') + '<span>' + esc(b.title) + '<br><span class="mini">' + Math.round(ST.progress(b.no) * 100) + '%</span></span></a>'; }).join('') +

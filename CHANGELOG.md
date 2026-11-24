@@ -4,7 +4,11 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 
 ## [Belum dirilis]
 
+### Diubah
+- Gaya v3: palet warna tradisional Jepang (漆黒, 月白, 茜, 藍, 鉄紺) dengan kontras WCAG AA, warna bab baru, huruf Poppins + Plus Jakarta Sans + Zen Kaku Gothic New, pola ombak di permukaan gelap, bilah atas laptop 鉄紺.
+
 ### Ditambah
+- `js/gerak.js`: isi layar muncul bertahap, judul terisi warna, angka skor menghitung naik, sorot cahaya mengikuti kursor, riak saat tombol ditekan, Navi melayang; mati bila "kurangi gerak" aktif.
 - T16 Penyusun Jikoshoukai (B4-14): lima blok isian, kalimat Jepang + romaji + arti dirangkai dari naskah B4-06–B4-09, panduan katakana, perkiraan durasi (ideal 30–60 dtk), dengarkan/salin/unduh, isian tersimpan di perangkat.
 - GLB-03 Bank Kosakata dan Kartu Hafalan: daftar 68 istilah (cari, filter bab/kategori, bintang, Romaji/Arti, tautan ke slide) dan kartu hafalan Leitner 3 kotak (sesi 10 kartu).
 - `gen_data.py` membaca glosarium tiap bab ke `D.bab[i].glos`.

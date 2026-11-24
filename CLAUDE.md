@@ -16,7 +16,8 @@ Keputusan desain yang sudah dikunci ada di **`docs/KEPUTUSAN.md`**. Baca itu seb
 | `js/data/kursus.js` | **Dibuat otomatis** oleh `tools/gen_data.py`. Jangan diedit tangan |
 | `js/data/tampilan.js` | Penyesuaian teks layar untuk peserta (sembunyikan/tulis ulang arahan storyboard). Boleh diedit tangan |
 | `rak.html` | Rak buku 3D (Three.js r181 lokal di `vendor/`), dimuat dalam iframe; bicara ke induk lewat `window.parent.MN_DATA` / `MN_APP` |
-| `css/app.css` | Token gaya v2 + semua komponen |
+| `css/app.css` | Token gaya v3 + semua komponen (lapisan gaya & gerak v3 di akhir berkas) |
+| `js/gerak.js` | Gerak antarmuka v3: muncul bertahap, sorot kursor, riak tombol, hitung angka |
 | `sw.js`, `manifest.webmanifest` | PWA offline. `tools/build_sw.py` memperbarui daftar precache + VERSION |
 | `assets/` | Maskot Navi (`assets/navi/*.webp`), latar (`assets/bg/`), ikon, nanti `assets/audio/` dan video |
 | `tools/xml.json`, `tools/sb.json` | Sumber naskah (ekspor doc Bab 1–6, Evaluasi, Fitur Global) dan data storyboard |
@@ -54,8 +55,9 @@ Kalau deploy gagal dengan "No artifacts named github-pages", itu gangguan GitHub
   Jangan diganti. Aset audio: `assets/audio/narasi/<KODE>.mp3`.
 - Kode slide, kode template, treatment, dan rencana visual **tidak ditampilkan ke peserta**; hanya di Mode uji tim.
 - **Privasi:** responden angket ditulis anonim (R1–R4), tanpa nama/kontak. Jangan menaruh email atau data pribadi anggota di repo.
-- Gaya v2: indigo #2A4B8D, tinta #16213E, washi #F7F3EC, sakura #E07A93, emas #F2B84B, hanko #C0392B (済).
-  Warna bab 1–6: #2A4B8D, #0E7470, #B0436A, #A8650F, #5B46A8, #23784A; Simulasi #1E2A47; Post-test & Rapor #7B3F2B.
+- Gaya v3 (lihat `docs/KEPUTUSAN.md`): 漆黒 #14171F, 月白 #EEECF1, 茜 #B3282F (hanko 済), 藍 #0F4C81, 鉄紺 #0E2A47.
+  Warna bab 1–6: #0F4C81, #17706B, #B3282F, #9A5A12, #5E4391, #2D6A45; Simulasi #0E2A47; Post-test & Rapor #7E3420.
+  Huruf: Poppins (judul), Plus Jakarta Sans (isi), Zen Kaku Gothic New (Jepang). Gerak di `js/gerak.js`, hormati prefers-reduced-motion.
 - Teks antarmuka: kalimat biasa, kata kerja jelas, sapa peserta dengan "kamu".
 - Kalau paket Word perlu diperbarui setelah materi berubah, buat ulang file yang bersangkutan di `sumber/rancangan/`.
 

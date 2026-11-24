@@ -46,6 +46,13 @@ Catatan keputusan yang sudah dikunci. Semua dokumen T1/T2 harus mengikuti ini.
 - Laptop: sidebar daftar isi per bab/pelajaran, pintasan keyboard (← → spasi; 1–3 di simulasi). Landscape: tombol Lanjut/Kembali pindah ke kolom kanan.
 - Maskot di canvas masih komponen sementara (Mascot.dc.html); maskot resmi tim = **Navi** (cowok chibi berjas biru tua, dasi merah, rambut ungu; 23 pose/ekspresi di repo assets/mascot: exp_*, pose_*, act_*). Canvas perlu diganti ke Navi.
 
+## Gaya v3 (24 Nov, menggantikan warna Gaya v2)
+- Arah: kalem, Jepang, rapi modern. Palet dari warna tradisional: 漆黒 shikkoku #14171F (teks), 月白 geppaku #EEECF1 (latar), 茜 akane #B3282F (hanko 済, aksen), 藍 ai #0F4C81 (warna utama), 鉄紺 tetsukon #0E2A47 (permukaan gelap: bilah atas laptop, pembuka, simulasi).
+- Warna bab: 1 藍 #0F4C81 · 2 青碧 #17706B · 3 茜 #B3282F · 4 黄土 #9A5A12 · 5 江戸紫 #5E4391 · 6 千歳緑 #2D6A45; Simulasi 鉄紺 #0E2A47; Post-test & Rapor 弁柄 #7E3420. Semua lolos WCAG AA (teks putih di atas warna ≥5,4:1; warna di atas latar ≥4,6:1).
+- Huruf: judul Poppins, isi Plus Jakarta Sans, teks Jepang Zen Kaku Gothic New, kanji besar Shippori Mincho.
+- Pola 波 (garis ombak) di permukaan gelap. Gerak halus (`js/gerak.js`): isi layar muncul bertahap, judul terisi warna, angka skor menghitung naik, sorot cahaya mengikuti kursor di kartu, riak saat tombol ditekan, Navi melayang. Semua mati bila "kurangi gerak" aktif.
+- Dokumen T2/storyboard dan canvas interface masih memakai warna v2; perbarui saat ekspor gambar berikutnya.
+
 ## Pemilihan bab = rak buku 3D (24 Nov)
 - Referensi tim: ThreeUI "Ashen Press" (Meng To, Three.js r181). Diambil gerak & interaksinya, bukan gambarnya; isi, sampul, dan warna dibuat ulang.
 - Prototipe: https://claude.ai/artifact/HcEfFzfnaz414uPJ3Wus6A (sumber: rak-bab-mensetsu-navi.html); versi produk = rak.html di repo.

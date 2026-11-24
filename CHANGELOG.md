@@ -5,6 +5,8 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 ## [Belum dirilis]
 
 ### Diubah
+- Layar soal (kuis bab, pre-test, post-test) dua kolom: panel soal berwarna bab di kiri (nomor soal, titik progres, Navi; bagian Jepang dengan huruf Jepang, romaji/arti lebih ringan), pilihan dan umpan balik di kanan. Pintasan keyboard A–D untuk memilih, → untuk lanjut; pindah soal kuis bergeser halus.
+- Umpan balik kuis tidak lagi menampilkan kode slide; kode diganti judul slide yang bisa diklik.
 - Peta bab (pita navigasi) berwarna bab di atas setiap slide dan di sampul: satu titik per slide (klik untuk pindah, judul muncul saat kursor di atasnya), segmen per pelajaran, persentase dipelajari. Sampul bab: kartu pelajaran dengan progres, paralaks kanji dan Navi mengikuti kursor.
 - Pindah slide bergeser halus (View Transitions): maju masuk dari kanan, mundur dari kiri; bilah atas, sidebar, dan bilah bawah diam. Berlaku untuk slide bab, soal pre/post-test, dan langkah simulasi.
 - Komik Kasus (B2-11): empat kasus ditampilkan satu per satu dengan tab, panel situasi berwarna (tempat kerja 青碧, wawancara 藍) bersama Navi, pesan penutup 信頼 setelah semua kasus tepat.

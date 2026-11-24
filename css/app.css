@@ -1060,3 +1060,45 @@ html[data-geser="mundur"]::view-transition-new(isi) { animation: vtMasukKiri .5s
 }
 .pita-hero .pb-seg:not(.cur) .pb-lab span { display: inline; }
 html[data-geser] .screen { animation: none; }
+
+/* =====================================================================================================
+   Layar soal (kuis bab, pre/post-test): panel soal berwarna di kiri, pilihan di kanan
+   ===================================================================================================== */
+.soal { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: 22px; align-items: stretch; min-height: min(calc(100vh - 214px), 460px); }
+.soal-kiri { position: relative; display: flex; flex-direction: column; gap: 16px; padding: 22px 24px 24px; border-radius: 22px; color: #fff; overflow: hidden; isolation: isolate;
+  background-color: var(--c); background-image: var(--nami), radial-gradient(120% 90% at 100% 100%, rgba(255, 255, 255, .16), transparent 55%), linear-gradient(160deg, color-mix(in srgb, var(--c) 85%, #fff), var(--c) 50%, color-mix(in srgb, var(--c) 78%, #000));
+  background-size: 240px auto, cover, cover; background-blend-mode: soft-light, normal, normal; box-shadow: 0 18px 36px -22px var(--c); }
+.soal-meta { display: flex; flex-direction: column; gap: 4px; }
+.soal-no { font: 600 13px/1 var(--head); letter-spacing: .06em; text-transform: uppercase; opacity: .85; }
+.soal-no b { font-size: 28px; letter-spacing: -.02em; margin-right: 2px; opacity: 1; }
+.soal-bab { font-size: 13px; font-weight: 600; opacity: .85; } .soal-bab .jp { font-weight: 700; margin-right: 4px; }
+.soal-dots i { height: 5px; background: rgba(255, 255, 255, .25); }
+.soal-dots i.on { background: rgba(255, 255, 255, .85); }
+.soal-dots i.now { background: #fff; box-shadow: 0 0 0 3px rgba(255, 255, 255, .25); }
+.soal-kiri .q-stem { position: relative; z-index: 1; margin: 0; padding-right: 64px; font: 600 19px/1.6 var(--sans); letter-spacing: 0; text-wrap: pretty; }
+.q-jp { font-weight: 700; font-size: 1.05em; }
+.q-ro { font-weight: 400; opacity: .82; }
+.soal-navi { position: absolute; right: -6px; bottom: -14px; width: 128px; z-index: 0; opacity: .97; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .3)); animation: melayang 5.5s ease-in-out infinite; }
+.soal-kanan { display: flex; flex-direction: column; gap: 12px; justify-content: center; }
+.soal-arah { margin: 0; font: 600 13px/1.4 var(--head); letter-spacing: .04em; text-transform: uppercase; color: var(--ink2); }
+.soal-arah b { color: var(--c); }
+.kbd { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; margin: 0 2px; border-radius: 6px; background: #fff; border: 1px solid var(--line); box-shadow: 0 2px 0 var(--line); font: 700 11px/1 var(--sans); color: var(--ink); text-transform: none; vertical-align: 1px; }
+.soal .opts { gap: 10px; }
+.soal .opt { align-items: center; min-height: 64px; padding: 14px 16px; background: #fff; font-size: 15.5px; line-height: 1.45; }
+.soal .opt .L { width: 34px; height: 34px; border-radius: 11px; background: var(--cl); color: var(--c); font-family: var(--head); font-size: 15px; }
+.soal .opt.sel { background: var(--cl); }
+.soal .opt.sel .L, .soal .opt.ok .L { background: var(--c); color: #fff; }
+.soal .opt.ok .L { background: var(--good); }
+.soal .opt.no .L { background: var(--bad); color: #fff; }
+.soal .opt[disabled]:not(.ok):not(.no) { opacity: .55; }
+.soal-fb { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-left: 4px solid var(--good); animation: muncul .45s var(--ease) both; }
+.soal-fb.no { border-left-color: var(--warn); }
+.soal-fb p { margin: 0; } .soal-fb .fb-h { font: 700 15px/1.2 var(--head); color: var(--good); } .soal-fb.no .fb-h { color: var(--warn); }
+.screen > .bottombar .btn[disabled] { opacity: .6; }
+@media (max-height: 760px) { .soal { min-height: 0; } .soal-kiri .q-stem { font-size: 17.5px; } .soal .opt { min-height: 56px; padding: 11px 14px; } }
+@media (prefers-reduced-motion: reduce) { .soal-navi, .soal-fb { animation: none !important; } }
+/* layar soal memakai lebar penuh kolom; Navi di bawah teks soal (tidak menutupi teks) */
+.with-side > .screen.layar-soal { max-width: 1160px; }
+.soal-kiri .q-stem { padding-right: 0; }
+.soal-navi { position: relative; right: auto; bottom: auto; align-self: flex-end; width: 104px; margin: auto -8px -26px 0; }
+.soal-fb a { color: inherit; font-weight: 700; }

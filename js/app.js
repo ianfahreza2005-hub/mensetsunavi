@@ -85,6 +85,15 @@
     for (var n = 0; n < D.bab.length; n++) { var k = D.bab[n].slides.indexOf(kode); if (k >= 0) return { href: '#/bab/' + D.bab[n].no + '/' + k, judul: sl.title.replace(/^Aktivitas:\s*/, ''), bab: D.bab[n].no, k: k }; }
     return /^GLB/.test(kode) ? { href: '#/hal/' + kode, judul: sl.title, bab: 0, k: -1 } : null;
   }
+  /* teks umpan balik naskah kadang memuat kode slide ("Pelajari lagi: B2-04 Houkoku", "(B1-05, B1-06)"); peserta tidak boleh melihat
+     kode slide, jadi kode diganti judul slide yang bisa diklik. Masukan sudah di-escape. */
+  function tanpaKode(t) {
+    return String(t).replace(/\b(B\d-\d\d)(\s+[A-Z][\w-]*)?/g, function (m, kode, kata) {
+      var l = slideLink(kode); if (!l) return m;
+      var ekor = kata && l.judul.toLowerCase().indexOf(kata.trim().toLowerCase()) >= 0 ? '' : (kata || '');
+      return '<a href="' + l.href + '">' + esc(l.judul) + '</a>' + ekor;
+    });
+  }
   function naviSay(code, text, pose, nobtn) {
     if (!text || /^tidak ada/i.test(text)) return '';
     return '<div class="navi-say"><img src="' + navi(pose || 'exp_senang') + '" alt="Navi"><div class="bubble">' + esc(text) +
@@ -185,6 +194,27 @@
       return '<div class="ck-bab" style="--c:' + b.col + ';--cl:' + b.colL + '"><span class="jp ck-kj">' + esc(b.kj) + '</span><span class="ck-t"><small>' + esc(b.label) + '</small><b>' + esc(b.title) + '</b></span><em>' + (n[b.no] || 0) + ' soal</em></div>';
     }).join('') + '</div></div>';
   }
+  /* Layar soal (kuis bab, pre/post-test) di laptop: panel soal berwarna di kiri, pilihan + umpan balik di kanan.
+     Bagian Jepang 「…」 memakai huruf Jepang; keterangan dalam kurung (romaji/arti) ditulis lebih ringan. */
+  function fmtStem(t) {
+    return esc(t).replace(/「[^」]*」/g, function (m) { return '<span class="q-jp jp">' + m + '</span>'; })
+      .replace(/\(([^()]{3,})\)/g, '<span class="q-ro">($1)</span>');
+  }
+  function layarSoal(o) {   /* o = { meta, dots, stem, pose, kanan } */
+    return '<div class="soal"><section class="soal-kiri"><div class="soal-meta">' + o.meta + '</div>' + (o.dots || '') +
+      '<p class="q-stem">' + fmtStem(o.stem) + '</p><img class="soal-navi" src="' + navi(o.pose || 'exp_berpikir') + '" alt=""></section>' +
+      '<section class="soal-kanan">' + o.kanan + '</section></div>';
+  }
+  function titikSoal(n, i) { return '<div class="dots soal-dots">' + Array.apply(null, Array(n)).map(function (_, k) { return '<i' + (k < i ? ' class="on"' : k === i ? ' class="now"' : '') + '></i>'; }).join('') + '</div>'; }
+  /* pindah antar-soal tanpa ganti alamat (kuis bab) tetap bergeser halus */
+  function denganGeser(arah, fn) {
+    var diam = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!arah || diam || !document.startViewTransition) return fn();
+    var h = document.documentElement; h.setAttribute('data-geser', arah);
+    var vt = document.startViewTransition(fn);
+    vt.finished.then(selesai, selesai);
+    function selesai() { h.removeAttribute('data-geser'); }
+  }
   function scrTest(kind, i) {
     var S = ST.get(), isPre = kind === 'pre';
     var Q = isPre ? D.preSub.map(function (k) { return D.pre[k]; }) : D.pre, N = Q.length;   /* pre-test = 10 butir terpilih (D.preSub), post-test = 20 butir */
@@ -216,10 +246,14 @@
         '</div>' + bottombar(null, '', isPre ? '#/rak' : '#/rapor', isPre ? 'Ke rak bab' : 'Lihat rapor') + '</div>');
     }
     var q = Q[i - 1], sel = testAns[kind][i - 1];
-    show('<div class="screen">' + topbar(base + ' · soal ' + i + ' dari ' + N, 'Bab ' + q.bab + ' · indikator ' + q.ind, (i - 1) / N) +
-      '<div class="body"><p class="q-stem">' + esc(cleanStem(q.stem)) + '</p><div class="opts">' +
-      q.opts.map(function (o, k) { var L = 'ABCD'[k]; return '<button class="opt' + (sel === L ? ' sel' : '') + '" data-l="' + L + '"><span class="L">' + L + '</span><span>' + esc(o) + '</span></button>'; }).join('') +
-      '</div></div>' + bottombar(i > 1 ? root + (i - 1) : root + '0', i + ' / ' + N, root + (i + 1), i === N ? 'Selesai' : 'Lanjut', !sel) + '</div>');
+    var qb = D.bab[q.bab - 1];
+    show('<div class="screen wide layar-soal"' + (isPre ? '' : ' style="--c:#7E3420;--cl:#F4E4DE"') + '>' + topbar(base, 'Soal ' + i + ' dari ' + N, (i - 1) / N) +
+      '<div class="body">' + layarSoal({
+        meta: '<span class="soal-no">Soal <b>' + i + '</b> dari ' + N + '</span><span class="soal-bab">' + esc(base + ' · materi ' + qb.label + ' ' + qb.title) + '</span>',
+        dots: titikSoal(N, i - 1), stem: cleanStem(q.stem), pose: sel ? 'exp_senang' : 'exp_berpikir',
+        kanan: '<p class="soal-arah">' + (sel ? 'Jawabanmu: <b>' + sel + '</b>. Kamu masih bisa menggantinya.' : 'Pilih satu jawaban <span class="kbd">A</span>–<span class="kbd">D</span>') + '</p><div class="opts">' +
+          q.opts.map(function (o, k) { var L = 'ABCD'[k]; return '<button class="opt' + (sel === L ? ' sel' : '') + '" data-l="' + L + '"><span class="L">' + L + '</span><span>' + esc(o) + '</span></button>'; }).join('') + '</div>'
+      }) + '</div>' + bottombar(i > 1 ? root + (i - 1) : root + '0', i + ' / ' + N, root + (i + 1), i === N ? 'Selesai' : 'Lanjut', !sel) + '</div>');
     view.querySelectorAll('.opt').forEach(function (b) {
       b.addEventListener('click', function () { testAns[kind][i - 1] = b.dataset.l; scrTest(kind, i); });
     });
@@ -391,19 +425,22 @@
     }
     var q = Q[i], a = quiz.ans[i];
     var answered = a !== undefined;
-    show('<div class="screen" style="--c:' + b.col + ';--cl:' + b.colL + '">' + head + '<div class="body"><div class="dots">' + Q.map(function (_, k) { return '<i' + (k <= i ? ' class="on"' : '') + '></i>'; }).join('') + '</div>' +
-      '<p class="q-stem">' + esc(q.stem) + '</p><div class="opts">' +
-      q.opts.map(function (o, k) {
-        var L = 'ABCD'[k], cls = '';
-        if (answered) { if (L === q.key) cls = ' ok'; else if (quiz.pick === L) cls = ' no'; }
-        return '<button class="opt' + cls + '" data-l="' + L + '"' + (answered ? ' disabled' : '') + '><span class="L">' + L + '</span><span>' + esc(o) + '</span></button>';
-      }).join('') + '</div>' +
-      (answered ? '<div class="fb ' + (a ? 'ok' : 'no') + '">' + esc(a ? (q.ok || 'Tepat!') : (q.no || 'Kurang tepat.')) + (q.exp ? '<br><span class="mini">' + esc(q.exp) + '</span>' : '') + '</div>' : '') +
-      '</div>' + (answered ? '<footer class="bottombar"><span class="no"></span><button class="btn" id="nx">' + (i === 4 ? 'Lihat hasil' : 'Soal berikutnya') + ic('next') + '</button></footer>' : '') + '</div>');
+    show('<div class="screen wide layar-soal" style="--c:' + b.col + ';--cl:' + b.colL + '">' + head + '<div class="body">' + layarSoal({
+        meta: '<span class="soal-no">Soal <b>' + (i + 1) + '</b> dari 5</span><span class="soal-bab"><span class="jp">' + esc(b.kj) + '</span> Kuis ' + esc(b.label + ' · ' + b.title) + '</span>',
+        dots: titikSoal(5, i), stem: q.stem, pose: answered ? (a ? 'pose_jempol' : 'exp_berpikir') : 'exp_berpikir',
+        kanan: '<p class="soal-arah">' + (answered ? (a ? 'Jawabanmu tepat.' : 'Jawaban yang tepat ditandai hijau.') : 'Pilih satu jawaban <span class="kbd">A</span>–<span class="kbd">D</span>') + '</p><div class="opts">' +
+          q.opts.map(function (o, k) {
+            var L = 'ABCD'[k], cls = '';
+            if (answered) { if (L === q.key) cls = ' ok'; else if (quiz.pick === L) cls = ' no'; }
+            return '<button class="opt' + cls + '" data-l="' + L + '"' + (answered ? ' disabled' : '') + '><span class="L">' + L + '</span><span>' + esc(o) + '</span></button>';
+          }).join('') + '</div>' +
+          (answered ? '<div class="fb soal-fb ' + (a ? 'ok' : 'no') + '"><b class="fb-h">' + (a ? '✓ Tepat' : '✗ Kurang tepat') + '</b><p>' + tanpaKode(esc(a ? (q.ok || 'Tepat!') : (q.no || 'Kurang tepat.'))) + '</p>' + (q.exp ? '<p class="mini">' + tanpaKode(esc(q.exp.charAt(0).toUpperCase() + q.exp.slice(1))) + '</p>' : '') + '</div>' : '')
+      }) + '</div>' +
+      '<footer class="bottombar"><span class="no">' + (i + 1) + ' / 5</span><button class="btn" id="nx"' + (answered ? '' : ' disabled') + '>' + (i === 4 ? 'Lihat hasil' : 'Soal berikutnya') + ic('next') + '</button></footer></div>');
     view.querySelectorAll('.opt:not([disabled])').forEach(function (bt) {
       bt.addEventListener('click', function () { quiz.pick = bt.dataset.l; quiz.ans[i] = bt.dataset.l === q.key; scrKuis(n); });
     });
-    var nx = document.getElementById('nx'); if (nx) nx.addEventListener('click', function () { quiz.i++; quiz.pick = null; scrKuis(n); });
+    var nx = document.getElementById('nx'); if (nx) nx.addEventListener('click', function () { quiz.i++; quiz.pick = null; denganGeser('maju', function () { scrKuis(n); }); });
     var ul = document.getElementById('ulang'); if (ul) ul.addEventListener('click', function () { quiz = null; scrKuis(n); });
   }
 
@@ -683,7 +720,7 @@
       default: return go(S.name ? (S.pre ? '#/rak' : '#/pre/0') : '#/mulai');
     }
   }
-  /* pintasan keyboard: ← sebelumnya, → berikutnya, spasi memutar suara, 1–3 memilih tindakan di Simulasi */
+  /* pintasan keyboard: ← sebelumnya, → berikutnya, spasi memutar suara, 1–3 memilih tindakan di Simulasi, A–D memilih jawaban soal */
   document.addEventListener('keydown', function (e) {
     if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || view.hidden) return;
     var t = e.target, tag = t && t.tagName;
@@ -693,6 +730,7 @@
     else if (k === 'ArrowLeft' && bar) { el = bar.querySelector('a.btn.ghost'); if (el) { e.preventDefault(); el.click(); } }
     else if (k === ' ' && !/^(BUTTON|A)$/.test(tag)) { el = view.querySelector('[data-speak]'); if (el) { e.preventDefault(); el.click(); } }
     else if (/^[1-3]$/.test(k)) { el = view.querySelectorAll('.sim-split .opt:not([disabled])')[+k - 1]; if (el) { e.preventDefault(); el.click(); } }
+    else if (/^[a-dA-D]$/.test(k)) { el = view.querySelector('.soal .opt[data-l="' + k.toUpperCase() + '"]:not([disabled])'); if (el) { e.preventDefault(); el.click(); } }
   });
 
   /* Pindah slide yang halus (View Transitions): antar-slide dalam satu bab, antar-soal pre/post-test, dan antar-langkah simulasi,
@@ -706,12 +744,7 @@
   }
   window.addEventListener('hashchange', function () {
     var arah = arahGeser(hashLalu, location.hash); hashLalu = location.hash;
-    var diam = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!arah || diam || !document.startViewTransition) return route();
-    var h = document.documentElement; h.setAttribute('data-geser', arah);
-    var vt = document.startViewTransition(route);
-    vt.finished.then(selesai, selesai);
-    function selesai() { h.removeAttribute('data-geser'); }
+    denganGeser(arah, route);
   });
   route();
 

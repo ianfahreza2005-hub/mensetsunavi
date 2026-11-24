@@ -22,6 +22,8 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 - Gaya v3: palet warna tradisional Jepang (漆黒, 月白, 茜, 藍, 鉄紺) dengan kontras WCAG AA, warna bab baru, huruf Poppins + Plus Jakarta Sans + Zen Kaku Gothic New, pola ombak di permukaan gelap, bilah atas laptop 鉄紺.
 
 ### Ditambah
+- Video animasi B2-09 "Contoh telepon renraku" (Remotion, 1080p 60 fps, 42 dtk, suara VOICEVOX:雀松朱司): situasi kereta terlambat, tiga pilihan, 連絡, panggilan, empat kalimat telepon yang sinkron dengan suara beserta lima unsur, ringkasan. Menggantikan blok teks contoh telepon; transkrip tetap ada di bawah video. Sumber di `sumber/video/b2-09/`.
+- Service worker: video diputar dari jaringan, salinan utuhnya disimpan di latar belakang lalu potongan (Range) dilayani dari salinan itu, sehingga video bisa diputar offline.
 - Perbandingan "versus" untuk pemantik bertabel dua pilihan (B1-02 Siapa yang Lolos?): dua panel kandidat berdampingan, sisi yang disentuh kursor/diketuk melebar, baris muncul bergantian, pilih langsung di panel.
 - `js/gerak.js`: isi layar muncul bertahap, judul terisi warna, angka skor menghitung naik, sorot cahaya mengikuti kursor, riak saat tombol ditekan, Navi melayang; mati bila "kurangi gerak" aktif.
 - T16 Penyusun Jikoshoukai (B4-14): lima blok isian, kalimat Jepang + romaji + arti dirangkai dari naskah B4-06–B4-09, panduan katakana, perkiraan durasi (ideal 30–60 dtk), dengarkan/salin/unduh, isian tersimpan di perangkat.

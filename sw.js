@@ -1,6 +1,6 @@
 /* Service worker Mensetsu Navi: menyimpan aplikasi agar bisa dipakai tanpa internet.
    Daftar dan VERSION diperbarui oleh tools/build_sw.py setiap kali isi berubah. */
-var VERSION = 'mn-81b78ba8df';
+var VERSION = 'mn-3bd2a008ec';
 var PRECACHE = [
  "./",
  "index.html",
@@ -83,10 +83,39 @@ function jaringanDulu(req, url) {
   });
 }
 
+/* video (assets/video/*.mp4): pemutar meminta potongan (Range → 206) yang tidak bisa disimpan cache.
+   Jadi: putar langsung dari jaringan, unduh salinan utuh sekali di latar belakang; setelah tersimpan, potongan dilayani
+   dari salinan itu sehingga video juga bisa diputar offline. */
+var unduhVideo = {};
+function layaniVideo(req, url) {
+  var kunci = url.origin + url.pathname;
+  return caches.open(VERSION + '-rt').then(function (c) {
+    return c.match(kunci).then(function (hit) {
+      if (!hit) {
+        if (!unduhVideo[kunci]) {
+          unduhVideo[kunci] = fetch(kunci).then(function (res) { if (res.ok && res.status === 200) return c.put(kunci, res); })
+            .catch(function () {}).then(function () { delete unduhVideo[kunci]; });
+        }
+        return fetch(req);
+      }
+      var range = req.headers.get('range');
+      if (!range) return hit;
+      return hit.arrayBuffer().then(function (buf) {
+        var m = /bytes=(\d*)-(\d*)/.exec(range) || [], n = buf.byteLength;
+        var awal = m[1] ? +m[1] : 0, akhir = m[2] ? Math.min(+m[2], n - 1) : n - 1;
+        return new Response(buf.slice(awal, akhir + 1), { status: 206, statusText: 'Partial Content', headers: {
+          'Content-Type': hit.headers.get('Content-Type') || 'video/mp4', 'Content-Range': 'bytes ' + awal + '-' + akhir + '/' + n,
+          'Content-Length': String(akhir - awal + 1), 'Accept-Ranges': 'bytes' } });
+      });
+    });
+  }).catch(function () { return fetch(req); });
+}
+
 self.addEventListener('fetch', function (e) {
   var req = e.request;
   if (req.method !== 'GET') return;
   var url = new URL(req.url);
+  if (url.origin === location.origin && /\/assets\/video\/[^/]+\.mp4$/.test(url.pathname)) { e.respondWith(layaniVideo(req, url)); return; }
   if (url.origin === location.origin && (req.mode === 'navigate' || /\.(html|js|css|webmanifest)$/.test(url.pathname) || /\/$/.test(url.pathname))) {
     e.respondWith(jaringanDulu(req, url));
     return;

@@ -1,0 +1,94 @@
+[
+ {
+  "durasi": 2.955,
+  "frasa": [
+   {
+    "mulai": 0.121,
+    "selesai": 0.777
+   },
+   {
+    "mulai": 0.777,
+    "selesai": 1.264
+   },
+   {
+    "mulai": 1.506,
+    "selesai": 2.146
+   },
+   {
+    "mulai": 2.146,
+    "selesai": 2.772
+   }
+  ]
+ },
+ {
+  "durasi": 4.117,
+  "frasa": [
+   {
+    "mulai": 0.122,
+    "selesai": 0.795
+   },
+   {
+    "mulai": 1.1,
+    "selesai": 1.69
+   },
+   {
+    "mulai": 1.69,
+    "selesai": 2.434
+   },
+   {
+    "mulai": 2.675,
+    "selesai": 3.259
+   },
+   {
+    "mulai": 3.259,
+    "selesai": 3.934
+   }
+  ]
+ },
+ {
+  "durasi": 3.701,
+  "frasa": [
+   {
+    "mulai": 0.121,
+    "selesai": 0.607
+   },
+   {
+    "mulai": 0.607,
+    "selesai": 1.058
+   },
+   {
+    "mulai": 1.058,
+    "selesai": 1.438
+   },
+   {
+    "mulai": 1.663,
+    "selesai": 2.033
+   },
+   {
+    "mulai": 2.033,
+    "selesai": 2.253
+   },
+   {
+    "mulai": 2.253,
+    "selesai": 2.933
+   },
+   {
+    "mulai": 2.933,
+    "selesai": 3.52
+   }
+  ]
+ },
+ {
+  "durasi": 1.579,
+  "frasa": [
+   {
+    "mulai": 0.121,
+    "selesai": 0.77
+   },
+   {
+    "mulai": 0.77,
+    "selesai": 1.396
+   }
+  ]
+ }
+]

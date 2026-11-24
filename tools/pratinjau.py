@@ -11,7 +11,7 @@ Hasil:  <folder-keluaran>/index.html (bingkai), app.html (aplikasi), files.json 
         untuk parameter `files`; app.html memakai jalur absolut di folder keluaran).
 URL Artifact pratinjau dicatat di CLAUDE.md.
 """
-import json, os, re, sys
+import glob, json, os, re, sys
 
 AKAR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LEBAR = 1280   # lebar laptop yang ditiru di panel sempit
@@ -52,6 +52,8 @@ def main():
     files = {p: p for p in daftar if p not in ('./', 'index.html', 'manifest.webmanifest', 'sw.js')}
     for p in files:
         assert os.path.exists(os.path.join(AKAR, p)), p
+    for p in sorted(glob.glob(os.path.join(AKAR, 'assets', 'video', '*'))):   # video tidak di-precache, tetapi ikut di pratinjau
+        r = os.path.relpath(p, AKAR); files[r] = r
     files['app.html'] = os.path.join(out, 'app.html')
     json.dump(files, open(os.path.join(out, 'files.json'), 'w'), indent=1)
     print('pratinjau:', os.path.join(out, 'index.html'), '·', len(files), 'berkas pendukung')

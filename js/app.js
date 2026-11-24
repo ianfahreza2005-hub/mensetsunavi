@@ -135,6 +135,7 @@
     view.hidden = false;
     document.body.className = ((opts && opts.dark) ? 'sim' : '') + setClasses();
     view.innerHTML = html;
+    view.querySelectorAll('.screen').forEach(function (sc) { for (var c = sc.firstElementChild; c; c = c.nextElementSibling) if (c.classList.contains('bottombar')) { sc.classList.add('has-bar'); break; } });
     window.scrollTo(0, 0);
     view.querySelectorAll('[data-menu]').forEach(function (b) { b.addEventListener('click', openMenu); });
     bindSpeak(view);
@@ -221,7 +222,7 @@
     var gate = ix && ix.gated && !ST.isSeen(n, code) && !ST.get().unlockAll;
     if (gate) ST.last(n, k); else ST.seen(n, code, k);
     var root = '#/bab/' + n + '/', pct = (k + 1) / b.slides.length, sub = b.label + (s.pel && s.pel[0] === 'P' ? ' · ' + s.pel : '');
-    var inner;
+    var inner, panel = '';
     if (k === 0) {
       inner = '<div class="cover-hero" style="--c:' + b.col + '">' + SG + '<div class="top"><span class="chip" style="background:rgba(255,255,255,.92)">' + esc(b.dur + ' · ' + b.slides.length + ' slide') + '</span></div>' +
         '<div class="kj jp">' + esc(b.kj) + '</div><div class="eb">' + esc(b.label + ' · ' + b.kjr) + '</div><img src="' + navi('act_memberi_salam') + '" alt=""></div>' +
@@ -242,10 +243,17 @@
         (/^Aktivitas/.test(s.title) ? '<span class="act-tag">Aktivitas</span>' : '') +
         '<div class="card' + (ix ? ' ix-slide' : '') + '">' + (ix ? ix.html : blocks(s.screen, code)) + '</div>' +
         (ix && /^(T08|T10|T11|T12)$/.test(s.tpl) && window.MN_NAVI ? '<div class="navi-hint"><button class="btn soft" id="navi-hint">' + ic('bulb') + 'Petunjuk Navi</button><div id="navi-hint-box"></div></div>' : '') +
-        naviSay(code, s.narasi, 'exp_senang') + devNote(s) + '</div>';
+        '<div class="inl-navi">' + naviSay(code, s.narasi, 'exp_senang') + '</div>' + devNote(s) + '</div>';
+      /* laptop (≥1280px): Navi dan "Kosakata di slide ini" pindah ke panel kanan (rancangan D2); di layar lebih kecil tetap di bawah isi */
+      var gl = (b.glos || []).filter(function (g) { return g.k === k; });
+      panel = '<aside class="rpanel" aria-label="Pendamping slide">' + naviSay(code, s.narasi, 'exp_senang') +
+        (gl.length ? '<div class="rp-glos"><h3>Kosakata di slide ini</h3>' + gl.map(function (g) {
+          return '<div class="rp-g"><span class="jp rp-jp">' + esc(g.jp) + '</span><button class="ix-sp rp-say" data-t="' + esc(g.jp) + '" aria-label="Dengarkan ' + esc(g.ro) + '">' + ic('speaker') + '</button>' +
+            '<div class="ix-ro">' + esc(g.ro) + '</div><div class="ix-ar">' + esc(g.ar) + '</div></div>'; }).join('') + '</div>' : '') + '</aside>';
     }
-    show('<div class="with-side" style="--c:' + b.col + ';--cl:' + b.colL + '">' + side(b, k) + '<div class="screen">' + topbar(sub, s.title, pct, b.col) + inner +
-      bottombar(k > 0 ? root + (k - 1) : '#/rak', (k + 1) + ' / ' + b.slides.length, k < last ? root + (k + 1) : null, k === 0 ? 'Mulai ' + b.label : 'Lanjut', gate) + '</div></div>');
+    show('<div class="with-side' + (panel ? ' has-rp' : '') + '" style="--c:' + b.col + ';--cl:' + b.colL + '">' + side(b, k) + '<div class="screen">' + topbar(sub, s.title, pct, b.col) + inner +
+      bottombar(k > 0 ? root + (k - 1) : '#/rak', (k + 1) + ' / ' + b.slides.length, k < last ? root + (k + 1) : null, k === 0 ? 'Mulai ' + b.label : 'Lanjut', gate) + '</div>' + panel + '</div>');
+    view.querySelectorAll('.rp-say').forEach(function (bt) { bt.addEventListener('click', function () { if (window.MN_IX && !MN_IX.sayJa(bt.dataset.t)) toast('Suara Jepang belum tersedia di perangkat ini.'); }); });
     var nh = document.getElementById('navi-hint');   /* Petunjuk Navi: hanya di aktivitas slide materi (tidak di kuis, pre/post-test, Simulasi resmi) */
     if (nh) nh.addEventListener('click', function () {
       document.getElementById('navi-hint-box').innerHTML = '<div class="navi-say"><img src="' + navi('exp_berpikir') + '" alt="Navi"><div class="bubble">' + MN_NAVI.hint(code, b, k, slideLink, esc) + '</div></div>';
@@ -317,7 +325,7 @@
       sim = { mode: 'resmi', pts: [], pick: [], trust: 50, order: M.map(function (m) { return shuffle([0, 1, 2]); }) };
       if (i !== 0) return go('#/sim/0');
       var s0 = D.slides['SIM-00'];
-      show('<div class="screen"><div class="sim-scene sim-intro" style="background-image:url(assets/bg/ruang_wawancara.webp)">' +
+      show('<div class="screen sim-split"><div class="sim-scene sim-intro" style="background-image:url(assets/bg/ruang_wawancara.webp)">' +
         '<div class="sim-card"><span class="jp">さくら食品 · 人事部</span><b class="jp">田中さん</b><span>Tanaka-san, pewawancara</span></div></div><div class="body">' +
         '<span class="chip" style="background:#2C4479;color:#fff">Bagian dari nilai akhir (50%)</span><h2 class="slide-h">Hari wawancaramu tiba</h2>' +
         '<p class="sim-lead">Kamu melamar ke <span class="jp">さくら食品</span> (Sakura Shokuhin), pabrik makanan. Dari depan gedung sampai keluar ruangan, setiap keputusanmu dinilai.</p>' +
@@ -339,7 +347,7 @@
     function acuanLinks(txt) {
       return (String(txt).match(/B\d-\d\d/g) || []).map(function (c) { var l = slideLink(c); return l ? '<a href="' + l.href + '">' + esc(l.judul) + '</a>' : ''; }).filter(Boolean).join(' · ');
     }
-    show('<div class="screen"><div class="sim-scene" style="background-image:url(assets/bg/' + bg + '.webp)">' +
+    show('<div class="screen sim-split"><div class="sim-scene" style="background-image:url(assets/bg/' + bg + '.webp)">' +
       '<div class="sim-hud"><span class="pill">' + (lat ? 'Latihan ' : '') + 'Momen ' + i + '/13</span><span class="pill"><span class="jp">信頼度</span><span class="trust"><i style="width:' + sim.trust + '%"></i></span>' + sim.trust + '</span>' +
       (lat ? '' : '<span class="timer" id="tm" style="--p:100%"><span id="tmn">20</span></span>') + '</div>' +
       (jpLine ? '<div class="speech"><span>' + esc(jpLine) + '</span><button class="ix-sp sim-say" aria-label="Dengarkan ucapan Tanaka-san">' + ic('speaker') + '</button></div>' : '') + '</div>' +
@@ -445,7 +453,7 @@
     var rek = [];
     D.sim.forEach(function (m, k) { if ((S.sim.pts[k] || 0) < 10) rek.push(m.code + ' → pelajari lagi ' + m.acuan); });
     var g = function (lab, v, c) { return '<div class="gauge"><div class="score-ring" style="--p:' + v + '%;--c:' + c + '"><span>' + v + '</span></div><b style="font-size:13px">' + lab + '</b></div>'; };
-    show('<div class="screen">' + topbar('Rapor Kesiapan', S.name || 'Peserta', 1) + '<div class="body">' +
+    show('<div class="screen wide rapor">' + topbar('Rapor Kesiapan', S.name || 'Peserta', 1) + '<div class="body">' +
       '<div class="card" style="background:var(--pri);color:#fff;position:relative;overflow:hidden">' + SG + '<div style="position:relative"><div class="mini" style="color:#DCE5F6">NILAI SUMATIF</div><div class="big-num">' + nilai + '</div>' +
       '<div class="mini" style="color:#DCE5F6">50% Simulasi (' + S.sim.score + ') + 50% Post-test (' + S.post.score + ')</div><p><span class="tag ' + kat[1] + '">' + kat[0] + '</span></p></div></div>' +
       '<div class="grid2">' + g('Komunikasi', S.sim.kom, 'var(--pri)') + g('Etika & Budaya Kerja', S.sim.etika, 'var(--good)') + '</div>' +
@@ -462,7 +470,7 @@
     var s = D.slides[code]; if (!s) return go('#/rak');
     var FITUR = { 'GLB-03': ['MN_KOSA', 'Bank Kosakata', '#B0436A', '#FBE6EE'], 'GLB-04': ['MN_LATIH', 'Latihan Pertanyaan Acak', '#5B46A8', '#ECE7FA'], 'GLB-05': ['MN_TIPS', 'Tips & Trik', '#A8650F', '#FBEEDA'], 'GLB-07': ['MN_NAVI', 'Kata Mutiara', '#2A4B8D', '#E4EBF8'] }[code];
     if (FITUR && window[FITUR[0]]) {
-      show('<div class="screen" style="--c:' + FITUR[2] + ';--cl:' + FITUR[3] + '">' + topbar('Sumber belajar', FITUR[1], 1, FITUR[2]) + '<div class="body"><h2 class="slide-h">' + esc(s.title) + '</h2><div id="fitur"></div></div>' + bottombar('#/rak', '', null) + '</div>');
+      show('<div class="screen fitur" style="--c:' + FITUR[2] + ';--cl:' + FITUR[3] + '">' + topbar('Sumber belajar', FITUR[1], 1, FITUR[2]) + '<div class="body"><h2 class="slide-h">' + esc(s.title) + '</h2><div id="fitur"></div></div>' + bottombar('#/rak', '', null) + '</div>');
       window[FITUR[0]].mount(document.getElementById('fitur'), { esc: esc, ic: ic, naviSay: naviSay, bindSpeak: bindSpeak, toast: toast, sayMutiara: sayMutiara, status: function (n) { return ST.status(n); },
         sayJa: function (t, rate, onend) { return window.MN_IX ? MN_IX.sayJa(t, rate, onend) : false; } });
       bindSpeak(view);
@@ -570,6 +578,18 @@
       default: return go(S.name ? (S.pre ? '#/rak' : '#/pre/0') : '#/mulai');
     }
   }
+  /* pintasan keyboard: ← sebelumnya, → berikutnya, spasi memutar suara, 1–3 memilih tindakan di Simulasi */
+  document.addEventListener('keydown', function (e) {
+    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || view.hidden) return;
+    var t = e.target, tag = t && t.tagName;
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag) || (t && t.isContentEditable) || document.querySelector('.drawer')) return;
+    var bar = view.querySelector('.screen > .bottombar'), k = e.key, el;
+    if (k === 'ArrowRight' && bar) { el = bar.querySelector('.btn:not(.ghost)'); if (el && el.getAttribute('aria-disabled') !== 'true' && !el.disabled) { e.preventDefault(); el.click(); } }
+    else if (k === 'ArrowLeft' && bar) { el = bar.querySelector('a.btn.ghost'); if (el) { e.preventDefault(); el.click(); } }
+    else if (k === ' ' && !/^(BUTTON|A)$/.test(tag)) { el = view.querySelector('[data-speak]'); if (el) { e.preventDefault(); el.click(); } }
+    else if (/^[1-3]$/.test(k)) { el = view.querySelectorAll('.sim-split .opt:not([disabled])')[+k - 1]; if (el) { e.preventDefault(); el.click(); } }
+  });
+
   window.addEventListener('hashchange', route);
   route();
 

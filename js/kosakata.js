@@ -65,7 +65,7 @@
 
   function mount(root, api) {
     var esc = api.esc, ic = api.ic, list = bank();
-    var f = { q: '', bab: 0, kat: '', star: false, ro: true, ar: true };
+    var f = { q: '', raw: '', bab: 0, kat: '', star: false, ro: true, ar: true };   /* raw = isi kolom cari apa adanya (spasi tidak boleh hilang saat digambar ulang) */
     var sesi = null;   /* { kartu:[], i:0, balik:false, naik:0, turun:0 } */
 
     root.innerHTML = '<div class="kv"><div class="kv-tabs" role="tablist"><button class="kv-tab on" role="tab" data-t="daftar" aria-selected="true">Daftar</button>' +
@@ -110,12 +110,12 @@
       var kats = '<div class="kv-chips" role="group" aria-label="Filter kategori">' + chip('kat', '', 'Semua kategori', !f.kat) +
         KAT.filter(function (x) { return list.some(function (e) { return e.kat === x[0]; }); }).map(function (x) { return chip('kat', x[0], x[1], f.kat === x[0]); }).join('') +
         chip('star', 1, '★ Berbintang (' + nstar + ')', f.star) + '</div>';
-      pD.innerHTML = '<input class="kv-q" type="search" placeholder="Cari kata (Jepang, romaji, atau arti)" value="' + esc(f.q) + '" aria-label="Cari kosakata" autocomplete="off">' + babs + kats +
+      pD.innerHTML = '<input class="kv-q" type="search" placeholder="Cari kata (Jepang, romaji, atau arti)" value="' + esc(f.raw) + '" aria-label="Cari kosakata" autocomplete="off">' + babs + kats +
         '<div class="kv-bar"><span class="ix-count">' + shown.length + ' dari ' + list.length + ' istilah</span><span class="ix-tog"><button class="btn soft' + (f.ro ? ' on' : '') + '" data-t="ro" aria-pressed="' + f.ro + '">Romaji</button><button class="btn soft' + (f.ar ? ' on' : '') + '" data-t="ar" aria-pressed="' + f.ar + '">Arti</button></span></div>' +
         '<div class="kv-list' + (f.ro ? '' : ' no-ro') + (f.ar ? '' : ' no-ar') + '">' + (shown.length ? shown.map(entry).join('') : '<p class="kv-none">Tidak ada istilah yang cocok. Coba ubah kata kunci atau filter.</p>') + '</div>';
       var q = pD.querySelector('.kv-q');
       q.addEventListener('input', function () {
-        f.q = q.value.trim(); var pos = q.selectionStart; drawD(); var n = pD.querySelector('.kv-q'); n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) { /* tipe input */ }
+        f.raw = q.value; f.q = q.value.trim(); var pos = q.selectionStart; drawD(); var n = pD.querySelector('.kv-q'); n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) { /* tipe input */ }
       });
       pD.querySelectorAll('.kv-chip').forEach(function (b) {
         b.addEventListener('click', function () {

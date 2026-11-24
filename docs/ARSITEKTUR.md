@@ -142,3 +142,21 @@ Widget kartu (`.ix-ro`, `.ix-ar`) ikut kelas yang sama. Tombol Romaji/Arti ada d
 - **Petunjuk Navi** (`hint()`): tombol di aktivitas slide materi bertemplate T08/T10/T11/T12 yang punya widget; satu petunjuk yang menunjuk slide terkait (kode slide yang dirujuk di teks aktivitas, atau slide materi sebelumnya; slide pemantik menunjuk slide berikutnya). Tidak muncul di kuis, pre/post-test, dan Simulasi resmi; di Mode Latihan simulasi memakai `m.acuan`.
 - **Kata Mutiara**: `D.mutiara` (tabel GLB-07 via `gen_data.py`, dicocokkan dengan kutipan di slide rangkuman). Kartu di slide rangkuman bergambar Navi dan bisa diketuk; halaman koleksi `#/hal/GLB-07` membuka kartu seiring stempel bab (mode uji membuka semua). Suara: `assets/audio/mutiara/B<bab>.mp3` bila ada, jika belum suara bawaan peramban (id-ID).
 - Layar hasil kuis memuat reaksi Navi (senang bila lulus, menyemangati bila belum).
+
+## Tata letak responsif (HP, tablet, laptop, landscape)
+
+Acuan: canvas interface v2 (`sumber/desain-canvas/`: D_* laptop, L_* HP landscape). Aturannya ada di akhir `css/app.css`.
+
+| Ukuran | Tata letak |
+|---|---|
+| HP tegak (<700px) | satu kolom, bilah Kembali/Lanjut menempel di bawah |
+| Tablet tegak (700–1023px) | satu kolom (maks. 760px) dengan teks dan padding sedikit lebih besar |
+| **HP landscape** (landscape, tinggi ≤ 520px) | bilah atas dipipihkan (52px); **Lanjut/Kembali pindah ke kolom kanan 132px** (`.screen.has-bar > .bottombar` jadi `position: fixed`); isi memakai sisa lebar |
+| Landscape ≥ 640px lebar (HP, tablet, laptop) | **Simulasi dua kolom** (`.screen.sim-split`): ilustrasi kiri, pilihan di panel kanan; teks lebih besar di ≥ 1100px |
+| ≥ 1024px | sidebar daftar isi di slide materi; Rapor dua kolom (`.rapor`) |
+| ≥ 1100px | halaman fitur (`.screen.fitur`) lebih lebar, daftar 3 kolom |
+| ≥ 1280px | panel kanan di slide materi (`.rpanel`): Navi + **Kosakata di slide ini** (dari `D.bab[].glos` dengan `k` = indeks slide); gelembung Navi di bawah isi disembunyikan |
+
+`show()` menambahkan kelas `has-bar` pada `.screen` yang punya anak `.bottombar` (lewat JavaScript, bukan `:has()`, agar jalan di Chrome Android lama). Layar sim memakai `sim-split` di markup `scrSim`.
+
+**Pintasan keyboard** (di `app.js`, tidak aktif saat mengetik atau menu ☰ terbuka): ← sebelumnya, → berikutnya (bila tidak terkunci), spasi memutar suara narasi, 1–3 memilih tindakan di Simulasi. Kartu geser (GLB-05) memakai panah sendiri.

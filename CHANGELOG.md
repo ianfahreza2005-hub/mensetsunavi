@@ -5,6 +5,8 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 ## [Belum dirilis]
 
 ### Diubah
+- Layar soal: "Kosakata di soal ini" di bawah panel soal (khusus kuis bab; istilah yang artinya ada di pilihan benar dilewati, soal yang menanyakan arti kata tidak diberi kotak ini) dan jalur soal di bawah kedua kolom. Kuis bab: kotak ✓/✗ per soal, skor sementara, meteran menuju 80 dan stempel 済 yang makin terisi. Pre/post-test: status dijawab tanpa nilai, kotak soal yang sudah dijawab bisa diklik.
+- Perbaikan: isi slide tidak lagi berkedip dua kali setelah transisi geser.
 - Layar soal (kuis bab, pre-test, post-test) dua kolom: panel soal berwarna bab di kiri (nomor soal, titik progres, Navi; bagian Jepang dengan huruf Jepang, romaji/arti lebih ringan), pilihan dan umpan balik di kanan. Pintasan keyboard A–D untuk memilih, → untuk lanjut; pindah soal kuis bergeser halus.
 - Umpan balik kuis tidak lagi menampilkan kode slide; kode diganti judul slide yang bisa diklik.
 - Peta bab (pita navigasi) berwarna bab di atas setiap slide dan di sampul: satu titik per slide (klik untuk pindah, judul muncul saat kursor di atasnya), segmen per pelajaran, persentase dipelajari. Sampul bab: kartu pelajaran dengan progres, paralaks kanji dan Navi mengikuti kursor.

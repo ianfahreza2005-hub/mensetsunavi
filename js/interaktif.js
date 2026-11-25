@@ -453,6 +453,26 @@
     };
   };
 
+  /* layar terbelah W.versus/W.vsDengar: sisi yang disentuh kursor/diketuk melebar, gambar huruf bergeser mengikuti kursor */
+  function ikatSisi(vs) {
+    var jenis = 'mouse';
+    vs.addEventListener('pointerdown', function (e) { jenis = e.pointerType; });
+    function fokus(s) { if (vs.dataset.pilih == null) vs.dataset.f = s; }
+    vs.querySelectorAll('.vs-p').forEach(function (p) {
+      var s = p.dataset.s === '0' ? 'a' : 'b';
+      p.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') fokus(s); });
+      /* sentuh: ketuk untuk melebarkan/menutup; mouse: sudah melebar lewat hover, klik tidak menutupnya */
+      p.addEventListener('click', function (e) { if (!e.target.closest('button, summary')) fokus(jenis !== 'mouse' && vs.dataset.f === s ? '' : s); });
+      p.addEventListener('pointermove', function (e) {
+        if (e.pointerType !== 'mouse') return;
+        var r = p.getBoundingClientRect();
+        p.style.setProperty('--px', ((e.clientX - r.left) / r.width - .5).toFixed(3));
+        p.style.setProperty('--py', ((e.clientY - r.top) / r.height - .5).toFixed(3));
+      });
+    });
+    vs.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') fokus(''); });
+  }
+
   /* T02 tabel perbandingan 3 kolom (B1-02 "Siapa yang Lolos?"): dua panel berdampingan.
      Sisi yang disentuh kursor/diketuk melebar (layar terbelah), baris muncul bergantian, peserta memilih di panelnya. */
   W.versus = function (t) {
@@ -471,22 +491,8 @@
       html: '<div class="vs" style="--n:' + (rows.length + 2) + '">' + panel(1, 0) + '<span class="vs-knob" aria-hidden="true"><i>‹</i>VS<i>›</i></span>' + panel(2, 1) + '</div>' +
         '<p class="ix-hint vs-hint">Arahkan kursor atau ketuk sisi kandidat untuk membandingkan, lalu pilih yang menurutmu lolos.</p>',
       bind: function (el, done) {
-        var vs = el.querySelector('.vs'), hint = el.querySelector('.vs-hint'), jenis = 'mouse';
-        vs.addEventListener('pointerdown', function (e) { jenis = e.pointerType; });
-        function fokus(s) { if (vs.dataset.pilih == null) vs.dataset.f = s; }
-        el.querySelectorAll('.vs-p').forEach(function (p) {
-          var s = p.dataset.s === '0' ? 'a' : 'b';
-          p.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') fokus(s); });
-          /* sentuh: ketuk untuk melebarkan/menutup; mouse: sudah melebar lewat hover, klik tidak menutupnya */
-          p.addEventListener('click', function (e) { if (!e.target.closest('.vs-pilih')) fokus(jenis !== 'mouse' && vs.dataset.f === s ? '' : s); });
-          p.addEventListener('pointermove', function (e) {
-            if (e.pointerType !== 'mouse') return;
-            var r = p.getBoundingClientRect();
-            p.style.setProperty('--px', ((e.clientX - r.left) / r.width - .5).toFixed(3));
-            p.style.setProperty('--py', ((e.clientY - r.top) / r.height - .5).toFixed(3));
-          });
-        });
-        vs.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') fokus(''); });
+        var vs = el.querySelector('.vs'), hint = el.querySelector('.vs-hint');
+        ikatSisi(vs);
         el.querySelectorAll('.vs-pilih').forEach(function (b) {
           b.addEventListener('click', function () {
             var j = +b.dataset.i;
@@ -495,6 +501,112 @@
             hint.textContent = 'Kamu memilih ' + t[0][j + 1] + '. Lanjut ke slide berikutnya untuk melihat pembahasannya. Kamu masih bisa mengganti pilihan.';
             done();
           });
+        });
+      }
+    };
+  };
+
+  /* T02 pemantik dengar (B4-02 "Mana yang Lebih Meyakinkan?"): penyajian sama dengan W.versus (layar terbelah, VS),
+     isinya dua kandidat "**Kandidat X (±N detik):** …": bar durasi, teks yang diucapkan, dan tombol Dengarkan
+     (suara perangkat, kalimat yang sedang diucapkan disorot). Setelah kandidat dipilih, Pertanyaan 2 (alasan, boleh
+     lebih dari satu) muncul di bawah panel. Selesai setelah memilih kandidat dan minimal satu alasan. */
+  var RX_KD = /^\*\*(Kandidat\s+([A-Z]))\s*\(±\s*(\d+)\s*detik\):?\*\*:?\s*(.*)$/;
+  function dengarCfg(gs) {
+    var liAt = -1, pAt = -1, cands = null;
+    gs.forEach(function (g, gi) {
+      if (g.li && g.li.length === 2 && g.li.every(function (b) { return RX_KD.test(b.li); })) { liAt = gi; cands = g.li.map(function (b) { return RX_KD.exec(b.li); }); }
+      if (g.p && /Pertanyaan 1/.test(g.p) && /Pertanyaan 2/.test(g.p)) pAt = gi;
+    });
+    if (liAt < 0 || pAt < 0) return null;
+    var p = gs[pAt].p, q1 = /Pertanyaan 1:\s*"([^"]+)"/.exec(p), q2 = /Pertanyaan 2[^:]*:\s*"([^"]+)"/.exec(p), opsi = p.split(/\s—\s/)[1];
+    if (!q1 || !q2 || !opsi) return null;
+    var ok = true;
+    cands = cands.map(function (m) {
+      var isi = m[4], kal = /「([^」]+)」\s*\(([^"“]*?)\s*["“]([^"”]+)["”]\)/.exec(isi), ref = /\b(B\d-\d\d)\b/.exec(isi), blok = [];
+      if (kal) blok = [{ jp: kal[1], ro: kal[2].trim(), ar: kal[3] }];
+      else if (ref && D.slides[ref[1]]) {
+        D.slides[ref[1]].screen.forEach(function (b) {
+          if (!b.table) return;
+          var t = b.table, ij = hdr(t, /bahasa jepang|^jepang$/i), ir = hdr(t, /romaji/i), ia = hdr(t, /^arti$/i);
+          if (ij >= 0) blok = t.slice(1).map(function (r) { return { jp: r[ij], ro: ir >= 0 ? r[ir] : '', ar: ia >= 0 ? r[ia] : '' }; });
+        });
+      }
+      if (!blok.length) ok = false;
+      return { label: m[1], huruf: m[2], detik: +m[3], blok: blok, ref: !kal && ref ? ref[1] : null };
+    });
+    return ok ? { liAt: liAt, pAt: pAt, cands: cands, q1: q1[1], q2: q2[1], opsi: opsi.split(/\s*·\s*/).map(function (o) { return o.replace(/[.\s]+$/, ''); }).filter(Boolean) } : null;
+  }
+  var EQ = '<span class="vd-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>';
+  W.vsDengar = function (cfg) {
+    var C = cfg.cands, maks = Math.max.apply(null, C.map(function (c) { return c.detik; }));
+    function gro(b) { return b.ro || b.ar ? '<span class="gro">(<span class="r">' + esc(b.ro) + '</span><span class="s"> </span><span class="a">“' + esc(b.ar) + '”</span>)</span>' : ''; }
+    function pilihTeks(j) { return 'Pilih <span class="vs-pl">Kandidat </span>' + esc(C[j].huruf); }
+    function panel(c, j) {
+      var teks = '<span class="vd-jp" lang="ja">' + c.blok.map(function (b, i) { return '<span class="vd-k" data-k="' + i + '">' + esc(b.jp) + '</span>'; }).join('') + '</span>';
+      if (c.blok.length === 1) teks += '<span class="vd-gro">' + gro(c.blok[0]) + '</span>';
+      else teks += '<details class="vd-teks"><summary>Romaji dan arti</summary>' + c.blok.map(function (b) { return '<p><span lang="ja">' + esc(b.jp) + '</span> ' + gro(b) + '</p>'; }).join('') + '</details>';
+      var rows = [
+        ['Durasi', '<b class="vd-dt">±' + c.detik + ' detik</b><span class="vd-bar" aria-hidden="true"><i style="--w:' + (c.detik / maks).toFixed(3) + '"></i></span>'],
+        ['Yang diucapkan', teks],
+        ['Dengarkan', '<button class="vd-play" type="button" data-j="' + j + '" aria-label="Dengarkan ' + esc(c.label) + '"><span class="vd-ic"><span class="pt">' + PUTAR + '</span><span class="jd"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 6h3.5v12H7zM13.5 6H17v12h-3.5z" fill="currentColor"/></svg></span></span>' + EQ + '<span class="vd-lb">Dengarkan</span></button>']
+      ];
+      return '<div class="vs-p vs-' + (j ? 'b' : 'a') + '" data-s="' + j + '">' +
+        '<div class="vs-h"><span class="vs-big" aria-hidden="true">' + esc(c.huruf) + '</span><span class="vs-lab">' + esc(c.label) + '</span></div>' +
+        rows.map(function (r, i) { return '<div class="vs-r" style="--d:' + (i * 2 + j) + '"><small>' + r[0] + '</small><span>' + r[1] + '</span></div>'; }).join('') +
+        '<button class="vs-pilih" data-i="' + j + '">' + pilihTeks(j) + '</button></div>';
+    }
+    return {
+      html: '<p class="vd-q1">Pertanyaan 1: <b>' + esc(cfg.q1) + '</b></p>' +
+        '<div class="vs vd" style="--n:5">' + panel(C[0], 0) + '<span class="vs-knob" aria-hidden="true"><i>‹</i>VS<i>›</i></span>' + panel(C[1], 1) + '</div>' +
+        '<div class="vd-q2" hidden><p class="vd-q2t">Pertanyaan 2: <b>' + esc(cfg.q2) + '</b> <small>Boleh pilih lebih dari satu.</small></p>' +
+        '<div class="vd-opsi">' + cfg.opsi.map(function (o, i) { return '<button class="vd-o" type="button" aria-pressed="false" data-o="' + i + '">' + esc(o) + '</button>'; }).join('') + '</div></div>' +
+        '<p class="ix-hint vs-hint" aria-live="polite">Dengarkan kedua kandidat, lalu pilih yang menurutmu lebih meyakinkan.</p>',
+      bind: function (el, done) {
+        var vs = el.querySelector('.vs'), hint = el.querySelector('.vs-hint'), q2 = el.querySelector('.vd-q2'), sesi = 0, main = -1;
+        ikatSisi(vs);
+        function henti(diam) {   /* diam: suara sudah dipotong pihak lain (narasi, tombol dengar lain), jangan dibatalkan lagi */
+          sesi++; main = -1;
+          if (!diam && window.speechSynthesis) speechSynthesis.cancel();
+          el.querySelectorAll('.vd-play.on').forEach(function (b) { b.classList.remove('on'); b.querySelector('.vd-lb').textContent = 'Dengarkan'; });
+          el.querySelectorAll('.vd-k.now').forEach(function (k) { k.classList.remove('now'); });
+        }
+        el.querySelectorAll('.vd-play').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var j = +b.dataset.j, baru = main !== j; henti(); if (!baru) return;
+            var c = C[j], ks = el.querySelectorAll('.vs-p')[j].querySelectorAll('.vd-k'), my = sesi;
+            main = j; b.classList.add('on'); b.querySelector('.vd-lb').textContent = 'Berhenti';
+            (function blok(i) {
+              if (my !== sesi) return;
+              if (!el.isConnected) { sesi++; return; }   /* slide sudah ditinggalkan */
+              ks.forEach(function (k, x) { k.classList.toggle('now', x === i); });
+              if (i >= c.blok.length) { henti(); return; }
+              var ok = sayJa(c.blok[i].jp, null, function (e) {
+                if (my !== sesi) return;
+                if (e && e.type === 'error') { henti(true); return; }
+                setTimeout(function () { blok(i + 1); }, 260);
+              });
+              if (!ok) { henti(); hint.textContent = 'Suara Jepang belum tersedia di perangkat ini. Baca teksnya, lalu pilih kandidat.'; }
+            })(0);
+          });
+        });
+        function cek() {
+          var n = el.querySelectorAll('.vd-o[aria-pressed="true"]').length;
+          if (vs.dataset.pilih == null) return;
+          if (!n) { hint.textContent = 'Kamu memilih ' + C[+vs.dataset.pilih].label + '. Sekarang jawab Pertanyaan 2 di bawah.'; return; }
+          hint.textContent = 'Jawabanmu tersimpan. Lanjut ke slide berikutnya untuk mempelajari isi jikoshoukai. Kamu masih bisa mengubah pilihan.';
+          done();
+        }
+        el.querySelectorAll('.vs-pilih').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var j = +b.dataset.i, pertama = vs.dataset.pilih == null;
+            vs.dataset.pilih = j; vs.dataset.f = j ? 'b' : 'a';
+            el.querySelectorAll('.vs-pilih').forEach(function (x) { x.classList.toggle('sel', x === b); x.innerHTML = x === b ? '✓ Pilihanmu' : pilihTeks(+x.dataset.i); });
+            if (pertama) { q2.hidden = false; q2.classList.add('ix-in'); try { q2.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { /* peramban lama */ } }
+            cek();
+          });
+        });
+        el.querySelectorAll('.vd-o').forEach(function (o) {
+          o.addEventListener('click', function () { o.setAttribute('aria-pressed', o.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'); cek(); });
         });
       }
     };
@@ -837,6 +949,8 @@
     function add(w) { var id = ws.length; ws.push(w); parts.push('<div class="ix" data-w="' + id + '">' + w.html + '</div>'); }
 
     var choiceAt = -1, choiceLabels = null, vsAt = -1, vidBuka = false;
+    /* B4-02: dua kandidat ber-durasi + "Pertanyaan 1 … Pertanyaan 2 …" → layar terbelah dengan suara (W.vsDengar) */
+    var dg = tpl === 'T02' ? dengarCfg(gs) : null;
     /* komik kasus: ≥2 pasangan "Kasus N (tempat): …" + tabel Pilihan|Hasil → satu panggung bertab (W.kasus) */
     var kasus = [], pakai = {}, penutup = null, RX_K = /^\**Kasus\s+\d+\s*\(([^)]+)\):?\**:?\s*/;
     gs.forEach(function (g, gi) {
@@ -849,6 +963,8 @@
     if (kasus.length < 2) { pakai = {}; kasus = []; }
     gs.forEach(function (g, gi) {
       if (pakai[gi]) { if (kasus.length && gi === kasus[0].at) add(W.kasus(kasus, penutup)); return; }
+      if (dg && gi === dg.liAt) return add(W.vsDengar(dg));
+      if (dg && gi === dg.pAt) return;
       if (g.table) {
         var t = g.table, h = t[0].join('|');
         if (tpl === 'T12') return add(W.match(t));

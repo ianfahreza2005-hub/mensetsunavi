@@ -189,6 +189,7 @@ Di bawah 1024px `appbar` dan `side` disembunyikan CSS, jadi tampilan HP tidak be
 - Menu ☰ (HP) ikut tertutup saat halaman berganti (`route()`); ikon menu kini berukuran 22px.
 
 - **T02 tabel 3 kolom berkolom pertama kosong** (sekarang hanya B1-02) dirender `W.versus`: dua panel berdampingan (layar terbelah), kalimat "Pertanyaan: …" dipindah ke atas panel, pilihan di dalam panel membuka kunci Lanjut.
+- **T02 dua kandidat ber-durasi** (`**Kandidat X (±N detik):** …` + paragraf "Pertanyaan 1 … Pertanyaan 2 … — opsi · opsi"; sekarang hanya B4-02) dirender `W.vsDengar`: layar terbelah yang sama (`ikatSisi`), tiap panel berisi bar durasi, teks yang diucapkan (kandidat yang merujuk slide lain, mis. B4-10, mengambil kolom Bahasa Jepang/Romaji/Arti dari tabel slide itu), dan tombol Dengarkan (suara perangkat per blok, blok yang sedang diucapkan disorot; berhenti bila suara dipotong pihak lain atau slide ditinggalkan). Pertanyaan 2 (pilih lebih dari satu) muncul setelah kandidat dipilih; kunci Lanjut terbuka setelah kandidat + minimal satu alasan.
 
 - **T08 adegan** (`W.adegan`, konfigurasi `ADEGAN` per kode slide di `js/interaktif.js`): babak berlatar `assets/bg/*.webp`, satu titik per babak (posisi dalam % gambar), teks kesalahan diambil dari naskah slide. Dipakai B3-02 dan B6-02 (dengan pertanyaan Ya/Tidak).
 - **T08 rekaman** (`W.rekaman`): tabel berkolom Isi | Kesalahan utama | Umpan balik → pilih kesalahan utama per rekaman (B4-13).

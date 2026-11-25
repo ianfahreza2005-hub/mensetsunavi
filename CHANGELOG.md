@@ -13,6 +13,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 - Pengaturan "Kurangi gerak" (mengikuti setelan perangkat bila tidak diaktifkan).
 
 ### Diubah
+- B4-02 Mana yang Lebih Meyakinkan? kini disajikan seperti B1-02 Siapa yang Lolos?: panel Kandidat A dan B berdampingan dengan VS (sisi yang disentuh melebar), bar durasi ±5 vs ±40 detik, teks yang diucapkan, dan tombol Dengarkan yang menyorot kalimat yang sedang diucapkan. Setelah memilih kandidat, Pertanyaan 2 (alasan, boleh lebih dari satu) muncul sebagai pilihan.
 - Masuk ke bab dari rak tidak lagi terpotong: setelah sampul terbuka, kamera menyelam ke halaman judul tanpa berhenti, lalu halaman materi muncul sebagai kartu di atas kartu isi halaman judul dan membesar bersama halaman itu sampai memenuhi layar. Halaman materi disusun saat tombol Lanjutkan ditekan, jadi tidak ada lagi layar kosong sesaat. Kamera rak juga tidak lagi meloncat saat buku dipilih atau dibuka.
 - Kembali ke rak dari sebuah bab kini kebalikannya: halaman materi mengecil masuk lagi ke halaman judul bukunya, sampul menutup, dan buku terbang kembali ke tempatnya di rak.
 - Transisi halaman dirombak supaya mulus 60 fps:

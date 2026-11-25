@@ -891,7 +891,7 @@ a { color: var(--pri); text-underline-offset: 3px; text-decoration-thickness: 1.
 .vs-lab { position: relative; font: 700 clamp(19px, 2.6vw, 26px)/1.1 var(--head); letter-spacing: -.02em; }
 .vs-r { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-top: 1px solid rgba(255, 255, 255, .2); animation: muncul .6s var(--ease) both; animation-delay: calc(var(--d) * 90ms + 350ms); }
 .vs-r small { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .72; }
-.vs-r span { font-size: 15px; font-weight: 600; line-height: 1.4; transition: opacity .5s; }
+.vs-r > span { font-size: 15px; font-weight: 600; line-height: 1.4; transition: opacity .5s; }
 .vs-pilih { align-self: end; justify-self: start; margin-top: 10px; min-height: 44px; padding: 10px 18px; border: 0; border-radius: 999px; background: rgba(255, 255, 255, .95); color: var(--pc);
   font: 700 14px/1 var(--head); box-shadow: 0 8px 18px -8px rgba(0, 0, 0, .45); transition: transform .35s var(--spring), background-color .2s, color .2s; }
 .vs-b .vs-pilih { justify-self: end; }
@@ -907,13 +907,55 @@ a { color: var(--pri); text-underline-offset: 3px; text-decoration-thickness: 1.
 .vs[data-f="a"] .vs-knob i:last-child { transform: translateX(3px); }
 .vs[data-f="b"] .vs-knob i:first-child { transform: translateX(-3px); }
 .vs[data-f="a"] .vs-a .vs-big, .vs[data-f="b"] .vs-b .vs-big { color: rgba(255, 255, 255, .26); transform: translate(calc(var(--px, 0) * 18px), calc(var(--py, 0) * 12px)) scale(1.12); }
-.vs[data-f="a"] .vs-b .vs-r span, .vs[data-f="b"] .vs-a .vs-r span { opacity: .72; }
+.vs[data-f="a"] .vs-b .vs-r > span, .vs[data-f="b"] .vs-a .vs-r > span { opacity: .72; }
 .vs[data-pilih="0"] .vs-b, .vs[data-pilih="1"] .vs-a { filter: saturate(.25) brightness(.85); }
 .vs-hint { text-align: center; }
 
+/* B4-02 pemantik dengar: layar terbelah W.vsDengar (bar durasi, teks yang disorot saat diucapkan, tombol dengar, Pertanyaan 2) */
+.vd-q1 { margin: 0 0 12px; font-size: 16px; }
+.vd .vs-h { min-height: 92px; }
+.vd-dt { font-size: 17px; }
+.vd-bar { display: block; height: 7px; margin-top: 8px; border-radius: 99px; background: rgba(255, 255, 255, .18); overflow: hidden; }
+.vd-bar i { display: block; height: 100%; border-radius: inherit; background: #fff; transform: scaleX(var(--w)); transform-origin: left; animation: vdBar 1.2s var(--ease) .7s both; }
+@keyframes vdBar { from { transform: scaleX(0); } }
+.vs-r .vd-jp { display: block; font-family: var(--jp); font-size: 17px; font-weight: 500; line-height: 1.7; text-align: justify; text-align-last: left; }
+.vs-r .vd-jp:has(.vd-k + .vd-k) { font-size: 15px; line-height: 1.65; }   /* teks panjang (banyak blok) sedikit lebih kecil */
+.vs-b .vs-r .vd-jp { text-align-last: right; }
+.vd-k { border-radius: 5px; transition: background-color .25s, color .25s, box-shadow .25s; }
+.vd-k.now { background: #fff; color: var(--pc); box-shadow: 0 0 0 3px #fff; }
+.vd-gro { display: block; margin-top: 4px; font-size: 13px; font-weight: 500; line-height: 1.45; color: rgba(255, 255, 255, .82); }
+.vd-teks { margin-top: 6px; font-size: 13px; font-weight: 500; }
+.vd-teks summary { display: inline-block; cursor: pointer; padding: 4px 10px; border-radius: 999px; background: rgba(255, 255, 255, .14); font-weight: 700; list-style: none; }
+.vd-teks summary::-webkit-details-marker { display: none; }
+.vd-teks summary::before { content: '▸ '; } .vd-teks[open] summary::before { content: '▾ '; }
+.vd-teks p { margin: 8px 0 0; line-height: 1.5; text-align: left; color: rgba(255, 255, 255, .86); }
+.vd-teks p [lang="ja"] { font-family: var(--jp); color: #fff; }
+.vd-play { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin-top: 2px; padding: 7px 16px 7px 7px; border: 1px solid rgba(255, 255, 255, .34); border-radius: 999px;
+  background: rgba(255, 255, 255, .1); color: #fff; font: 700 14px var(--body); cursor: pointer; transition: background-color .2s, transform .25s var(--spring); }
+.vd-play:hover { background: rgba(255, 255, 255, .2); transform: translateY(-1px); }
+.vd-play:active { transform: scale(.96); }
+.vd-play:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.vd-ic { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #fff; color: var(--pc); }
+.vd-ic svg { display: block; width: 16px; height: 16px; } .vd-ic .pt svg { margin-left: 2px; }
+.vd-ic .jd, .vd-play.on .vd-ic .pt { display: none; } .vd-play.on .vd-ic .jd { display: block; }
+.vd-eq { display: inline-flex; align-items: center; gap: 3px; height: 20px; }
+.vd-eq i { width: 3px; height: 8px; border-radius: 2px; background: #fff; opacity: .55; }
+.vd-play.on .vd-eq i { opacity: 1; animation: vdEq .8s ease-in-out infinite; }
+.vd-play.on .vd-eq i:nth-child(2) { animation-delay: -.2s; } .vd-play.on .vd-eq i:nth-child(3) { animation-delay: -.45s; }
+.vd-play.on .vd-eq i:nth-child(4) { animation-delay: -.1s; } .vd-play.on .vd-eq i:nth-child(5) { animation-delay: -.6s; }
+@keyframes vdEq { 0%, 100% { transform: scaleY(.6); } 50% { transform: scaleY(2.2); } }
+.vd-q2 { margin-top: 16px; padding: 18px 20px; border-radius: 18px; background: var(--ground); }
+.vd-q2t { margin: 0 0 12px; font-size: 16px; } .vd-q2t small { display: block; margin-top: 2px; color: var(--ink2); font-size: 13px; }
+.vd-opsi { display: flex; flex-wrap: wrap; gap: 10px; }
+.vd-o { min-height: 44px; padding: 10px 18px; border: 1.5px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink); font: 600 15px var(--body); cursor: pointer;
+  transition: background-color .2s, border-color .2s, color .2s, transform .25s var(--spring); }
+.vd-o:hover { border-color: var(--c, var(--ai)); transform: translateY(-1px); }
+.vd-o[aria-pressed="true"] { background: var(--c, var(--ai)); border-color: var(--c, var(--ai)); color: #fff; }
+.vd-o[aria-pressed="true"]::before { content: '✓ '; }
+
 @media (prefers-reduced-motion: reduce) {
   .vs, .vs-knob, .vs-big { transition: none !important; }
-  .vs-a, .vs-b, .vs-r, .vs-knob, .vs-pilih.sel { animation: none !important; }
+  .vs-a, .vs-b, .vs-r, .vs-knob, .vs-pilih.sel, .vd-bar i, .vd-play.on .vd-eq i { animation: none !important; }
 }
 
 /* ---------- khusus laptop & Mac (keputusan 24 Nov): tampilan HP/tablet dihapus sementara ----------

@@ -27,6 +27,7 @@ Keputusan desain yang sudah dikunci ada di **`docs/KEPUTUSAN.md`**. Baca itu seb
 | `sumber/rancangan/` | Paket Word resmi 00–13 (T1, GBIM, JM, Flowchart, Storyboard format Pak Imbar, Materi Bab 1–6, Evaluasi, Fitur Global, Pola LMS) |
 | `sumber/video/` | Proyek Remotion untuk video animasi (`b2-09/`, `b5-09/`); hasil ekspor ke `assets/video/`. README tiap folder berisi cara membuat ulang |
 | `sumber/desain-canvas/` | Berkas canvas interface v2 (`*.dc.html`, `canvas.json`) + `_generator.py` |
+| `sumber/logo/` | Logo: gambar asli, `buat_logo.py` (SVG ke `assets/logo/` + favicon), `ikon.js` (ikon PWA + PNG dokumen). Lihat README-nya |
 | `docs/` | `KEPUTUSAN.md`, `ARSITEKTUR.md`, `ROADMAP.md`, `ASET.md` |
 
 ## Perintah

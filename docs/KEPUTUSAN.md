@@ -53,6 +53,13 @@ Catatan keputusan yang sudah dikunci. Semua dokumen T1/T2 harus mengikuti ini.
 - Pola 波 (garis ombak) di permukaan gelap. Gerak halus (`js/gerak.js`): isi layar muncul bertahap, judul terisi warna, angka skor menghitung naik, sorot cahaya mengikuti kursor di kartu, riak saat tombol ditekan, Navi melayang. Semua mati bila "kurangi gerak" aktif.
 - Dokumen T2/storyboard dan canvas interface masih memakai warna v2; perbarui saat ekspor gambar berikutnya.
 
+## Logo (25 Nov)
+- Nama produk tetap **Mensetsu Navi 面接ナビ** (tanpa nama tambahan).
+- Logo: Navi setengah badan (jempol + map CV) di lingkaran bermotif seigaiha, bintang kompas di atas cincin (Navi = penunjuk arah), cap merah 面 di kanan bawah (sama dengan cap 済 aplikasi). Tulisan MENSETSU / NAVI / 面接ナビ tebal, tanpa huruf tipis. Gaya vektor satu warna; warna 鉄紺 #0E2A47, putih, 茜 #B3282F.
+- Dua model: **tegak** (emblem di atas, tulisan di bawah) dan **mendatar** (emblem di kiri, tulisan di kanan), plus **ringkas** (mendatar dengan tulisan setinggi emblem, untuk ukuran kecil) dan emblem saja. Masing-masing versi putih (latar gelap) dan navy (latar terang).
+- Penempatan: tegak di layar pembuka (menggantikan judul teks dan Navi melambai), ringkas putih di bilah atas, ringkas navy di header rak, emblem di layar muat rak, favicon, dan ikon aplikasi 192/512.
+- Sumber dan cara membuat ulang: `sumber/logo/README.md`.
+
 ## Khusus laptop & Mac (24 Nov)
 - Atas permintaan pemilik repo, semua tampilan HP, tablet, dan HP landscape dihapus sementara. Tata letak laptop
   (bilah atas, sidebar, panel kanan) berlaku di semua lebar; `html { min-width: 1024px }`, dan `index.html` memakai

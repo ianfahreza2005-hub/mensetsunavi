@@ -5,6 +5,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 ## [Belum dirilis]
 
 ### Ditambah
+- Logo Mensetsu Navi (SVG): model tegak, mendatar, ringkas, dan emblem, masing-masing versi putih untuk latar gelap dan navy untuk latar terang (`assets/logo/`, sumber dan cara membuat ulang di `sumber/logo/`). Dipasang di layar pembuka (logo tegak), bilah atas (ringkas putih), header rak (ringkas navy), layar muat rak (emblem), favicon, dan ikon aplikasi 192/512. PNG transparan untuk dokumen ada di `sumber/logo/png/`.
 - B5-09 Saat Tidak Paham, Jangan Diam: video animasi 51 detik (1080p, 60 fps, suara VOICEVOX:雀松朱司) menggantikan blok langkah, "Hindari", dan "Gugup". Isinya: bertanya dua kali dengan ungkapan penyelamat, empat hal yang dihindari dicap ✕ lalu dibuang, "jujur dengan sopan" + 申し訳ありません。まだ分からないところがあります。, napas saat gugup + 少し考えてもいいですか。, dan pesan "Jangan diam." Teks aslinya tetap ada di lipatan "Lihat teks lengkap".
 - Adegan bergambar "Temukan kesalahan" untuk B3-02 (masuk ruangan) dan B6-02 (setelah wawancara): latar koridor/ruang wawancara, titik ! berdenyut, kesalahan + umpan balik muncul di adegan dan tersusun di daftar temuan, pindah adegan bergeser halus. B6-02 diawali pertanyaan Ya/Tidak.
 - B4-13: kartu rekaman jikoshoukai; peserta memilih kesalahan utama tiap rekaman (chip), umpan balik membuka halus; rekaman berteks Jepang bisa diputar (suara perangkat) dengan gelombang suara bergerak.

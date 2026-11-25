@@ -46,10 +46,7 @@
     font-size:15px;font-weight:600;
   }
   .brand{display:flex;align-items:center;gap:11px}
-  .mark{width:30px;height:30px;border-radius:50%;background:var(--ink);display:grid;place-items:center}
-  .mark svg{width:17px;height:17px}
-  .brandname{font-size:20px;font-weight:800;white-space:nowrap;letter-spacing:-.01em}
-  .brandjp{font-family:var(--jp);font-size:13px;font-weight:500;color:var(--ink-soft);margin-left:2px}
+  .brandlogo{display:block;height:48px;width:auto}   /* logo ringkas navy (assets/logo/) */
   header .right{margin-left:auto;display:flex;align-items:center;gap:6px}
   .pill{background:var(--ink);color:#f6efe1;padding:10px 16px 10px 10px;border-radius:999px;
     white-space:nowrap;display:flex;align-items:center;gap:8px;font-size:14px}
@@ -183,7 +180,7 @@
   body.mobile .mbar-acts button{flex:1}
   body.mobile header{padding:0 14px;gap:10px}
   header .right{margin-right:48px}
-  body.mobile .brandjp,body.mobile .pill .tx{display:none}
+  body.mobile .pill .tx{display:none}
   body.mobile .pill{padding:6px}
   body.mobile .detail{display:none}
   body.opening .mbar,body.opening footer{opacity:0!important;pointer-events:none}
@@ -234,9 +231,10 @@
   .ov-pad{height:32px;flex:none}
 
   /* ---------- loader / fallback ---------- */
-  .loader{position:fixed;inset:0;z-index:50;display:grid;place-items:center;
+  .loader{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
     background:var(--bg);transition:opacity .6s linear;pointer-events:none}
   .loader.gone{opacity:0}
+  .ld-logo{width:auto;height:86px}
   .bar{width:92px;height:2px;background:rgba(22,33,62,.2);position:relative;overflow:hidden}
   .bar i{position:absolute;inset:0;transform-origin:left;transform:scaleX(0);background:var(--ink);
     transition:transform .3s linear}
@@ -248,8 +246,7 @@
 
 <header>
   <div class="brand">
-    <span class="mark rise" data-d="0"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.2 6.3L20.5 12l-6.3 2.7L12 21l-2.2-6.3L3.5 12l6.3-2.7z" fill="#F7EFE0"/><circle cx="12" cy="12" r="2" fill="#B3282F"/></svg></span>
-    <span class="brandname rise" data-d="70">Mensetsu Navi <span class="brandjp">面接ナビ</span></span>
+    <img class="brandlogo rise" data-d="0" src="assets/logo/logo-ringkas-navy.svg" width="1697" height="631" alt="Mensetsu Navi 面接ナビ">
   </div>
   <div class="right">
     <span class="pill rise" data-d="285"><span class="av">R</span><span class="tx" id="pilltx">Rani · 2 dari 6 stempel</span></span>
@@ -294,7 +291,7 @@
 
 
 <div class="nogl" id="nogl"><div style="max-width:420px;width:100%"><b>Perangkat ini belum mendukung tampilan 3D.</b><br>Pilih bab dari daftar:<div id="nogl-list" style="display:flex;flex-direction:column;gap:8px;margin-top:14px"></div></div></div>
-<div class="loader" id="loader"><div class="bar"><i id="barfill"></i></div></div>
+<div class="loader" id="loader"><img class="ld-logo" src="assets/logo/logo-emblem-navy.svg" width="587" height="631" alt=""><div class="bar"><i id="barfill"></i></div></div>
 
 
 <script type="importmap">

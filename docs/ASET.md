@@ -31,4 +31,8 @@ Suara Jepang memakai VOICEVOX; kredit "VOICEVOX:<nama karakter>" wajib tampil (k
 
 ## Ikon
 
-`assets/icon-192.png`, `assets/icon-512.png` (dari wajah Navi), `assets/favicon.svg`.
+`assets/icon-192.png`, `assets/icon-512.png` (emblem logo di kotak 鉄紺), `assets/favicon.svg` (emblem logo).
+
+## Logo — `assets/logo/`
+
+SVG tegak, mendatar, ringkas, dan emblem; versi putih (latar gelap) dan navy (latar terang). PNG transparan untuk dokumen di `sumber/logo/png/`. Daftar varian, aturan pakai, dan cara membuat ulang: `sumber/logo/README.md`.

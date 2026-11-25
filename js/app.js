@@ -301,8 +301,8 @@
   function scrMulai() {
     var S = ST.get();
     show('<div class="screen start">' +
-      '<div class="hero">' + SG + '<div class="eyebrow">PEMANDU WAWANCARA KERJA</div><h1>Mensetsu Navi</h1><div class="jp">面接ナビ</div>' +
-      '<img src="' + navi('pose_melambai') + '" alt="Navi melambai"></div>' +
+      '<div class="hero">' + SG + '<h1 class="hero-logo"><img src="assets/logo/logo-tegak-putih.svg" width="671" height="1060" alt="Mensetsu Navi 面接ナビ"></h1>' +
+      '<div class="eyebrow">PEMANDU WAWANCARA KERJA</div></div>' +
       '<div class="body start-body">' +
       '<h2 class="slide-h">Halo! Aku Navi, pemandumu.</h2>' +
       '<p class="treat" style="font-size:15px">Wawancara kerja di Jepang bukan hanya soal bahasa, tetapi juga sikap. Kita mulai dengan pre-test singkat untuk melihat kemampuan awalmu.</p>' +
@@ -544,7 +544,7 @@
   }
   function appbar(ws) {
     var S = ST.get(), tb = ws.querySelector('.topbar'), sub = tb && tb.querySelector('.sub'), ti = tb && tb.querySelector('.title'), n = bagianSelesai();
-    return '<header class="appbar"><a class="ab-brand" href="#/rak"><b>Mensetsu Navi</b><span class="jp">面接ナビ</span></a>' +
+    return '<header class="appbar"><a class="ab-brand" href="#/rak"><img src="assets/logo/logo-ringkas-putih.svg" width="1697" height="631" alt="Mensetsu Navi 面接ナビ"></a>' +
       '<div class="ab-crumb"><span>' + esc(sub ? sub.textContent : '') + '</span><b>' + esc(ti ? ti.textContent : '') + '</b></div>' +
       '<div class="ab-prog" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="' + n + '" aria-label="Progres belajar"><i style="width:' + n * 10 + '%"></i></div><span class="ab-pn">' + n + '/10</span>' + gtog() +
       '<button class="ab-say" aria-label="Putar audio slide">' + ic('speaker') + '</button>' +
